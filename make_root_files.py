@@ -1,7 +1,16 @@
 #!/usr/bin/env python
 
 import math
+import os
 import ROOT as r
+
+
+def mkdir(path):
+    try:
+        os.makedirs(path)
+    except OSError as e:
+        if e.errno != 17:
+            raise e
 
 
 def combineBinContentAndError(h, binToContainCombo, binToBeKilled):
@@ -131,10 +140,13 @@ def go(inFile="", sFactor=None, sKey="", bins=None, var="", rescaleX=True,
     else:
         tag = var
 
-    f = r.TFile("htt_tt.inputs-Hhh-8TeV_%dx%s_%s_1pb.root" % (sFactor,
-                                                              sKey.replace("H2hh", ""),
-                                                              tag,
-                                                              ), "RECREATE")
+    dir = "root"
+    mkdir(dir)
+    f = r.TFile("%s/htt_tt.inputs-Hhh-8TeV_%dx%s_%s_1pb.root" % (dir,
+                                                                 sFactor,
+                                                                 sKey.replace("H2hh", ""),
+                                                                 tag,
+                                                                 ), "RECREATE")
     f.mkdir("tauTau_2jet2tag").cd()
 
     # scale and write
