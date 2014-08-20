@@ -201,15 +201,17 @@ def loop(inFile="", bdt=None, other=None, wcut=None):
         for var, bins in [("BDT_260", (4, -0.55, 0.25)),
                           ("BDT_300", (4, -0.5, 0.3)),
                           ("BDT_350", (4, -0.45, 0.35)),
+                          ("svMass", (15, 50.0, 200.0)),
                           ]:
-            for sFactor in [0, 1, 2, 4][:1]:
-                go(inFile=inFile,
-                   sFactor=sFactor,
-                   sKey="H2hh260",
-                   bins=bins,
-                   rescaleX=True,
-                   var=var,
-                   )
+            for mInj in [260, 300, 350]:
+                for sFactor in [0, 1, 2, 4]:
+                    go(inFile=inFile,
+                       sFactor=sFactor,
+                       sKey="H2hh%3d" % mInj,
+                       bins=bins,
+                       rescaleX=True,
+                       var=var,
+                       )
     if other:
         go(#inFile="various_vars.root",
            inFile=inFile,
