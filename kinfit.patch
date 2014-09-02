@@ -1,0 +1,43 @@
+diff --git a/compile.sh b/compile.sh
+index 654b692..5acfdca 100755
+--- a/compile.sh
++++ b/compile.sh
+@@ -2,8 +2,11 @@
+ echo "removing old files"
+ rm -f libHHKinFit.so run
+ 
++root=`root-config --cflags --glibs`
++other='-I ./include -g -O0'
++
+ echo "creating shared library"
+-g++ -fPIC -shared src/*.cpp `root-config --cflags --glibs` -I ./include -o libHHKinFit.so
++g++ -fPIC -shared src/*.cpp ${root} ${other} -o libHHKinFit.so
+ 
+ echo "creating executable"
+-g++ main.C `root-config --cflags --glibs` -I ./include -L . -lHHKinFit  -o runHHKinFit
++g++ main.C ${root} ${other} -L . -lHHKinFit  -o runHHKinFit
+diff --git a/src/PSMath.cpp b/src/PSMath.cpp
+index db0f5a4..4ab12f8 100644
+--- a/src/PSMath.cpp
++++ b/src/PSMath.cpp
+@@ -480,12 +480,17 @@ PSMath::PSfitShow (Int_t iloop, Int_t convergence, Int_t iter, Int_t method,
+       Yloop[iloop] = a[1];
+     }
+ 
+-    if (convergence != 0) {
++    //if (convergence != 0) {
++    if (false) {
+ 
+       Double_t *Xiter = iterMarker->GetX ();
+       Double_t *Yiter = iterMarker->GetY ();
+-      loopMarker->DrawPolyMarker (iloop, Xloop, Yloop, "same");
+-      iterMarker->DrawPolyMarker (iter, Xiter, Yiter, "same");
++      if (loopMarker) {
++	loopMarker->DrawPolyMarker (iloop, Xloop, Yloop, "same");
++      }
++      if (iterMarker) {
++	iterMarker->DrawPolyMarker (iter, Xiter, Yiter, "same");
++      }
+ 
+       TMarker *mi = new TMarker (Xiter[0], Yiter[0], 20);
+       mi->SetMarkerColor (kRed);
