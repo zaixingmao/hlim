@@ -51,14 +51,30 @@ def fit(tree):
     return chi2, mh
 
 
-def loop(fileName="", nEventsMax=None):
-    h_chi2 = r.TH1D("h_chi2", ";chi2;events / bin", 120, -10.0, 390.0)
+def loopMulti(fileNames=[], nEventsMax=None):
+    out = {"chi2": [],
+           "m_fit": [],
+           "m_no_fit": [],
+           "m_vs_m": [],
+           }
+
+    for iFile, fileName in enumerate(fileNames):
+        chi2, m, mNo, mm = loop(fileName, nEventsMax, suffix="_%d" % iFile)
+        out["chi2"].append(chi2)
+        out["m_fit"].append(m)
+        out["m_no_fit"].append(mNo)
+        out["m_vs_m"].append(mm)
+    return out
+
+
+def loop(fileName="", nEventsMax=None, suffix=""):
+    h_chi2 = r.TH1D("h_chi2%s" % suffix, ";chi2;events / bin", 120, -10.0, 390.0)
     bins = [120, -10.0, 590.0]
-    h_m = r.TH1D("h_m", ";m_{fit} (GeV);events / bin", *bins)
-    h_fMass = r.TH1D("h_fMass", ";m_{no fit} (GeV);events / bin", *bins)
+    h_m = r.TH1D("h_m%s" % suffix, ";m_{fit} (GeV);events / bin", *bins)
+    h_fMass = r.TH1D("h_fMass%s" % suffix, ";m_{no fit} (GeV);events / bin", *bins)
 
     bins2 = bins + bins
-    h_m_vs_m = r.TH2D("h_m_vs_m", ";m_{fit} (GeV);m_{no fit};events / bin", *bins2)
+    h_m_vs_m = r.TH2D("h_m_vs_m%s" % suffix, ";m_{fit} (GeV);m_{no fit};events / bin", *bins2)
 
     f = r.TFile(fileName)
     tree = f.Get("eventTree")
@@ -95,14 +111,29 @@ def loop(fileName="", nEventsMax=None):
     return [h_chi2, h_m, h_fMass, h_m_vs_m]
 
 
-def pdf(fileName="", histos=[]):
+def pdf(fileName="", histos={}):
     out = "check.pdf"
     can = r.TCanvas()
     
     can.Print(out+"[")
-    for h in histos:
-        #h.SetStats(False)
-        h.Draw()
+    for key, lst in sorted(histos.iteritems()):
+        for i, h in enumerate(lst):
+            if h.ClassName().startswith("TH1"):
+                integral = h.Integral(0, 1 + h.GetNbinsX())
+                if integral:
+                    h.Scale(1.0 / integral)
+                    h.GetYaxis().SetTitle("fraction of events / bin")
+                else:
+                    continue
+
+            h.SetStats(False)
+            h.SetLineColor(1 + i)
+            h.SetMarkerColor(1 + i)
+            if i:
+                h.Draw("same")
+            else:
+                h.Draw()
+
         r.gPad.SetTickx()
         r.gPad.SetTicky()
         can.Print(out)
@@ -112,7 +143,7 @@ def pdf(fileName="", histos=[]):
 if __name__ == "__main__":
     r.gROOT.SetBatch(True)
     r.gErrorIgnoreLevel = 2000
-    r.gStyle.SetOptStat("e")
+    #r.gStyle.SetOptStat("e")
 
     hypo_mh1 = r.std.vector('Int_t')()
     hypo_mh2 = r.std.vector('Int_t')()
@@ -123,7 +154,9 @@ if __name__ == "__main__":
     setup(path="/afs/cern.ch/user/%s/%s/HHKinFit" % (user[0], user),
           lib="libHHKinFit.so",
           )
-    histos = loop(fileName="v2/H2hh260_all.root",
-                  #nEventsMax=200,
-                  )
+    histos = loopMulti(fileNames=["v2/H2hh260_all.root",
+                                  "v2/H2hh300_all.root",
+                                  "v2/H2hh350_all.root"],
+                       #nEventsMax=200,
+                       )
     pdf(fileName="check.pdf", histos=histos)
