@@ -31,7 +31,7 @@ def shift(h):
     combineBinContentAndError(h, 1, 0)  # underflows
 
 
-def histos(fileName="", bins=None, procs=[], var="", rescaleX=False, mJJMin=None, mJJMax=None):
+def histos(fileName="", bins=None, procs=[], var="", rescaleX=False, cut=None):
     assert fileName
     assert bins
 
@@ -52,13 +52,16 @@ def histos(fileName="", bins=None, procs=[], var="", rescaleX=False, mJJMin=None
         h = r.TH1D(proc, proc+";%s;events / bin" % var, *bins)
         h.Sumw2()
         w = "1.0" if proc.startswith("data") else "triggerEff"
-        cut = 'sampleName=="%s"' % proc
-        if mJJMin is not None:
-            cut += " && (%g < mJJ)" % mJJMin
-        if mJJMax is not None:
-            cut += " && (mJJ < %g)" % mJJMax
+        cutString = 'sampleName=="%s"' % proc
+        if cut:
+            assert len(cut) == 3, cut
+            cutVar, cutMin, cutMax = cut
+            if cutMin is not None:
+                cutString += " && (%g < %s)" % (cutMin, cutVar)
+            if cutMax is not None:
+                cutString += " && (%s < %g)" % (cutVar, cutMax)
 
-        tree.Draw("%s>>%s" % (var, proc), '(%s)*(%s)' % (w, cut))
+        tree.Draw("%s>>%s" % (var, proc), '(%s)*(%s)' % (w, cutString))
         h.SetDirectory(0)
         shift(h)
         out[proc] = h
@@ -81,13 +84,14 @@ def applySampleWeights(hs={}, tfile=None):
 
                 #fake signal xs
                 if proc.startswith("H2hh"):
-                    xs *= 1.0e3
-                    if proc.endswith("260"):
-                        xs *= 30. / 442.8
-                    if proc.endswith("300"):
-                        xs *= 30. / 477.
-                    if proc.endswith("350"):
-                        xs *= 30. / 257.1
+                    #xs *= 1.0e3
+                    #if proc.endswith("260"):
+                    #    xs *= 30. / 442.8
+                    #if proc.endswith("300"):
+                    #    xs *= 30. / 477.
+                    #if proc.endswith("350"):
+                    #    xs *= 30. / 257.1
+                    xs = 1.0e3 # 1 pb
                 h.Scale(xs)
                 h.GetZaxis().SetTitle("@ %g fb" % xs)
                 #print proc, xs
@@ -115,7 +119,7 @@ def describe(h):
     print
 
 def go(inFile="", sFactor=None, sKey="", bins=None, var="", rescaleX=True,
-       mJJMin=None, mJJMax=None, lumi=19.0):
+       cut=None, lumi=19.0):
 
     assert type(sFactor) is int, type(sFactor)
     assert bins
@@ -130,23 +134,24 @@ def go(inFile="", sFactor=None, sKey="", bins=None, var="", rescaleX=True,
              "dataOSRelax": "QCD",
              }
 
-    hs = histos(fileName=inFile, procs=procs.keys(), bins=bins, var=var, rescaleX=rescaleX,
-                mJJMin=mJJMin, mJJMax=mJJMax)
+    hs = histos(fileName=inFile, procs=procs.keys(), bins=bins, var=var,
+                rescaleX=rescaleX, cut=cut)
+
     hs["tt_full"].Add(hs["tt_semi"])
     del hs["tt_semi"]
 
-    if var == "BDT":
-        tag = "bdt%s" % inFile.replace("combined_", "").replace(".root", "")
-    else:
-        tag = var
-
     dir = "root"
     mkdir(dir)
-    f = r.TFile("%s/htt_tt.inputs-Hhh-8TeV_%dx%s_%s_1pb.root" % (dir,
-                                                                 sFactor,
-                                                                 sKey.replace("H2hh", ""),
-                                                                 tag,
-                                                                 ), "RECREATE")
+    fileName = "%s/%dx%s_%s" % (dir, sFactor, sKey.replace("H2hh", ""), var)
+    if cut:
+        cutDesc = cut[0]
+        if cut[1] is not None:
+            cutDesc = "%d.%s" % (cut[1], cutDesc)
+        if cut[2] is not None:
+            cutDesc = "%s.%d" % (cutDesc, cut[2])
+        fileName += "_%s" % cutDesc
+
+    f = r.TFile("%s.root" % fileName, "RECREATE")
     f.mkdir("tauTau_2jet2tag").cd()
 
     # scale and write
@@ -191,60 +196,28 @@ def go(inFile="", sFactor=None, sKey="", bins=None, var="", rescaleX=True,
     f.Close()
 
 
-def loop(inFile="", bdt=None, other=None, wcut=None):
-    if bdt:
-        #for inFile, bins in [("combined_260.root", (4, -0.55, 0.25)),
-        #                     ("combined_300.root", (4, -0.5, 0.3)),
-        #                     ("combined_350.root", (4, -0.45, 0.35)),
-        #                     #("combined_350.root", (5, -0.6, 0.4)),
-        #                     ]:
-        for var, bins in [("BDT_260", (4, -0.55, 0.25)),
-                          ("BDT_300", (4, -0.5, 0.3)),
-                          ("BDT_350", (4, -0.45, 0.35)),
-                          ("svMass", (15, 50.0, 200.0)),
-                          ]:
-            for mInj in [260, 300, 350]:
-                for sFactor in [0, 1, 2, 4]:
-                    go(inFile=inFile,
-                       sFactor=sFactor,
-                       sKey="H2hh%3d" % mInj,
-                       bins=bins,
-                       rescaleX=True,
-                       var=var,
-                       )
-    if other:
-        go(#inFile="various_vars.root",
-           inFile=inFile,
-           sFactor=0,
-           sKey="H2hh260",
-           bins=(15, 50.0, 200.0),
-           rescaleX=True,
-           var="svMass",
-           #var="mJJReg",
-           #var="mJJ",
-           )
+def loop(inFile="", specs={}):
+    for spec in specs:
+        for mInj in [260, 300, 350][:1]:
+            for sFactor in [0, 1, 2, 4][:1]:
+                go(inFile=inFile,
+                   sFactor=sFactor,
+                   sKey="H2hh%3d" % mInj,
+                   rescaleX=True,
+                   **spec)
 
-    if wcut:
-        print "ERROR: modify file name"
-        go(inFile=inFile,
-           sFactor=0,
-           sKey="H2hh260",
-           bins=(15, 50.0, 200.0),
-           rescaleX=True,
-           var="svMass",
-           #var="mJJReg",
-           #var="mJJ",
-           mJJMin=100.0,
-           mJJMax=130.0,
-           )
-        
 
 if __name__ == "__main__":
     r.gROOT.SetBatch(True)
     r.gErrorIgnoreLevel = 2000
 
     loop(inFile="combined.root",
-         bdt=True,
-         other=False,
-         wcut=False,
+         specs=[{"var": "BDT_260", "bins": ( 4, -0.55, 0.25), "cut": []},
+                {"var": "BDT_300", "bins": ( 4, -0.50, 0.30), "cut": []},
+                {"var": "BDT_350", "bins": ( 4, -0.45, 0.35), "cut": []},
+                {"var": "svMass",  "bins": (15, 50.0, 200.0), "cut": []},
+                {"var": "svMass",  "bins": (15, 50.0, 200.0), "cut": ("mJJ", 90.0, 140.0)},
+                #{"var": "mJJReg",  "bins": (15, 50.0, 200.0), "cut": []},
+                {"var": "mJJ",     "bins": (15, 50.0, 200.0), "cut": []},
+                ],
          )
