@@ -15,7 +15,7 @@ cd ../HiggsToTauTau
 git checkout MSSM-paper
 
 git clone https://github.com/zaixingmao/hlim setup-Hhh/tt
-patch -p0 setup-Hhh/tt/patches.txt
+patch -p0 <setup-Hhh/tt/patches.txt
 cp -p setup-Hhh/tt/HTT_TT_X_template.C test/templates/
 cp -p setup-Hhh/tt/test.gitignore test/.gitignore
 cd ../..
@@ -25,9 +25,9 @@ scram b -j 4
 
 ####run
 ```bash
-cd CMSSW_7_1_5/src
+cd CMSSW_7_1_5/src/HiggsAnalysis/HiggsToTauTau/setup-Hhh/tt
 cmsenv
-cd HiggsAnalysis/HiggsToTauTau/setup-Hhh/tt
+
 ./make_root_files.py
 ./go.py --file=root/xx.root --full
 ```
