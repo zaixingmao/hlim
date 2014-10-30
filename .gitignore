@@ -1,2 +1,7 @@
 *~
 root
+*.root
+*.eps
+*.pdf
+*.png
+*.tex
