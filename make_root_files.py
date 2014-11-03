@@ -1,8 +1,19 @@
 #!/usr/bin/env python
 
 import math
+import optparse
 import os
 import ROOT as r
+
+
+
+def inputFile():
+    parser = optparse.OptionParser("usage: %prog xyz.root")
+    options, args = parser.parse_args()
+    if len(args) != 1 or not args[0].endswith(".root"):
+        parser.print_help()
+        exit()
+    return args[0]
 
 
 def mkdir(path):
@@ -261,7 +272,7 @@ def specs3():
                       #("fMass",       ( 7, 200.0, 480.0)),
                       #("fMass",       ( 6, 250.0, 490.0)),
                       #("fMassKinFit", ( 6, 250.0, 490.0)),
-                      #("chi2KinFit",  (11, -10.0, 100.0)),
+                      #("chi2KinFit",  (22, -10.0, 100.0)),
                       ("BDT_260_2", (26, -1.0, 0.30)),
                       ("BDT_300_2", (14, -1.0, 0.4)),
                       ("BDT_350_2", (14, -1.0, 0.4)),
@@ -281,17 +292,19 @@ def specs3():
 
 
 def specs4():
-    twoCuts = {"mJJ": (90.0, 140.0),
-               "svMass": (90.0, 140.0),
-               }
+    cuts = {"mJJ": (90.0, 140.0),
+            "svMass": (90.0, 140.0),
+            #"CSVJ2":  (0.679, None),
+            #"CSVJ2":  (0.244, 0.679),
+            }
 
     return [#{"var": "fMass",       "bins": ( 5, 250.0, 450.0), "cuts": {"BDT_300_3": (0.0, None)}, },
             #{"var": "fMassKinFit", "bins": ( 5, 250.0, 450.0), "cuts": {"BDT_300_3": (0.0, None)}, },
             #{"var": "fMass",       "bins": ( 4, 250.0, 410.0), "cuts": {"BDT_300_3": (0.2, None)}, },
             #{"var": "fMassKinFit", "bins": ( 4, 250.0, 410.0), "cuts": {"BDT_300_3": (0.2, None)}, },
-            {"var": "fMass",       "bins": ( 4, 250.0, 410.0), "cuts": twoCuts},
-            {"var": "fMassKinFit", "bins": ( 4, 250.0, 410.0), "cuts": twoCuts},
-            #{"var": "chi2KinFit", "bins":  (4, -20.0, 60.0), "cuts": twoCuts},
+            #{"var": "fMass",       "bins": ( 4, 250.0, 410.0), "cuts": cuts},
+            {"var": "fMassKinFit", "bins": ( 4, 250.0, 410.0), "cuts": cuts},
+            #{"var": "chi2KinFit", "bins":  (4, -20.0, 60.0), "cuts": cuts},
             ]
 
 
@@ -310,6 +323,4 @@ if __name__ == "__main__":
     r.gROOT.SetBatch(True)
     r.gErrorIgnoreLevel = 2000
 
-    loop(inFile="combined_newTraining.root",
-         specs=specs5(),
-         )
+    loop(inFile=inputFile(), specs=specs3())
