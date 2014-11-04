@@ -327,10 +327,11 @@ def specs3():
 
 
 def specs4():
-    cuts = {"mJJ": (90.0, 140.0),
-            "svMass": (90.0, 140.0),
+    cuts = {#"mJJ": (90.0, 140.0),
+            #"svMass": (90.0, 140.0),
             #"CSVJ2":  (0.679, None),
             #"CSVJ2":  (0.244, 0.679),
+            "chi2KinFit": (0.0, 10.0),
             }
 
     return [#{"var": "fMass",       "bins": ( 5, 250.0, 450.0), "cuts": {"BDT_300_3": (0.0, None)}, },
