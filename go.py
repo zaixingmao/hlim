@@ -14,6 +14,12 @@ def opts():
                       help="list of masses",
                       )
 
+    parser.add_option("--categories",
+                      dest="categories",
+                      default="1 2",
+                      help="list of categories",
+                      )
+
     parser.add_option("--cards",
                       dest="cards",
                       default=False,
@@ -77,7 +83,7 @@ if __name__ == "__main__":
     # rl.txt
     # https://twiki.cern.ch/twiki/bin/viewauth/CMS/SWGuideHiggs2TauLimits
     options = opts()
-    common = "--channels=tt --Hhh-categories-tt=2 --periods=8TeV %s" % options.masses
+    common = "--channels=tt --Hhh-categories-tt='%s' --periods=8TeV %s" % (options.categories, options.masses)
 
     masses = options.masses.split()
 
