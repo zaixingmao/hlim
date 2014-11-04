@@ -357,6 +357,6 @@ if __name__ == "__main__":
     r.gROOT.SetBatch(True)
     r.gErrorIgnoreLevel = 2000
 
-    from masses import spin0 as masses
+    from masses import masses_spin0 as masses
 
     loop(inFile=inputFile(), specs=specs4())
