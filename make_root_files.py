@@ -127,6 +127,7 @@ def describe(h):
         print s
     print
 
+
 def cutDesc(cuts):
     descs = []
     for cutVar, (cutMin, cutMax) in sorted(cuts.iteritems()):
@@ -137,6 +138,7 @@ def cutDesc(cuts):
             cutDesc = "%s.%.1f" % (cutDesc, cutMax)
         descs.append(cutDesc)
     return "_".join(descs)
+
 
 def go(inFile="", sFactor=None, sKey="", bins=None, var="", rescaleX=True,
        cuts=None, lumi=19.0):
@@ -154,11 +156,24 @@ def go(inFile="", sFactor=None, sKey="", bins=None, var="", rescaleX=True,
     for m in masses:
         procs["H2hh%3d" % m] = "ggHTohh%3d" % m
 
-    hs = histos(fileName=inFile, procs=procs.keys(), bins=bins,
-                var=var, rescaleX=rescaleX, cuts=cuts)
+    kargs = {"procs": procs.keys(),
+             "bins": bins,
+             "var": var,
+             "cuts": cuts,
+             "rescaleX": rescaleX,
+             "fileName": inFile,
+             }
 
-    hs["tt_full"].Add(hs["tt_semi"])
-    del hs["tt_semi"]
+    # CSVJ2 is a special key (used for categorization)
+    assert "CSVJ2" not in cuts, cuts
+    cuts["CSVJ2"] = (0.679, None)
+    hs2T = histos(**kargs)
+
+    cuts["CSVJ2"] = (0.244, 0.679)
+    hs1T = histos(**kargs)
+
+    del cuts["CSVJ2"]
+    # end special treatment
 
     dir = "root"
     mkdir(dir)
@@ -168,8 +183,17 @@ def go(inFile="", sFactor=None, sKey="", bins=None, var="", rescaleX=True,
         fileName += "_%s" % cutDesc(cuts)
 
     f = r.TFile("%s.root" % fileName, "RECREATE")
-    f.mkdir("tauTau_2jet2tag").cd()
+    for tag, hs in {"tauTau_2jet2tag": hs2T,
+                    "tauTau_2jet1tag": hs1T,
+                    }.iteritems():
+        hs["tt_full"].Add(hs["tt_semi"])
+        del hs["tt_semi"]
+        f.mkdir(tag).cd()
+        oneTag(hs, procs, lumi, sKey, sFactor)
+    f.Close()
 
+
+def oneTag(hs, procs, lumi, sKey, sFactor):
     # scale and write
     for (proc, h) in hs.iteritems():
         if not proc.startswith("data"):
@@ -177,7 +201,7 @@ def go(inFile="", sFactor=None, sKey="", bins=None, var="", rescaleX=True,
         #h.Print("all")
         h.Write(procs[proc])
 
-    #print "OSRelax:"
+    #print tag, "OSRelax:"
     #hs["dataOSRelax"].Print("all")
 
     # make a fake dataset
@@ -208,8 +232,6 @@ def go(inFile="", sFactor=None, sKey="", bins=None, var="", rescaleX=True,
 
     #d.Print("all")
     d.Write()
-
-    f.Close()
 
 
 def loop(inFile="", specs={}):
@@ -337,4 +359,4 @@ if __name__ == "__main__":
 
     from masses import spin0 as masses
 
-    loop(inFile=inputFile(), specs=specs3()+specs4())
+    loop(inFile=inputFile(), specs=specs4())
