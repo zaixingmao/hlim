@@ -145,14 +145,14 @@ def go(inFile="", sFactor=None, sKey="", bins=None, var="", rescaleX=True,
     assert bins
     assert var
 
-    procs = {"H2hh260": "ggHTohh260",
-             "H2hh300": "ggHTohh300",
-             "H2hh350": "ggHTohh350",
-             "tt_full": "TT",
+    procs = {"tt_full": "TT",
              "tt_semi": "tt_semi",
              "ZZ": "VV",
              "dataOSRelax": "QCD",
              }
+
+    for m in masses:
+        procs["H2hh%3d" % m] = "ggHTohh%3d" % m
 
     hs = histos(fileName=inFile, procs=procs.keys(), bins=bins,
                 var=var, rescaleX=rescaleX, cuts=cuts)
@@ -214,7 +214,7 @@ def go(inFile="", sFactor=None, sKey="", bins=None, var="", rescaleX=True,
 
 def loop(inFile="", specs={}):
     for spec in specs:
-        for mInj in [260, 300, 350][:1]:
+        for mInj in masses[:1]:
             for sFactor in [0, 1, 2, 4][:1]:
                 go(inFile=inFile,
                    sFactor=sFactor,
@@ -279,12 +279,21 @@ def specs3():
                       #("BDT_260_3Vars", (14, -1.0, 0.4)),
                       #("BDT_300_3Vars", (14, -1.0, 0.4)),
                       #("BDT_350_3Vars", (14, -1.0, 0.4)),
-                      ("BDT_260_8Vars", (10, -0.6, 0.4)),
-                      ("BDT_300_8Vars", (10, -0.6, 0.4)),
-                      ("BDT_350_8Vars", (10, -0.6, 0.4)),
-                      #("BDT_260_18Vars", (8, -0.6, 0.2)),
-                      #("BDT_300_18Vars", (8, -0.6, 0.2)),
-                      #("BDT_350_18Vars", (9, -0.6, 0.3)),
+                      #("BDT_260_8Vars", (10, -0.6, 0.4)),
+                      #("BDT_300_8Vars", (10, -0.6, 0.4)),
+                      #("BDT_350_8Vars", (10, -0.6, 0.4)),
+                      ("BDT_260_8Vars", (8, -0.6, 0.2)),
+                      ("BDT_270_8Vars", (8, -0.6, 0.2)),
+                      ("BDT_280_8Vars", (8, -0.6, 0.2)),
+                      ("BDT_290_8Vars", (8, -0.6, 0.2)),
+                      ("BDT_300_8Vars", (8, -0.6, 0.2)),
+                      ("BDT_310_8Vars", (8, -0.6, 0.2)),
+                      ("BDT_320_8Vars", (8, -0.6, 0.2)),
+                      ("BDT_330_8Vars", (8, -0.6, 0.2)),
+                      ("BDT_340_8Vars", (8, -0.6, 0.2)),
+                      ("BDT_350_8Vars", (9, -0.6, 0.3)),
+                      ("BDT_500_8Vars", (7, -0.6, 0.1)),
+                      ("BDT_700_8Vars", (6, -0.6, 0.0)),
                       ]:
         for cut in [{},
                     #{"mJJ": (90.0, 140.0)},
@@ -326,4 +335,6 @@ if __name__ == "__main__":
     r.gROOT.SetBatch(True)
     r.gErrorIgnoreLevel = 2000
 
-    loop(inFile=inputFile(), specs=specs3())
+    from masses import spin0 as masses
+
+    loop(inFile=inputFile(), specs=specs3()+specs4())
