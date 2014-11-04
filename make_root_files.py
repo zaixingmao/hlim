@@ -5,6 +5,7 @@ import optparse
 import os
 import ROOT as r
 
+from cfg import masses_spin0 as masses
 
 
 def inputFile():
@@ -112,8 +113,8 @@ def applySampleWeights(hs={}, tfile=None):
                 h.Scale(1.0 / content)
 
 
-def describe(h):
-    print h.GetXaxis().GetTitle()
+def describe(h, prefix):
+    print "%s: %s" % (prefix, h.GetXaxis().GetTitle())
     headers = "bin       x         cont  +-   err    (   rel)"
     print headers
     print "-" * len(headers)
@@ -189,11 +190,11 @@ def go(inFile="", sFactor=None, sKey="", bins=None, var="", rescaleX=True,
         hs["tt_full"].Add(hs["tt_semi"])
         del hs["tt_semi"]
         f.mkdir(tag).cd()
-        oneTag(hs, procs, lumi, sKey, sFactor)
+        oneTag(tag, hs, procs, lumi, sKey, sFactor)
     f.Close()
 
 
-def oneTag(hs, procs, lumi, sKey, sFactor):
+def oneTag(tag, hs, procs, lumi, sKey, sFactor):
     # scale and write
     for (proc, h) in hs.iteritems():
         if not proc.startswith("data"):
@@ -209,7 +210,7 @@ def oneTag(hs, procs, lumi, sKey, sFactor):
     d.Add(hs["ZZ"])
     d.Add(hs["dataOSRelax"])
 
-    describe(d)
+    describe(d, tag)
     zTitle = "Observed (=  <bkg>"
     if sFactor:
         d.Add(hs[sKey], sFactor)
@@ -356,7 +357,5 @@ def specs5():
 if __name__ == "__main__":
     r.gROOT.SetBatch(True)
     r.gErrorIgnoreLevel = 2000
-
-    from masses import masses_spin0 as masses
 
     loop(inFile=inputFile(), specs=specs4())
