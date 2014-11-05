@@ -12,6 +12,7 @@ cd ../..
 
 git clone https://github.com/cms-analysis/HiggsAnalysis-HiggsToTauTau HiggsAnalysis/HiggsToTauTau
 cd HiggsAnalysis/HiggsToTauTau
+source environment.sh
 
 git clone https://github.com/zaixingmao/hlim
 git apply hlim/patches.txt
