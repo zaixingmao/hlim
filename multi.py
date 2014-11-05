@@ -36,7 +36,7 @@ for var in vars:
     os.system("mkdir %s" % var)
     os.system(" ".join(["cd %s &&" % workDir,
                         "./go.py",
-                        "--file=root/0x260_%s.root" % var,
+                        "--file=root/%s.root" % var,
                         "--full",
                         "--masses='%s'" % masses,
                         "--categories='%s'" % cats,
