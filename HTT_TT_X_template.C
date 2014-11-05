@@ -220,9 +220,9 @@ HTT_TT_X(bool scaled=false, bool log=true, float min=0.1, float max=-1., string 
   TH1F* ggH    = refill((TH1F*)input2->Get(TString::Format("%s/ggH$MA" , directory)), "ggH"); InitSignal(ggH); ggH->Scale($TANB);
   TH1F* bbH    = refill((TH1F*)input2->Get(TString::Format("%s/bbH$MA" , directory)), "bbH"); InitSignal(bbH); bbH->Scale($TANB);
 #else
-  TH1F* ggH    = refill((TH1F*)input->Get(TString::Format("%s/ggHTohh260"  , directory)), "ggHTohh260"); InitSignal(ggH); ggH->Scale(SIGNAL_SCALE);
-  TH1F* qqH    = refill((TH1F*)input->Get(TString::Format("%s/ggHTohh300"  , directory)), "ggHTohh300"); InitSignal(qqH); qqH->Scale(SIGNAL_SCALE);
-  TH1F* VH     = refill((TH1F*)input->Get(TString::Format("%s/ggHTohh350"   , directory)), "ggHTohh350"); InitSignal(VH ); VH ->Scale(SIGNAL_SCALE);
+  TH1F* ggH    = refill((TH1F*)input->Get(TString::Format("%s/ggHTohhTo2Tau2B260"  , directory)), "ggHTohh260"); InitSignal(ggH); ggH->Scale(SIGNAL_SCALE);
+  TH1F* qqH    = refill((TH1F*)input->Get(TString::Format("%s/ggHTohhTo2Tau2B300"  , directory)), "ggHTohh300"); InitSignal(qqH); qqH->Scale(SIGNAL_SCALE);
+  TH1F* VH     = refill((TH1F*)input->Get(TString::Format("%s/ggHTohhTo2Tau2B350"   , directory)), "ggHTohh350"); InitSignal(VH ); VH ->Scale(SIGNAL_SCALE);
 #endif
 #ifdef ASIMOV
   TH1F* data   = refill((TH1F*)input->Get(TString::Format("%s/data_obs_asimov", directory)), "data", true);

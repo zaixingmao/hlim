@@ -100,7 +100,7 @@ if __name__ == "__main__":
         if e.errno != 2:
             print e
             sys.exit(1)
-    os.system("ln -s %s %s" % (options.file, link))
+    os.system("ln -s %s %s" % (os.path.abspath(options.file), link))
 
     if options.cards:
         os.system("rm -rf %s" % dc)
@@ -163,7 +163,7 @@ if __name__ == "__main__":
             os.system("cd %s && python mlfit_and_copy.py --skip %s" % (test, lim1))
             #python mlfit_and_copy.py -a mssm --skip --mA [160,350,500] --tanb [8,20,40] $CMSSW_BASE/src/LIMITS-yymmdd-mssm/bbb-mlfit/cmb/[160,350,500]
 
-            config = "%s/setup-Hhh/tt/limits.config-sm-tt-only" % base
+            config = "%s/hlim/limits.config-sm-tt-only" % base
             os.system("cd %s && python produce_macros.py --config %s" % (test, config))
             #python produce_macros.py --config $CMSSW_BASE/src/HiggsAnalysis/HiggsToTauTau/data/limits.config-sm-yymmdd[-unblinded]
             #python produce_macros.py -a mssm --mA [160,350,500] --tanb [8,20,40] --hww-signal --config $CMSSW_BASE/src/HiggsAnalysis/HiggsToTauTau/data/limits.config-mssm-yymmdd

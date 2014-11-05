@@ -36,15 +36,15 @@ for var in vars:
     os.system("mkdir %s" % var)
     os.system(" ".join(["cd %s &&" % workDir,
                         "./go.py",
-                        "--file=root/0x260_%s.root" % var,
+                        "--file=root/%s.root" % var,
                         "--full",
                         "--masses='%s'" % masses,
                         "--categories='%s'" % cats,
                         ]))
 
-    files = ["", "tt_ggHTohh-limit.pdf", "tt_ggHTohh-limit.txt"]
+    files = ["tt_ggHTohh-limit.pdf", "tt_ggHTohh-limit.txt"]
     for iCat in categories:
-        files.append("test/tauTau_2jet%dtag_prefit_8TeV_LIN.pdf" % iCat)
+        files.append("../test/tauTau_2jet%dtag_prefit_8TeV_LIN.pdf" % iCat)
 
-    files = (" %s/" % workDir).join(files)
-    os.system("cp -p %s %s/" % (files, var))
+    for f in files:
+        os.system("cp -p %s/%s %s/" % (workDir, f, var))

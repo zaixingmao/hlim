@@ -141,6 +141,18 @@ def cutDesc(cuts):
     return "_".join(descs)
 
 
+def outFileName(sFactor, sKey, var, cuts):
+    stem = "root/"
+    mkdir(stem)
+
+    if sFactor:
+        stem += "%dx%s" % (sFactor, sKey.replace("H2hh", ""))
+    stem += var
+    if cutDesc(cuts):
+        stem += "_%s" % cutDesc(cuts)
+    return "%s.root" % stem
+
+
 def go(inFile="", sFactor=None, sKey="", bins=None, var="", rescaleX=True,
        cuts=None, lumi=19.0):
 
@@ -154,8 +166,18 @@ def go(inFile="", sFactor=None, sKey="", bins=None, var="", rescaleX=True,
              "dataOSRelax": "QCD",
              }
 
+    fakeBkgs = ["W", "ZTT"]
+    print "FIXME: include", fakeBkgs
+    for bkg in fakeBkgs:
+        procs[bkg] = bkg
+
+    fakeSigs = ["ggAToZhToLLTauTau", "ggAToZhToLLBB", "bbH"]
+    print "FIXME: include", fakeSigs
     for m in masses:
-        procs["H2hh%3d" % m] = "ggHTohh%3d" % m
+        procs["H2hh%3d" % m] = "ggHTohhTo2Tau2B%3d" % m
+        for stem in fakeSigs:
+            sig = "%s%3d" % (stem, m)
+            procs[sig] = sig
 
     kargs = {"procs": procs.keys(),
              "bins": bins,
@@ -176,14 +198,9 @@ def go(inFile="", sFactor=None, sKey="", bins=None, var="", rescaleX=True,
     del cuts["CSVJ2"]
     # end special treatment
 
-    dir = "root"
-    mkdir(dir)
-    fileName = "%s/%dx%s_%s" % (dir, sFactor, sKey.replace("H2hh", ""), var)
-
-    if cutDesc(cuts):
-        fileName += "_%s" % cutDesc(cuts)
-
-    f = r.TFile("%s.root" % fileName, "RECREATE")
+    print "FIXME: include variations"
+    print
+    f = r.TFile(outFileName(sFactor, sKey, var, cuts), "RECREATE")
     for tag, hs in {"tauTau_2jet2tag": hs2T,
                     "tauTau_2jet1tag": hs1T,
                     }.iteritems():
@@ -200,7 +217,11 @@ def oneTag(tag, hs, procs, lumi, sKey, sFactor):
         if not proc.startswith("data"):
             h.Scale(lumi)
         #h.Print("all")
-        h.Write(procs[proc])
+        nom = procs[proc]
+        h.Write(nom)
+        # fake
+        for var in ["Up", "Down"]:
+            h.Write("%s_CMS_scale_t_tautau_8TeV%s" % (nom, var))
 
     #print tag, "OSRelax:"
     #hs["dataOSRelax"].Print("all")

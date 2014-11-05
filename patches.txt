@@ -26,31 +26,4 @@ index c230f2e..8c099e6 100644
  
  void SetStyle()
  {
-diff --git a/test/produce_macros.py b/test/produce_macros.py
-index e21b17a..4bab06e 100644
---- a/test/produce_macros.py
-+++ b/test/produce_macros.py
-@@ -59,6 +59,7 @@ class Analysis:
-          self.template_fname = template_fname
-          self.output_fname   = output_fname
-          self.histfile       = histfile 
-+         #print histfile
-          self.category       = category
-          self.analysis       = analysis
-          self.scale_output   = {}
-@@ -143,11 +144,14 @@ class Analysis:
-                  line = line.replace("$ERROR_LEGEND", '')
-              word_arr=line.split("\n")
-              uncertainties_set=[]
-+
-              for process_name in self.process_weight.keys():
-                  if self.signal_process(process_name) :
--                     cand_str = "${%s}%s" % (options.analysis.upper() , process_name)
-+                     #cand_str = "${%s}%s" % (options.analysis.upper() , process_name)
-+                     cand_str = "$%s" % process_name
-                  else :
-                      cand_str = "$%s" % process_name
-+                 #print cand_str
-                  output_cand = ""
-                  if line.strip().startswith(cand_str):
-                      if options.verbose :
+
