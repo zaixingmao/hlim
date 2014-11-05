@@ -6,3 +6,5 @@
 *.root
 datacards
 fitresults
+htt_tt_*.C
+scales_tt_*.py
