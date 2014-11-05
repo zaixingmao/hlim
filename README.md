@@ -11,13 +11,12 @@ git checkout slc6-root5.34.17
 cd ../..
 
 git clone https://github.com/cms-analysis/HiggsAnalysis-HiggsToTauTau HiggsAnalysis/HiggsToTauTau
-cd ../HiggsToTauTau
-git checkout MSSM-paper
+cd HiggsAnalysis/HiggsToTauTau
 
-git clone https://github.com/zaixingmao/hlim setup-Hhh/tt
-patch -p0 <setup-Hhh/tt/patches.txt
-cp -p setup-Hhh/tt/HTT_TT_X_template.C test/templates/
-cp -p setup-Hhh/tt/test.gitignore test/.gitignore
+git clone https://github.com/zaixingmao/hlim
+git apply hlim/patches.txt
+cp -p hlim/HTT_TT_X_template.C test/templates/
+cp -p hlim/test.gitignore test/.gitignore
 cd ../..
 
 scram b -j 4
@@ -25,9 +24,9 @@ scram b -j 4
 
 ####run
 ```bash
-cd CMSSW_7_1_5/src/HiggsAnalysis/HiggsToTauTau/setup-Hhh/tt
+cd CMSSW_7_1_5/src/HiggsAnalysis/HiggsToTauTau/hlim
 cmsenv
 
-./make_root_files.py
-./go.py --file=root/xx.root --full
+./make_root_files.py xyz.root
+./go.py --file=root/a.root --full
 ```
