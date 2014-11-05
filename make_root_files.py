@@ -141,6 +141,18 @@ def cutDesc(cuts):
     return "_".join(descs)
 
 
+def outFileName(sFactor, sKey, var, cuts):
+    stem = "root/"
+    mkdir(stem)
+
+    if sFactor:
+        stem += "%dx%s" % (sFactor, sKey.replace("H2hh", ""))
+    stem += var
+    if cutDesc(cuts):
+        stem += "_%s" % cutDesc(cuts)
+    return "%s.root" % stem
+
+
 def go(inFile="", sFactor=None, sKey="", bins=None, var="", rescaleX=True,
        cuts=None, lumi=19.0):
 
@@ -176,14 +188,7 @@ def go(inFile="", sFactor=None, sKey="", bins=None, var="", rescaleX=True,
     del cuts["CSVJ2"]
     # end special treatment
 
-    dir = "root"
-    mkdir(dir)
-    fileName = "%s/%dx%s_%s" % (dir, sFactor, sKey.replace("H2hh", ""), var)
-
-    if cutDesc(cuts):
-        fileName += "_%s" % cutDesc(cuts)
-
-    f = r.TFile("%s.root" % fileName, "RECREATE")
+    f = r.TFile(outFileName(sFactor, sKey, var, cuts), "RECREATE")
     for tag, hs in {"tauTau_2jet2tag": hs2T,
                     "tauTau_2jet1tag": hs1T,
                     }.iteritems():
