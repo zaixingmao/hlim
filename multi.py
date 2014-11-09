@@ -41,6 +41,7 @@ for var in vars:
                         "./go.py",
                         "--file=root/%s.root" % var,
                         "--full",
+                        "--postfitonlyone",
                         "--masses='%s'" % masses,
                         "--categories='%s'" % cats,
                         ]))
