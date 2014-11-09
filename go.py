@@ -44,6 +44,12 @@ def opts():
                       action="store_true",
                       help="make post-fit plots")
 
+    parser.add_option("--postfitonlyone",
+                      dest="postfitonlyone",
+                      default=False,
+                      action="store_true",
+                      help="make post-fit plots only at first mass point")
+
     parser.add_option("--alsoObs",
                       dest="alsoObs",
                       default=False,
@@ -157,7 +163,7 @@ if __name__ == "__main__":
         #                    ]))
 
     if options.postfit:
-        for mass in masses:
+        for mass in (masses[:1] if options.postfitonlyone else masses):
             lim1 = "%s/tt/%s" % (lim, mass)
             test = "%s/test" % base
             os.system("cd %s && python mlfit_and_copy.py --skip %s" % (test, lim1))
