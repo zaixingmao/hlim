@@ -84,6 +84,15 @@ def opts():
 
     return options 
 
+def symlink(real="", link=""):
+    try:
+        os.remove(link)
+    except OSError as e:
+        if e.errno != 2:
+            print e
+            sys.exit(1)
+    os.system("ln -s %s %s" % (real, link))
+
 
 if __name__ == "__main__":
     # rl.txt
@@ -98,15 +107,14 @@ if __name__ == "__main__":
     lim = "%s/LIMITS/" % base
     inDir = "%s/setup-Hhh" % base
 
-    #remove and create link
-    link = "%s/tt/htt_tt.inputs-Hhh-8TeV.root" % inDir
-    try:
-        os.remove(link)
-    except OSError as e:
-        if e.errno != 2:
-            print e
-            sys.exit(1)
-    os.system("ln -s %s %s" % (os.path.abspath(options.file), link))
+    #remove and create links
+    fName = "htt_tt.inputs-Hhh-8TeV.root"
+    auxLoc = "%s/auxiliaries/shapes/Brown/%s" % (base, fName)
+    for real, link in [(os.path.abspath(options.file), auxLoc),
+                       (auxLoc, "%s/tt/%s" % (inDir, fName)),
+                       ]:
+        symlink(real=real, link=link)
+
 
     if options.cards:
         os.system("rm -rf %s" % dc)
