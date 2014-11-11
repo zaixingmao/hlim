@@ -43,7 +43,15 @@ def shift(h):
     combineBinContentAndError(h, 1, 0)  # underflows
 
 
-def histos(fileName="", bins=None, procs=[], var="", rescaleX=False, cuts={}):
+def isData(proc):
+    return proc.startswith("data")
+
+
+def isAntiIsoData(proc):
+    return proc == "dataOSRelax"
+
+
+def histos(fileName="", bins=None, procs=[], var="", rescaleX=False, cuts={}, category=""):
     assert fileName
     assert bins
 
@@ -63,8 +71,11 @@ def histos(fileName="", bins=None, procs=[], var="", rescaleX=False, cuts={}):
     for proc in procs:
         h = r.TH1D(proc, proc+";%s;events / bin" % var, *bins)
         h.Sumw2()
-        w = "1.0" if proc.startswith("data") else "triggerEff"
-        cutString = 'sampleName=="%s"' % proc
+        w = "1.0" if isData(proc) else "triggerEff"
+        cutString = '(sampleName=="%s")' % proc
+        if category:
+            cutString += ' && (Category=="%s")' % category
+
         for cutVar, (cutMin, cutMax) in sorted(cuts.iteritems()):
             if cutMin is not None:
                 cutString += " && (%g < %s)" % (cutMin, cutVar)
@@ -75,6 +86,8 @@ def histos(fileName="", bins=None, procs=[], var="", rescaleX=False, cuts={}):
         h.SetDirectory(0)
         shift(h)
         out[proc] = h
+        if isAntiIsoData(proc):
+            applyLooseToTight(h, f, category)
 
     applySampleWeights(out, f)
     f.Close()
@@ -88,19 +101,13 @@ def applySampleWeights(hs={}, tfile=None):
     xDenom = denom.GetXaxis()
 
     for proc, h in hs.iteritems():
+        if isData(proc):
+            continue
+
         for iBin in range(1, 1 + numer.GetNbinsX()):
             if xNumer.GetBinLabel(iBin) == proc:
                 xs = numer.GetBinContent(iBin)
-
-                #fake signal xs
                 if proc.startswith("H2hh"):
-                    #xs *= 1.0e3
-                    #if proc.endswith("260"):
-                    #    xs *= 30. / 442.8
-                    #if proc.endswith("300"):
-                    #    xs *= 30. / 477.
-                    #if proc.endswith("350"):
-                    #    xs *= 30. / 257.1
                     xs = 1.0e3 # 1 pb
                 h.Scale(xs)
                 h.GetZaxis().SetTitle("@ %g fb" % xs)
@@ -111,6 +118,12 @@ def applySampleWeights(hs={}, tfile=None):
                 content = denom.GetBinContent(iBin)
                 assert content, "%s_%d" % (proc, iBin)
                 h.Scale(1.0 / content)
+
+
+def applyLooseToTight(h=None, tfile=None, category=""):
+    hFactor = tfile.Get("L_to_T_%s" % category)
+    factor = hFactor.GetBinContent(1)
+    h.Scale(factor)
 
 
 def describe(h, prefix):
@@ -187,23 +200,13 @@ def go(inFile="", sFactor=None, sKey="", bins=None, var="", rescaleX=True,
              "fileName": inFile,
              }
 
-    # CSVJ2 is a special key (used for categorization)
-    assert "CSVJ2" not in cuts, cuts
-    cuts["CSVJ2"] = (0.679, None)
-    hs2T = histos(**kargs)
-
-    cuts["CSVJ2"] = (0.244, 0.679)
-    hs1T = histos(**kargs)
-
-    del cuts["CSVJ2"]
-    # end special treatment
-
     print "FIXME: include variations"
     print
     f = r.TFile(outFileName(sFactor, sKey, var, cuts), "RECREATE")
-    for tag, hs in {"tauTau_2jet2tag": hs2T,
-                    "tauTau_2jet1tag": hs1T,
-                    }.iteritems():
+    for category, tag in {"2M": "tauTau_2jet2tag",
+                          #"1M": "tauTau_2jet1tag",
+                          }.iteritems():
+        hs = histos(category=category, **kargs)
         hs["tt_full"].Add(hs["tt_semi"])
         del hs["tt_semi"]
         f.mkdir(tag).cd()
@@ -214,7 +217,7 @@ def go(inFile="", sFactor=None, sKey="", bins=None, var="", rescaleX=True,
 def oneTag(tag, hs, procs, lumi, sKey, sFactor):
     # scale and write
     for (proc, h) in hs.iteritems():
-        if not proc.startswith("data"):
+        if not isData(proc):
             h.Scale(lumi)
         #h.Print("all")
         nom = procs[proc]
@@ -222,9 +225,6 @@ def oneTag(tag, hs, procs, lumi, sKey, sFactor):
         # fake
         for var in ["Up", "Down"]:
             h.Write("%s_CMS_scale_t_tautau_8TeV%s" % (nom, var))
-
-    #print tag, "OSRelax:"
-    #hs["dataOSRelax"].Print("all")
 
     # make a fake dataset
     d = hs["tt_full"].Clone("data_obs")
@@ -360,4 +360,4 @@ if __name__ == "__main__":
     r.gROOT.SetBatch(True)
     r.gErrorIgnoreLevel = 2000
 
-    loop(inFile=inputFile(), specs=specs3()+specs4())
+    loop(inFile=inputFile(), specs=specs4())
