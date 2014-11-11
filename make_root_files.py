@@ -195,6 +195,11 @@ def go(inFile="", sFactor=None, sKey="", bins=None, var="", rescaleX=True,
              "dataOSRelax": "QCD",
              }
 
+    merge =  {"tt_full": ["tt_semi"],
+              "DY1JetsToLL": ["DY2JetsToLL", "DY3JetsToLL"],
+              "W1JetsToLNu": ["W2JetsToLNu", "W3JetsToLNu"],
+              }
+
     fakeSigs = ["ggAToZhToLLTauTau", "ggAToZhToLLBB", "bbH"]
     print "FIXME: include", fakeSigs
     for m in masses:
@@ -219,10 +224,7 @@ def go(inFile="", sFactor=None, sKey="", bins=None, var="", rescaleX=True,
         hs = histos(category=category, **kargs)
         print
         print "cuts:", cuts
-        for target, sources in {"tt_full": ["tt_semi"],
-                                "DY1JetsToLL": ["DY2JetsToLL", "DY3JetsToLL"],
-                                "W1JetsToLNu": ["W2JetsToLNu", "W3JetsToLNu"],
-                                }.iteritems():
+        for target, sources in merge.iteritems():
             for source in sources:
                 hs[target].Add(hs[source])
                 del hs[source]
