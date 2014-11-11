@@ -106,14 +106,15 @@ if __name__ == "__main__":
 
     masses = options.masses.split()
 
-    base = "%s/src/HiggsAnalysis/HiggsToTauTau" % os.environ["CMSSW_BASE"]
+    cmssw_src = "%s/src" % os.environ["CMSSW_BASE"]
+    base = "%s/HiggsAnalysis/HiggsToTauTau" % cmssw_src
     dc = "%s/dc" % base
     lim = "%s/LIMITS/" % base
     inDir = "%s/setup-Hhh" % base
 
     # remove and create file and link
     fName = "htt_tt.inputs-Hhh-8TeV.root"
-    auxLoc = "%s/auxiliaries/shapes/Brown/%s" % (base, fName)
+    auxLoc = "%s/auxiliaries/shapes/Brown/%s" % (cmssw_src, fName)
     copy(src=os.path.abspath(options.file), dest=auxLoc, link=False)
     copy(src=auxLoc, dest="%s/tt/%s" % (inDir, fName), link=True)
 
