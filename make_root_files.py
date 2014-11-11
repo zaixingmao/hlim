@@ -128,9 +128,11 @@ def applySampleWeights(hs={}, tfile=None):
 
 
 def applyLooseToTight(h=None, tfile=None, category=""):
+    factors = {"2M": 0.9,
+               "1M": 0.97,
+               }
     hFactor = tfile.Get("L_to_T_%s" % category)
-    factor = hFactor.GetBinContent(1)
-    factor *= 0.9
+    factor = hFactor.GetBinContent(1) * factors[category]
     print "FIXME: get EWK contamination from file (currently hard-coded)"
     h.Scale(factor)
 
