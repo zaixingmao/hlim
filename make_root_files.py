@@ -137,12 +137,11 @@ def applyLooseToTight(h=None, tfile=None, category=""):
     h.Scale(factor)
 
 
-def describe(h, prefix):
-    integral = h.Integral(0, 2 + h.GetNbinsX())
-    print "%s: %s (%9.3f)" % (prefix, h.GetXaxis().GetTitle(), integral)
+def describe(h, l):
+    print l, h.GetXaxis().GetTitle()
     headers = "bin       x         cont  +-   err    (   rel)"
-    print headers
-    print "-" * len(headers)
+    print l, headers
+    print l, "-" * len(headers)
     for iBinX in range(1, 1 + h.GetNbinsX()):
         x = h.GetBinCenter(iBinX)
         c = h.GetBinContent(iBinX)
@@ -150,7 +149,8 @@ def describe(h, prefix):
         s = " %2d   %9.2e   %7.1e +- %7.1e" % (iBinX, x, c, e)
         if c:
             s += "  (%5.1f%s)" % (100.*e/c, "%")
-        print s
+        print l, s
+    print l, "sum".ljust(12) + " = %9.3f" % h.Integral(0, 2 + h.GetNbinsX())
     print
 
 
@@ -176,6 +176,23 @@ def outFileName(sFactor, sKey, var, cuts):
     if cutDesc(cuts):
         stem += "_%s" % cutDesc(cuts)
     return "%s.root" % stem
+
+
+def printHeader(var, cuts):
+    desc = "| %s;   %s |" % (var, str(cuts))
+    h = "-" * len(desc)
+    print h
+    print desc
+    print h
+
+
+def printTag(tag, l):
+    print
+    s_tag = "* %s *" % tag
+    a = "*" * len(s_tag)
+    print l, a
+    print l, s_tag
+    print l, a
 
 
 def go(inFile="", sFactor=None, sKey="", bins=None, var="", rescaleX=True,
@@ -219,35 +236,36 @@ def go(inFile="", sFactor=None, sKey="", bins=None, var="", rescaleX=True,
              }
 
     print "FIXME: include variations"
+    printHeader(var, cuts)
+    l = " " * 4
+
     f = r.TFile(outFileName(sFactor, sKey, var, cuts), "RECREATE")
     for category, tag in {"2M": "tauTau_2jet2tag",
                           "1M": "tauTau_2jet1tag",
                           }.iteritems():
         hs = histos(category=category, **kargs)
-        print
-        print "cuts:", cuts
+        printTag(tag, l)
         for target, sources in merge.iteritems():
             for source in sources:
                 hs[target].Add(hs[source])
                 del hs[source]
         f.mkdir(tag).cd()
-        oneTag(tag, hs, procs, lumi, sKey, sFactor)
+        oneTag(tag, hs, procs, lumi, sKey, sFactor, l)
     f.Close()
 
 
-def printIntegrals(lst=[], lumi=None):
-    hyphens = "-"*71
-    print hyphens
+def printIntegrals(lst=[], lumi=None, l=""):
+    hyphens = "-" * 55
+    print l, hyphens
     s = 0.0
     for tag, proc, integral in sorted(lst):
         s += integral
-        print tag, proc.ljust(30), "%9.3f" % integral, " (for %4.1f/fb)" % lumi
-    print " ".ljust(len(tag)+25), "sum = %9.3f" % s
-    print hyphens
-    print
+        print l, proc.ljust(30), "%9.3f" % integral, " (for %4.1f/fb)" % lumi
+    print l, " ".ljust(25), "sum = %9.3f" % s
+    print l, hyphens
 
 
-def oneTag(tag, hs, procs, lumi, sKey, sFactor):
+def oneTag(tag, hs, procs, lumi, sKey, sFactor, l):
     integrals = []
     # scale and write
     for (proc, h) in hs.iteritems():
@@ -265,13 +283,13 @@ def oneTag(tag, hs, procs, lumi, sKey, sFactor):
         for var in ["Up", "Down"]:
             h.Write("%s_CMS_scale_t_tautau_8TeV%s" % (nom, var))
 
-    printIntegrals(integrals, lumi)
+    printIntegrals(integrals, lumi, l)
 
-    d = fakeDataset(hs, tag, sKey, sFactor)
+    d = fakeDataset(hs, sKey, sFactor, l)
     d.Write()
 
 
-def fakeDataset(hs, tag, sKey, sFactor):
+def fakeDataset(hs, sKey, sFactor, l):
     d = None
     for key, histo in hs.iteritems():
         if isSignal(key):
@@ -281,9 +299,9 @@ def fakeDataset(hs, tag, sKey, sFactor):
             d.Reset()
         d.Add(histo)
 
-    describe(d, tag)
+    describe(d, l)
 
-    zTitle = "Observed = floor(sum(bkg))"
+    zTitle = "Observed = floor(sum(bkg)"  # missing ) added below
     if sFactor:
         d.Add(hs[sKey], sFactor)
         if sFactor != 1:
@@ -316,50 +334,7 @@ def loop(inFile="", specs={}):
                    **spec)
 
 
-def specs1():
-    return [#{"var": "BDT_260", "bins": ( 4, -0.55, 0.25), "cuts": {}},
-            #{"var": "BDT_300", "bins": ( 4, -0.50, 0.30), "cuts": {}},
-            #{"var": "BDT_350", "bins": ( 4, -0.45, 0.35), "cuts": {}},
-            #{"var": "mJJReg",  "bins": (15, 50.0, 200.0), "cuts": {}},
-            {"var": "mJJ",     "bins": (15, 50.0, 200.0), "cuts": {}},
-            
-            {"var": "svMass",  "bins": (15, 50.0, 200.0), "cuts": {}},
-            {"var": "svMass",  "bins": (10, 50.0, 250.0), "cuts": {"mJJ": (90.0, 140.0)}},
-            
-            {"var": "fMass",   "bins": (7, 200.0, 480.0), "cuts": {}},
-            {"var": "fMassKinFit", "bins": (7, 200.0, 480.0), "cuts": {}},
-            
-            {"var": "fMass",   "bins": (7, 200.0, 480.0), "cuts": {"mJJ": (90.0, 140.0)}},  # , "svMass": (95.0, 155.0)}},
-            {"var": "fMassKinFit", "bins": (7, 200.0, 480.0), "cuts": {"mJJ": (90.0, 140.0)}},  # , "svMass": (95.0, 155.0)}},
-            
-            {"var": "chi2KinFit", "bins": (10, 0.0, 100.0), "cuts": {}},
-            {"var": "chi2KinFit", "bins": (10, 0.0, 100.0), "cuts": {}},
-            
-            #{"var": "fMass",   "bins": (5, 200.0, 400.0), "cuts": {"mJJ": (90.0, 140.0), "svMass": (95.0, 155.0)}},
-            #{"var": "fMassKinFit", "bins": (5, 200.0, 400.0), "cuts": {"mJJ": (90.0, 140.0), "svMass": (95.0, 155.0)}},
-            ]
-
-
-def specs2():
-    out = []
-    for var, bins in [("svMass",      (15,  50.0, 200.0)),
-                      ("fMass",       ( 7, 200.0, 480.0)),
-                     #("fMassKinFit", ( 7, 200.0, 480.0)),
-                     #("fMassKinFit", ( 6, 250.0, 490.0)),
-                      ("fMassKinFit", (12, 250.0, 490.0)),
-                     #("fMassKinFit", (24, 250.0, 490.0)),
-                      ("chi2KinFit",  (11, -10.0, 100.0)),
-                      ]:
-        for cut in [{},
-                    {"mJJ": (90.0, 140.0)},
-                    #{"chi2KinFit": (0.0, 40.0)},
-                    {"chi2KinFit": (0.0, 10.0)},
-                    ]:
-            out.append({"var": var, "bins": bins, "cuts": cut})
-    return out
-
-
-def specs3():
+def bdts():
     out = []
     for var, bins in [("BDT_260", (8, -0.6, 0.2)),
                       ("BDT_270", (8, -0.6, 0.2)),
@@ -376,32 +351,16 @@ def specs3():
     return out
 
 
-def specs4():
-    cuts = {#"mJJ": (90.0, 140.0),
-            #"svMass": (90.0, 140.0),
-            #"CSVJ2":  (0.679, None),
-            #"CSVJ2":  (0.244, 0.679),
-            #"chi2KinFit2": (0.0, 10.0),
-            }
+def simple():
+    mass_cuts = {"mJJ": (70.0, 150.0), "svMass": (90.0, 150.0)}
+    chi2_cut = {"chi2KinFit2": (0.0, 10.0)}
+    three = {}
+    three.update(mass_cuts)
+    three.update({"chi2KinFit2": (None, 190.0)})
 
-    return [#{"var": "fMass",       "bins": ( 5, 250.0, 450.0), "cuts": {"BDT_300_3": (0.0, None)}, },
-            #{"var": "fMassKinFit", "bins": ( 5, 250.0, 450.0), "cuts": {"BDT_300_3": (0.0, None)}, },
-            #{"var": "fMass",       "bins": ( 4, 250.0, 410.0), "cuts": {"BDT_300_3": (0.2, None)}, },
-            #{"var": "fMassKinFit", "bins": ( 4, 250.0, 410.0), "cuts": {"BDT_300_3": (0.2, None)}, },
-            #{"var": "fMass",       "bins": ( 4, 250.0, 410.0), "cuts": cuts},
-            {"var": "fMassKinFit", "bins": ( 4, 250.0, 410.0), "cuts": cuts},
-            #{"var": "chi2KinFit", "bins":  (4, -20.0, 60.0), "cuts": cuts},
-            ]
-
-
-def specs5():
     out = []
-    for xMin in [80, 85, 90, 95, 100, 105, 110, 115, 120]:
-        for xMax in [130, 135, 140, 145, 150]:
-            twoCuts = {"mJJ": (xMin, xMax), "svMass": (xMin, xMax)}
-            out.append({"var": "fMassKinFit",
-                        "bins": ( 4, 250.0, 410.0),
-                        "cuts": twoCuts})
+    for cuts in [chi2_cut, mass_cuts, three]:
+        out.append({"var": "fMassKinFit", "bins": ( 4, 250.0, 410.0), "cuts": cuts})
     return out
 
 
@@ -409,4 +368,4 @@ if __name__ == "__main__":
     r.gROOT.SetBatch(True)
     r.gErrorIgnoreLevel = 2000
 
-    loop(inFile=inputFile(), specs=specs4())
+    loop(inFile=inputFile(), specs=simple())
