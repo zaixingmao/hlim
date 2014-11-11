@@ -136,7 +136,8 @@ def applyLooseToTight(h=None, tfile=None, category=""):
 
 
 def describe(h, prefix):
-    print "%s: %s" % (prefix, h.GetXaxis().GetTitle())
+    integral = h.Integral(0, 2 + h.GetNbinsX())
+    print "%s: %s (%9.3f)" % (prefix, h.GetXaxis().GetTitle(), integral)
     headers = "bin       x         cont  +-   err    (   rel)"
     print headers
     print "-" * len(headers)
@@ -233,8 +234,11 @@ def go(inFile="", sFactor=None, sKey="", bins=None, var="", rescaleX=True,
 def printIntegrals(lst=[], lumi=None):
     hyphens = "-"*71
     print hyphens
+    s = 0.0
     for tag, proc, integral in sorted(lst):
+        s += integral
         print tag, proc.ljust(30), "%9.3f" % integral, " (for %4.1f/fb)" % lumi
+    print " ".ljust(len(tag)+25), "sum = %9.3f" % s
     print hyphens
     print
 
@@ -259,12 +263,22 @@ def oneTag(tag, hs, procs, lumi, sKey, sFactor):
 
     printIntegrals(integrals, lumi)
 
-    # make a fake dataset
-    d = hs["tt_full"].Clone("data_obs")
-    d.Add(hs["ZZ"])
-    d.Add(hs["dataOSRelax"])
+    d = fakeDataset(hs, tag, sKey, sFactor)
+    d.Write()
+
+
+def fakeDataset(hs, tag, sKey, sFactor):
+    d = None
+    for key, histo in hs.iteritems():
+        if isSignal(key):
+            continue
+        if d is None:
+            d = histo.Clone("data_obs")
+            d.Reset()
+        d.Add(histo)
 
     describe(d, tag)
+
     zTitle = "Observed = floor(sum(bkg))"
     if sFactor:
         d.Add(hs[sKey], sFactor)
@@ -278,14 +292,13 @@ def oneTag(tag, hs, procs, lumi, sKey, sFactor):
 
     d.GetZaxis().SetTitle(zTitle)
 
-
     # integerize
     for iBin in range(1, 1 + d.GetNbinsX()):
         c = math.floor(d.GetBinContent(iBin))
         d.SetBinContent(iBin, c)
         d.SetBinError(iBin, math.sqrt(max(0.0, c)))
 
-    d.Write()
+    return d
 
 
 def loop(inFile="", specs={}):
