@@ -47,6 +47,13 @@ def isData(proc):
     return proc.startswith("data")
 
 
+def isSignal(proc):
+    for prefix in ["H2hh", "ggA", "bbH"]:
+        if proc.startswith(prefix):
+            return True
+    return False
+
+
 def isAntiIsoData(proc):
     return proc == "dataOSRelax"
 
@@ -123,6 +130,8 @@ def applySampleWeights(hs={}, tfile=None):
 def applyLooseToTight(h=None, tfile=None, category=""):
     hFactor = tfile.Get("L_to_T_%s" % category)
     factor = hFactor.GetBinContent(1)
+    factor *= 0.9
+    print "FIXME: get EWK contamination from file (currently hard-coded)"
     h.Scale(factor)
 
 
@@ -167,7 +176,7 @@ def outFileName(sFactor, sKey, var, cuts):
 
 
 def go(inFile="", sFactor=None, sKey="", bins=None, var="", rescaleX=True,
-       cuts=None, lumi=19.0):
+       cuts=None, lumi=19.7):
 
     assert type(sFactor) is int, type(sFactor)
     assert bins
@@ -176,13 +185,14 @@ def go(inFile="", sFactor=None, sKey="", bins=None, var="", rescaleX=True,
     procs = {"tt_full": "TT",
              "tt_semi": "tt_semi",
              "ZZ": "VV",
+             "W1JetsToLNu": "W",
+             "W2JetsToLNu": "W2",
+             "W3JetsToLNu": "W3",
+             "DY1JetsToLL": "ZTT",
+             "DY2JetsToLL": "DY2",
+             "DY3JetsToLL": "DY3",
              "dataOSRelax": "QCD",
              }
-
-    fakeBkgs = ["W", "ZTT"]
-    print "FIXME: include", fakeBkgs
-    for bkg in fakeBkgs:
-        procs[bkg] = bkg
 
     fakeSigs = ["ggAToZhToLLTauTau", "ggAToZhToLLBB", "bbH"]
     print "FIXME: include", fakeSigs
@@ -201,30 +211,53 @@ def go(inFile="", sFactor=None, sKey="", bins=None, var="", rescaleX=True,
              }
 
     print "FIXME: include variations"
-    print
     f = r.TFile(outFileName(sFactor, sKey, var, cuts), "RECREATE")
     for category, tag in {"2M": "tauTau_2jet2tag",
-                          #"1M": "tauTau_2jet1tag",
+                          "1M": "tauTau_2jet1tag",
                           }.iteritems():
         hs = histos(category=category, **kargs)
-        hs["tt_full"].Add(hs["tt_semi"])
-        del hs["tt_semi"]
+        print
+        print "cuts:", cuts
+        for target, sources in {"tt_full": ["tt_semi"],
+                                "DY1JetsToLL": ["DY2JetsToLL", "DY3JetsToLL"],
+                                "W1JetsToLNu": ["W2JetsToLNu", "W3JetsToLNu"],
+                                }.iteritems():
+            for source in sources:
+                hs[target].Add(hs[source])
+                del hs[source]
         f.mkdir(tag).cd()
         oneTag(tag, hs, procs, lumi, sKey, sFactor)
     f.Close()
 
 
+def printIntegrals(lst=[], lumi=None):
+    hyphens = "-"*71
+    print hyphens
+    for tag, proc, integral in sorted(lst):
+        print tag, proc.ljust(30), "%9.3f" % integral, " (for %4.1f/fb)" % lumi
+    print hyphens
+    print
+
+
 def oneTag(tag, hs, procs, lumi, sKey, sFactor):
+    integrals = []
     # scale and write
     for (proc, h) in hs.iteritems():
         if not isData(proc):
             h.Scale(lumi)
         #h.Print("all")
+        if isSignal(proc) and "350" not in proc:
+            pass
+        else:
+            integrals.append((tag, proc, h.Integral(0, 2 + h.GetNbinsX())))
+
         nom = procs[proc]
         h.Write(nom)
         # fake
         for var in ["Up", "Down"]:
             h.Write("%s_CMS_scale_t_tautau_8TeV%s" % (nom, var))
+
+    printIntegrals(integrals, lumi)
 
     # make a fake dataset
     d = hs["tt_full"].Clone("data_obs")
@@ -232,7 +265,7 @@ def oneTag(tag, hs, procs, lumi, sKey, sFactor):
     d.Add(hs["dataOSRelax"])
 
     describe(d, tag)
-    zTitle = "Observed (=  <bkg>"
+    zTitle = "Observed = floor(sum(bkg))"
     if sFactor:
         d.Add(hs[sKey], sFactor)
         if sFactor != 1:
@@ -252,7 +285,6 @@ def oneTag(tag, hs, procs, lumi, sKey, sFactor):
         d.SetBinContent(iBin, c)
         d.SetBinError(iBin, math.sqrt(max(0.0, c)))
 
-    #d.Print("all")
     d.Write()
 
 
@@ -332,7 +364,7 @@ def specs4():
             #"svMass": (90.0, 140.0),
             #"CSVJ2":  (0.679, None),
             #"CSVJ2":  (0.244, 0.679),
-            "chi2KinFit2": (0.0, 10.0),
+            #"chi2KinFit2": (0.0, 10.0),
             }
 
     return [#{"var": "fMass",       "bins": ( 5, 250.0, 450.0), "cuts": {"BDT_300_3": (0.0, None)}, },
