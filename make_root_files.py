@@ -356,7 +356,7 @@ def simple():
     chi2_cut = {"chi2KinFit2": (0.0, 10.0)}
     three = {}
     three.update(mass_cuts)
-    three.update({"chi2KinFit2": (None, 190.0)})
+    three.update({"fMassKinFit": (0.0, None)})
 
     out = []
     for cuts in [chi2_cut, mass_cuts, three]:
