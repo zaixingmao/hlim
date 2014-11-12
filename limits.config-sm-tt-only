@@ -10,9 +10,13 @@ channels = tt
 
 tt_categories_7TeV = 
 tt_categories_8TeV = 1 2
+#tt_categories_8TeV = 2
 
 tt_names_8TeV = 2jet1tag 2jet2tag
+#tt_names_8TeV = 2jet2tag
 tt_processes = TT,QCD,VV
+
+#tt_processes = ZTT,TT,QCD,W,ZL,ZJ,VV
 
 [bbb-sm]
 
