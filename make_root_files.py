@@ -167,7 +167,7 @@ def cutDesc(cuts):
 
 
 def outFileName(sFactor, sKey, var, cuts):
-    stem = "root/"
+    stem = cfg.root_dest + "/"
     mkdir(stem)
 
     if sFactor:
