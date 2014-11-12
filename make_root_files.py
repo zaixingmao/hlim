@@ -3,9 +3,10 @@
 import math
 import optparse
 import os
+import sys
 import ROOT as r
-
-from cfg import masses_spin0 as masses
+import cfg
+masses = cfg.masses_spin0
 
 
 def inputFile():
@@ -128,11 +129,11 @@ def applySampleWeights(hs={}, tfile=None):
 
 
 def applyLooseToTight(h=None, tfile=None, category=""):
-    factors = {"2M": 0.9,
-               "1M": 0.97,
-               }
-    hFactor = tfile.Get("L_to_T_%s" % category)
-    factor = hFactor.GetBinContent(1) * factors[category]
+    hName = "L_to_T_%s" % category
+    hFactor = tfile.Get(hName)
+    if not hFactor:
+        sys.exit("Could not find histogram '%s' in file '%s'." % (hName, tfile.GetName()))
+    factor = hFactor.GetBinContent(1) * cfg.categories[category][1]
     print "FIXME: get EWK contamination from file (currently hard-coded)"
     h.Scale(factor)
 
@@ -240,9 +241,7 @@ def go(inFile="", sFactor=None, sKey="", bins=None, var="", rescaleX=True,
     l = " " * 4
 
     f = r.TFile(outFileName(sFactor, sKey, var, cuts), "RECREATE")
-    for category, tag in {"2M": "tauTau_2jet2tag",
-                          "1M": "tauTau_2jet1tag",
-                          }.iteritems():
+    for category, (tag, _) in cfg.categories.iteritems():
         hs = histos(category=category, **kargs)
         printTag(tag, l)
         for target, sources in merge.iteritems():
@@ -368,4 +367,4 @@ if __name__ == "__main__":
     r.gROOT.SetBatch(True)
     r.gErrorIgnoreLevel = 2000
 
-    loop(inFile=inputFile(), specs=simple())
+    loop(inFile=inputFile(), specs=simple()+bdts())
