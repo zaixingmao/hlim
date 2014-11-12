@@ -133,8 +133,7 @@ def applyLooseToTight(h=None, tfile=None, category=""):
     hFactor = tfile.Get(hName)
     if not hFactor:
         sys.exit("Could not find histogram '%s' in file '%s'." % (hName, tfile.GetName()))
-    factor = hFactor.GetBinContent(1) * cfg.categories[category][1]
-    print "FIXME: get EWK contamination from file (currently hard-coded)"
+    factor = hFactor.GetBinContent(1)
     h.Scale(factor)
 
 
@@ -241,7 +240,7 @@ def go(inFile="", sFactor=None, sKey="", bins=None, var="", rescaleX=True,
     l = " " * 4
 
     f = r.TFile(outFileName(sFactor, sKey, var, cuts), "RECREATE")
-    for category, (tag, _) in cfg.categories.iteritems():
+    for category, tag in cfg.categories.iteritems():
         hs = histos(category=category, **kargs)
         printTag(tag, l)
         for target, sources in merge.iteritems():
