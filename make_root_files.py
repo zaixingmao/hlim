@@ -366,4 +366,4 @@ if __name__ == "__main__":
     r.gROOT.SetBatch(True)
     r.gErrorIgnoreLevel = 2000
 
-    loop(inFile=inputFile(), specs=simple()+bdts())
+    loop(inFile=inputFile(), specs=simple())
