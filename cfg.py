@@ -1,4 +1,12 @@
-#masses_spin0 = [260, 300, 350]
+import os
+import sys
+
+if "CMSSW_BASE" not in os.environ:
+    sys.exit("Set up the CMSSW environment.")
+
+root_dest = "%s/src/auxiliaries/shapes/Brown" % os.environ["CMSSW_BASE"]
+
+#masses_spin0 = [260, 300, 350][:1]
 masses_spin0 = range(260, 360, 10) #+ [500, 700]
 masses_spin2 = [500, 700]
 
