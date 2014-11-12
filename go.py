@@ -114,10 +114,9 @@ if __name__ == "__main__":
 
     # remove and create file and link
     fName = "htt_tt.inputs-Hhh-8TeV.root"
-    auxLoc = "%s/auxiliaries/shapes/Brown/%s" % (cmssw_src, fName)
-    copy(src=os.path.abspath(options.file), dest=auxLoc, link=False)
-    copy(src=auxLoc, dest="%s/tt/%s" % (inDir, fName), link=True)
-
+    loc = "%s/%s" % (cfg.root_dest, fName)
+    copy(src=os.path.abspath(options.file), dest=loc, link=False)
+    copy(src=loc, dest="%s/tt/%s" % (inDir, fName), link=True)
 
     if options.cards:
         os.system("rm -rf %s" % dc)
