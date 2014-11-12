@@ -20,7 +20,7 @@ for var in cfg.multi_vars:
     os.system("mkdir %s" % var)
     os.system(" ".join(["cd %s &&" % workDir,
                         "./go.py",
-                        "--file=root/%s.root" % var,
+                        "--file=%s/%s.root" % (cfg.root_dest, var),
                         "--full",
                         "--postfitonlyone",
                         "--masses='%s'" % masses,
