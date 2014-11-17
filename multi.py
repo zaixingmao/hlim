@@ -7,16 +7,15 @@ cats = " ".join([s[-4] for s in cfg.categories.values()])
 workDir = "/".join(__file__.split("/")[:-1])
 
 for d in cfg.variables():
-    var = d["var"]
-
     masses = cfg.masses_spin0
-    if "BDT" in var:
-        m = int(var[4:7])
+    if "BDT" in d["var"]:
+        m = int(d["var"][4:7])
         masses = filter(lambda x: abs(x-m) < 11, masses)
     masses = " ".join(["%s" % x for x in masses])
 
-    os.system("rm -rf %s" % var)
-    os.system("mkdir %s" % var)
+    dirName = "%s_%s" % (d["var"], cfg.cutDesc(d["cuts"]))
+    os.system("rm -rf %s" % dirName)
+    os.system("mkdir %s" % dirName)
     os.system(" ".join(["cd %s &&" % workDir,
                         "./go.py",
                         "--file=%s" % cfg.outFileName(var=d["var"], cuts=d["cuts"]),
@@ -31,4 +30,4 @@ for d in cfg.variables():
         files.append("../test/tauTau_2jet%stag_prefit_8TeV_LIN.pdf" % cat)
 
     for f in files:
-        os.system("cp -p %s/%s %s/" % (workDir, f, var))
+        os.system("cp -p %s/%s %s/" % (workDir, f, dirName))
