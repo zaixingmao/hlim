@@ -17,14 +17,6 @@ def inputFile():
     return args[0]
 
 
-def mkdir(path):
-    try:
-        os.makedirs(path)
-    except OSError as e:
-        if e.errno != 17:
-            raise e
-
-
 def combineBinContentAndError(h, binToContainCombo, binToBeKilled):
     c = h.GetBinContent(binToContainCombo) + h.GetBinContent(binToBeKilled)
     e = h.GetBinError(binToContainCombo)**2 + h.GetBinError(binToBeKilled)**2
@@ -153,18 +145,6 @@ def describe(h, l):
     print
 
 
-def outFileName(sFactor, sKey, var, cuts):
-    stem = cfg.root_dest + "/"
-    mkdir(stem)
-
-    if sFactor:
-        stem += "%dx%s" % (sFactor, sKey.replace("H2hh", ""))
-    stem += var
-    if cfg.cutDesc(cuts):
-        stem += "_%s" % cfg.cutDesc(cuts)
-    return "%s.root" % stem
-
-
 def printHeader(var, cuts):
     desc = "| %s;   %s |" % (var, str(cuts))
     h = "-" * len(desc)
@@ -229,7 +209,12 @@ def go(inFile="", sFactor=None, sKey="", bins=None, var="", rescaleX=True,
     printHeader(var, cuts)
     l = " " * 4
 
-    f = r.TFile(outFileName(sFactor, sKey, var, cuts), "RECREATE")
+    oArgs = {"sFactor": sFactor,
+             "sKey": sKey,
+             "var": var,
+             "cuts": cuts,
+             }
+    f = r.TFile(cfg.outFileName(**oArgs), "RECREATE")
     for category, tag in cfg.categories.iteritems():
         hs = histos(category=category, **kargs)
         printTag(tag, l)
