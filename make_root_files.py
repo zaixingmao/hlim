@@ -154,18 +154,6 @@ def describe(h, l):
     print
 
 
-def cutDesc(cuts):
-    descs = []
-    for cutVar, (cutMin, cutMax) in sorted(cuts.iteritems()):
-        cutDesc = cutVar
-        if cutMin is not None:
-            cutDesc = "%.1f.%s" % (cutMin, cutDesc)
-        if cutMax is not None:
-            cutDesc = "%s.%.1f" % (cutDesc, cutMax)
-        descs.append(cutDesc)
-    return "_".join(descs)
-
-
 def outFileName(sFactor, sKey, var, cuts):
     stem = cfg.root_dest + "/"
     mkdir(stem)
@@ -173,8 +161,8 @@ def outFileName(sFactor, sKey, var, cuts):
     if sFactor:
         stem += "%dx%s" % (sFactor, sKey.replace("H2hh", ""))
     stem += var
-    if cutDesc(cuts):
-        stem += "_%s" % cutDesc(cuts)
+    if cfg.cutDesc(cuts):
+        stem += "_%s" % cfg.cutDesc(cuts)
     return "%s.root" % stem
 
 
@@ -324,8 +312,8 @@ def fakeDataset(hs, sKey, sFactor, l):
     return d
 
 
-def loop(inFile="", specs={}):
-    for spec in specs:
+def loop(inFile=""):
+    for spec in cfg.variables():
         for mInj in masses[:1]:
             for sFactor in [0, 1, 2, 4][:1]:
                 go(inFile=inFile,
@@ -335,38 +323,8 @@ def loop(inFile="", specs={}):
                    **spec)
 
 
-def bdts():
-    out = []
-    for var, bins in [("BDT_260", (8, -0.6, 0.2)),
-                      ("BDT_270", (8, -0.6, 0.2)),
-                      ("BDT_280", (8, -0.6, 0.2)),
-                      ("BDT_290", (8, -0.6, 0.2)),
-                      ("BDT_300", (8, -0.6, 0.2)),
-                      ("BDT_310", (8, -0.6, 0.2)),
-                      ("BDT_320", (8, -0.6, 0.2)),
-                      ("BDT_330", (8, -0.6, 0.2)),
-                      ("BDT_340", (8, -0.6, 0.2)),
-                      ("BDT_350", (8, -0.6, 0.2)),
-                      ]:
-        out.append({"var": var, "bins": bins, "cuts": {}})
-    return out
-
-
-def simple():
-    mass_cuts = {"mJJ": (70.0, 150.0), "svMass": (90.0, 150.0)}
-    chi2_cut = {"chi2KinFit2": (0.0, 10.0)}
-    three = {}
-    three.update(mass_cuts)
-    three.update({"fMassKinFit": (0.0, None)})
-
-    out = []
-    for cuts in [{}, chi2_cut, mass_cuts, three]:
-        out.append({"var": "fMassKinFit", "bins": ( 4, 250.0, 410.0), "cuts": cuts})
-    return out
-
-
 if __name__ == "__main__":
     r.gROOT.SetBatch(True)
     r.gErrorIgnoreLevel = 2000
 
-    loop(inFile=inputFile(), specs=simple())
+    loop(inFile=inputFile())
