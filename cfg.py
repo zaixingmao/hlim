@@ -22,7 +22,7 @@ def variables():
     chi2 = {"chi2KinFit2": (0.0, 10.0)}
 
     out = [{"var": "fMassKinFit", "bins": ( 4, 250.0, 410.0), "cuts": mass_windows},
-           {"var": "fMassKinFit", "bins": ( 4, 250.0, 410.0), "cuts": chi2},
+           #"var": "fMassKinFit", "bins": ( 4, 250.0, 410.0), "cuts": chi2},
            ]
 
     if False:
