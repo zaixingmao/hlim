@@ -227,6 +227,9 @@ def go(inFile="", sFactor=None, sKey="", bins=None, var="", rescaleX=True,
             sig = "%s%3d" % (stem, m)
             procs[sig] = sig
 
+    print "FIXME: deal with 250"
+    procs["bbH250"] = "bbH250"
+
     kargs = {"procs": procs.keys(),
              "bins": bins,
              "var": var,
@@ -357,7 +360,7 @@ def simple():
     three.update({"fMassKinFit": (0.0, None)})
 
     out = []
-    for cuts in [chi2_cut, mass_cuts, three]:
+    for cuts in [{}, chi2_cut, mass_cuts, three]:
         out.append({"var": "fMassKinFit", "bins": ( 4, 250.0, 410.0), "cuts": cuts})
     return out
 
