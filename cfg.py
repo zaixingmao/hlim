@@ -16,18 +16,6 @@ categories = {#"MM_LM": "tauTau_2jet2tag",
               }
 
 
-def cutDesc(cuts):
-    descs = []
-    for cutVar, (cutMin, cutMax) in sorted(cuts.iteritems()):
-        cutDesc = cutVar
-        if cutMin is not None:
-            cutDesc = "%.1f.%s" % (cutMin, cutDesc)
-        if cutMax is not None:
-            cutDesc = "%s.%.1f" % (cutDesc, cutMax)
-        descs.append(cutDesc)
-    return "_".join(descs)
-
-
 def variables():
     preselection = {}
     mass_windows = {"mJJ": (70.0, 150.0), "svMass": (90.0, 150.0), "fMassKinFit": (0.0, None)}
@@ -53,18 +41,34 @@ def variables():
     return out
 
 
-multi_vars = ["",
-              #"fMassKinFit_0.0.chi2KinFit2.10.0",
-              #"fMassKinFit_70.0.mJJ.150.0_90.0.svMass.150.0",
-              "fMassKinFit_0.0.fMassKinFit_70.0.mJJ.150.0_90.0.svMass.150.0",
-              #"BDT_260",
-              #"BDT_270",
-              #"BDT_280",
-              #"BDT_290",
-              #"BDT_300",
-              #"BDT_310",
-              #"BDT_320",
-              #"BDT_330",
-              #"BDT_340",
-              #"BDT_350",
-              ]
+def mkdir(path):
+    try:
+        os.makedirs(path)
+    except OSError as e:
+        if e.errno != 17:
+            raise e
+
+
+def outFileName(sFactor=0, sKey="", var="", cuts={}):
+    stem = root_dest + "/"
+    mkdir(stem)
+
+    if sFactor:
+        print "FIXME: sFactor"
+        stem += "%dx%s" % (sFactor, sKey.replace("H2hh", ""))
+    stem += var
+    if cutDesc(cuts):
+        stem += "_%s" % cutDesc(cuts)
+    return "%s.root" % stem
+
+
+def cutDesc(cuts):
+    descs = []
+    for cutVar, (cutMin, cutMax) in sorted(cuts.iteritems()):
+        cutDesc = cutVar
+        if cutMin is not None:
+            cutDesc = "%.1f.%s" % (cutMin, cutDesc)
+        if cutMax is not None:
+            cutDesc = "%s.%.1f" % (cutDesc, cutMax)
+        descs.append(cutDesc)
+    return "_".join(descs)
