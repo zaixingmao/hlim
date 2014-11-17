@@ -4,11 +4,10 @@ import cfg
 import os
 
 cats = " ".join([s[-4] for s in cfg.categories.values()])
-
 workDir = "/".join(__file__.split("/")[:-1])
-for var in cfg.multi_vars:
-    if not var:
-        continue
+
+for d in cfg.variables():
+    var = d["var"]
 
     masses = cfg.masses_spin0
     if "BDT" in var:
@@ -20,7 +19,7 @@ for var in cfg.multi_vars:
     os.system("mkdir %s" % var)
     os.system(" ".join(["cd %s &&" % workDir,
                         "./go.py",
-                        "--file=%s/%s.root" % (cfg.root_dest, var),
+                        "--file=%s" % cfg.outFileName(var=d["var"], cuts=d["cuts"]),
                         "--full",
                         "--postfitonlyone",
                         "--masses='%s'" % masses,
