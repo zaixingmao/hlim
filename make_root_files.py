@@ -6,7 +6,6 @@ import os
 import sys
 import ROOT as r
 import cfg
-masses = cfg.masses_spin0
 
 
 def inputFile():
@@ -184,7 +183,7 @@ def printTag(tag, l):
 
 
 def go(inFile="", sFactor=None, sKey="", bins=None, var="", rescaleX=True,
-       cuts=None, lumi=19.7):
+       cuts=None, lumi=19.7, masses=[]):
 
     assert type(sFactor) is int, type(sFactor)
     assert bins
@@ -313,6 +312,7 @@ def fakeDataset(hs, sKey, sFactor, l):
 
 
 def loop(inFile=""):
+    masses = cfg.masses_spin0
     for spec in cfg.variables():
         for mInj in masses[:1]:
             for sFactor in [0, 1, 2, 4][:1]:
@@ -320,6 +320,7 @@ def loop(inFile=""):
                    sFactor=sFactor,
                    sKey="H2hh%3d" % mInj,
                    rescaleX=True,
+                   masses=masses,
                    **spec)
 
 
