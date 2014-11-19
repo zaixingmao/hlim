@@ -39,17 +39,6 @@ def isData(proc):
     return proc.startswith("data")
 
 
-def isSignal(proc):
-    for prefix in ["H2hh", "ggA", "bbH"]:
-        if proc.startswith(prefix):
-            return True
-    return False
-
-
-def isAntiIsoData(proc):
-    return proc == "dataOSRelax"
-
-
 def histos(fileName="", bins=None, procs=[], var="", rescaleX=False, cuts={}, category=""):
     assert fileName
     assert bins
@@ -85,7 +74,7 @@ def histos(fileName="", bins=None, procs=[], var="", rescaleX=False, cuts={}, ca
         h.SetDirectory(0)
         shift(h)
         out[proc] = h
-        if isAntiIsoData(proc):
+        if cfg.isAntiIsoData(proc):
             applyLooseToTight(h, f, category)
 
     applySampleWeights(out, f)
@@ -93,30 +82,40 @@ def histos(fileName="", bins=None, procs=[], var="", rescaleX=False, cuts={}, ca
     return out
 
 
-def applySampleWeights(hs={}, tfile=None):
-    numer = tfile.Get("xs")
-    denom = tfile.Get("initEvents")
-    xNumer = numer.GetXaxis()
-    xDenom = denom.GetXaxis()
+def scale_numer(h, numer, proc):
+    found = 0
+    for iBin in range(1, 1 + numer.GetNbinsX()):
+        if numer.GetXaxis().GetBinLabel(iBin) == proc:
+            found += 1
+            xs = numer.GetBinContent(iBin)
+            if proc.startswith(cfg.signalXsPrefix):
+                xs = cfg.signalXs
+            h.Scale(xs)
+            h.GetZaxis().SetTitle("@ %g fb" % xs)
+            #print proc, xs
 
+    if found != 1 and h.Integral():
+        sys.exit("ERROR: found %s numerator histograms for '%s'." % (found, proc))
+
+def scale_denom(h, denom, proc):
+    found = 0
+    for iBin in range(1, 1 + denom.GetNbinsX()):
+        if denom.GetXaxis().GetBinLabel(iBin) == proc:
+            found += 1
+            content = denom.GetBinContent(iBin)
+            assert content, "%s_%d" % (proc, iBin)
+            h.Scale(1.0 / content)
+
+    if found != 1 and h.Integral():
+        sys.exit("ERROR: found %s denominator histograms for '%s'." % (found, proc))
+
+
+def applySampleWeights(hs={}, tfile=None):
     for proc, h in hs.iteritems():
         if isData(proc):
             continue
-
-        for iBin in range(1, 1 + numer.GetNbinsX()):
-            if xNumer.GetBinLabel(iBin) == proc:
-                xs = numer.GetBinContent(iBin)
-                if proc.startswith("H2hh"):
-                    xs = 1.0e3 # 1 pb
-                h.Scale(xs)
-                h.GetZaxis().SetTitle("@ %g fb" % xs)
-                #print proc, xs
-
-        for iBin in range(1, 1 + denom.GetNbinsX()):
-            if xDenom.GetBinLabel(iBin) == proc:
-                content = denom.GetBinContent(iBin)
-                assert content, "%s_%d" % (proc, iBin)
-                h.Scale(1.0 / content)
+        scale_numer(h, tfile.Get("xs"), proc)
+        scale_denom(h, tfile.Get("initEvents"), proc)
 
 
 def applyLooseToTight(h=None, tfile=None, category=""):
@@ -163,7 +162,7 @@ def printTag(tag, l):
 
 
 def go(inFile="", sFactor=None, sKey="", bins=None, var="", rescaleX=True,
-       cuts=None, lumi=19.7, masses=[]):
+       cuts=None, masses=[]):
 
     assert type(sFactor) is int, type(sFactor)
     assert bins
@@ -223,29 +222,29 @@ def go(inFile="", sFactor=None, sKey="", bins=None, var="", rescaleX=True,
                 hs[target].Add(hs[source])
                 del hs[source]
         f.mkdir(tag).cd()
-        oneTag(tag, hs, procs, lumi, sKey, sFactor, l)
+        oneTag(tag, hs, procs, sKey, sFactor, l)
     f.Close()
 
 
-def printIntegrals(lst=[], lumi=None, l=""):
+def printIntegrals(lst=[], l=""):
     hyphens = "-" * 55
     print l, hyphens
     s = 0.0
     for tag, proc, integral in sorted(lst):
         s += integral
-        print l, proc.ljust(30), "%9.3f" % integral, " (for %4.1f/fb)" % lumi
+        print l, proc.ljust(30), "%9.3f" % integral, " (for %4.1f/fb)" % cfg.lumi
     print l, " ".ljust(25), "sum = %9.3f" % s
     print l, hyphens
 
 
-def oneTag(tag, hs, procs, lumi, sKey, sFactor, l):
+def oneTag(tag, hs, procs, sKey, sFactor, l):
     integrals = []
     # scale and write
     for (proc, h) in hs.iteritems():
         if not isData(proc):
-            h.Scale(lumi)
+            h.Scale(cfg.lumi)
         #h.Print("all")
-        if isSignal(proc) and "350" not in proc:
+        if cfg.isSignal(proc) and cfg.substring_signal_example not in proc:
             pass
         else:
             integrals.append((tag, proc, h.Integral(0, 2 + h.GetNbinsX())))
@@ -256,7 +255,7 @@ def oneTag(tag, hs, procs, lumi, sKey, sFactor, l):
         for var in ["Up", "Down"]:
             h.Write("%s_CMS_scale_t_tautau_8TeV%s" % (nom, var))
 
-    printIntegrals(integrals, lumi, l)
+    printIntegrals(integrals, l)
 
     d = fakeDataset(hs, sKey, sFactor, l)
     d.Write()
@@ -265,7 +264,7 @@ def oneTag(tag, hs, procs, lumi, sKey, sFactor, l):
 def fakeDataset(hs, sKey, sFactor, l):
     d = None
     for key, histo in hs.iteritems():
-        if isSignal(key):
+        if cfg.isSignal(key):
             continue
         if d is None:
             d = histo.Clone("data_obs")
