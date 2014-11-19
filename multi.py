@@ -8,7 +8,7 @@ workDir = "/".join(__file__.split("/")[:-1])
 
 for d in cfg.variables():
     masses = cfg.masses_spin0
-    if "BDT" in d["var"]:
+    if "BDT" in d["var"] and 7 <= len(d["var"]):
         m = int(d["var"][4:7])
         masses = filter(lambda x: abs(x-m) < 11, masses)
     masses = " ".join(["%s" % x for x in masses])
