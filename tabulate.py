@@ -1,10 +1,13 @@
 #!/usr/bin/env python
 
+import collections
 import optparse
 import os
 
+
 def __line(f='', s=''):
     return '\033['+ f + s + '\033[0m'
+
 
 def green(s=''):
     return __line('32m', s)
@@ -29,6 +32,12 @@ def dir_and_opts():
                       default=False,
                       action="store_true",
                       help="collapse dirs differing only in mass into a single line")
+
+    parser.add_option("--3",
+                      dest="three",
+                      default=False,
+                      action="store_true",
+                      help="print three digits after decimal")
 
     options, args = parser.parse_args()
     if len(args) != 1:
@@ -78,12 +87,17 @@ def results(directory="", dummy="files"):
 
 
 def isModifiable(fields):
-    return all([3 <= len(fields),
-                fields[0] == "BDT",
-                len(fields[1]) == 4,
-                fields[1][0] == "H",
-                fields[1][3] == "0",
-                ])
+    if len(fields) <= 2:
+        return False
+    if fields[0] != "BDT":
+        return False
+    if len(fields[1]) != 4:
+        return False
+    if fields[1][0] != "H":
+        return False
+    if fields[1][3] != "0":
+        return False
+    return True
 
 
 def rearraged(s=""):
@@ -95,17 +109,19 @@ def rearraged(s=""):
 
 
 def collapsed(d):
-    keys = []
+    out = collections.defaultdict(dict)
+
     for key in d.keys():
         fields = key.split("_")
         if isModifiable(fields):
-            keys.append(key)
+            key2 = "_".join([fields[0]] + fields[2:])
+            out[key2].update(d[key])
         else:
-            keys.append(key)
-    return d
+            out[key] = d[key]
+    return out
 
 
-def print_formatted(d={}, color=True, nLeft=40, rearrange=True):
+def print_formatted(d={}, color=True, nLeft=40, rearrange=True, three=False):
     masses = range(260, 360, 10)
     h = "analysis".ljust(nLeft) + "   ".join([str(i) for i in sorted(masses)])
     print h
@@ -120,7 +136,7 @@ def print_formatted(d={}, color=True, nLeft=40, rearrange=True):
         line = var.ljust(nLeft - 3)
         for mass in masses:
             if mass in dct:
-                this = "%6.2f" % dct[mass]
+                this = ("%6.3f" if three else "%6.2f") % dct[mass]
                 if color and (str(mass) in var):
                     this = green(this)
                 line += this
@@ -134,4 +150,4 @@ if __name__ == "__main__":
     res = results(inputDir)
     if opts.collapse:
         res = collapsed(res)
-    print_formatted(res, color=opts.color, rearrange=not opts.collapse)
+    print_formatted(res, color=opts.color, rearrange=not opts.collapse, three=opts.three)
