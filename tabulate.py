@@ -24,6 +24,12 @@ def dir_and_opts():
                       action="store_true",
                       help="add color in stdout")
 
+    parser.add_option("--collapse",
+                      dest="collapse",
+                      default=False,
+                      action="store_true",
+                      help="collapse dirs differing only in mass into a single line")
+
     options, args = parser.parse_args()
     if len(args) != 1:
         parser.print_help()
@@ -71,26 +77,46 @@ def results(directory="", dummy="files"):
     return out
 
 
+def isModifiable(fields):
+    return all([3 <= len(fields),
+                fields[0] == "BDT",
+                len(fields[1]) == 4,
+                fields[1][0] == "H",
+                fields[1][3] == "0",
+                ])
+
+
 def rearraged(s=""):
     fields = s[0].split("_")
-    if all([4 <= len(fields),
-            fields[0] == "BDT",
-            len(fields[1]) == 4,
-            fields[1][0] == "H",
-            fields[1][3] == "0",
-            ]):
+    if isModifiable(fields):
         return "_".join(fields[2:] + [fields[1]])
     else:
         return s
 
 
-def print_formatted(d={}, color=True, nLeft=40):
+def collapsed(d):
+    keys = []
+    for key in d.keys():
+        fields = key.split("_")
+        if isModifiable(fields):
+            keys.append(key)
+        else:
+            keys.append(key)
+    return d
+
+
+def print_formatted(d={}, color=True, nLeft=40, rearrange=True):
     masses = range(260, 360, 10)
     h = "analysis".ljust(nLeft) + "   ".join([str(i) for i in sorted(masses)])
     print h
     print "-" * len(h)
 
-    for var, dct in sorted(d.iteritems(), key=rearraged):
+    if rearrange:
+        items = sorted(d.iteritems(), key=rearraged)
+    else:
+        items = sorted(collapsed(d).iteritems())
+
+    for var, dct in items:
         line = var.ljust(nLeft - 3)
         for mass in masses:
             if mass in dct:
@@ -105,4 +131,7 @@ def print_formatted(d={}, color=True, nLeft=40):
 
 if __name__ == "__main__":
     inputDir, opts = dir_and_opts()
-    print_formatted(results(inputDir), color=opts.color)
+    res = results(inputDir)
+    if opts.collapse:
+        res = collapsed(res)
+    print_formatted(res, color=opts.color, rearrange=not opts.collapse)
