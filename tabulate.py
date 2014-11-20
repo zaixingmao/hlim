@@ -10,20 +10,26 @@ def green(s=''):
     return __line('32m', s)
 
 
+def strip(s=""):
+    while s.endswith("/"):
+        s = s[:-1]
+    return s
+
+
 def dir_and_opts():
     parser = optparse.OptionParser("usage: %prog /some/directory")
-    parser.add_option("--no-color",
-                      dest="noColor",
+    parser.add_option("--color",
+                      dest="color",
                       default=False,
                       action="store_true",
-                      help="disable color in stdout")
+                      help="add color in stdout")
 
     options, args = parser.parse_args()
     if len(args) != 1:
         parser.print_help()
         exit()
 
-    return args[0], options
+    return strip(args[0]), options
 
 
 def results(directory="", dummy="files"):
@@ -37,6 +43,9 @@ def results(directory="", dummy="files"):
     for fileName in files:
         fileName = fileName.replace("\n", "")
         var = fileName
+        if "yields.txt" in fileName:
+            continue
+
         for item in ["tt_ggHTohh-limit.txt", "%s/" % directory, "/"]:
             var = var.replace(item, "")
 
@@ -80,4 +89,4 @@ def print_formatted(d={}, color=True, nLeft=40):
 
 if __name__ == "__main__":
     inputDir, opts = dir_and_opts()
-    print_formatted(results(inputDir), color=not opts.noColor)
+    print_formatted(results(inputDir), color=opts.color)
