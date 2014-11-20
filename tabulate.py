@@ -71,13 +71,26 @@ def results(directory="", dummy="files"):
     return out
 
 
+def rearraged(s=""):
+    fields = s[0].split("_")
+    if all([4 <= len(fields),
+            fields[0] == "BDT",
+            len(fields[1]) == 4,
+            fields[1][0] == "H",
+            fields[1][3] == "0",
+            ]):
+        return "_".join(fields[2:] + [fields[1]])
+    else:
+        return s
+
+
 def print_formatted(d={}, color=True, nLeft=40):
     masses = range(260, 360, 10)
     h = "analysis".ljust(nLeft) + "   ".join([str(i) for i in sorted(masses)])
     print h
     print "-" * len(h)
 
-    for var, dct in sorted(d.iteritems()):
+    for var, dct in sorted(d.iteritems(), key=rearraged):
         line = var.ljust(nLeft - 3)
         for mass in masses:
             if mass in dct:
