@@ -3,8 +3,8 @@
 import cfg
 import os
 
-cats = " ".join([s[-4] for s in cfg.categories.values()])
-workDir = "/".join(__file__.split("/")[:-1])
+cats = cfg.cats()
+workDir = cfg.workDir()
 
 for d in cfg.variables():
     masses = cfg.masses_spin0

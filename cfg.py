@@ -21,7 +21,7 @@ lumi     = 19.7   # /fb
 signalXsPrefix = "H2hh"
 signalXs = 1.0e3  # fb (= 1.0 pb)
 
-masses_spin0 = [260, 300, 350][-1:]
+masses_spin0 = [260, 300, 350]
 #masses_spin0 = range(260, 360, 10) #+ [500, 700]
 masses_spin2 = [500, 700]
 
@@ -29,6 +29,15 @@ categories = {#"MM_LM": "tauTau_2jet2tag",
               "2M": "tauTau_2jet2tag",
               "1M": "tauTau_2jet1tag",
               }
+
+
+def cats():
+    return " ".join([s[-4] for s in categories.values()])
+
+
+def workDir():
+    return "/".join(__file__.split("/")[:-1])
+
 
 
 def variables():
