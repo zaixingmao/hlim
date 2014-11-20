@@ -72,18 +72,21 @@ def results(directory="", dummy="files"):
 
 
 def print_formatted(d={}, color=True, nLeft=40):
-    masses = [dct.keys() for dct in d.values()][0]  # take first
+    masses = range(260, 360, 10)
     h = "analysis".ljust(nLeft) + "   ".join([str(i) for i in sorted(masses)])
     print h
     print "-" * len(h)
 
     for var, dct in sorted(d.iteritems()):
         line = var.ljust(nLeft - 3)
-        for mass, limit in sorted(dct.iteritems()):
-            this = "%6.2f" % limit
-            if color and (str(mass) in var):
-                this = green(this)
-            line += this
+        for mass in masses:
+            if mass in dct:
+                this = "%6.2f" % dct[mass]
+                if color and (str(mass) in var):
+                    this = green(this)
+                line += this
+            else:
+                line += " " * 6
         print line
 
 
