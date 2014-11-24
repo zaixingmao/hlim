@@ -13,8 +13,8 @@ rescaleX = False
 signalXsPrefix = "H2hh"
 signalXs = 1.0e3  # fb (= 1.0 pb)
 
-masses_spin0 = [260, 300, 350]
-#masses_spin0 = range(260, 360, 10) #+ [500, 700]
+#masses_spin0 = [260, 300, 350]
+masses_spin0 = range(260, 360, 10) #+ [500, 700]
 masses_spin2 = [500, 700]
 
 categories = {#"MM_LM": "tauTau_2jet2tag",
@@ -47,10 +47,10 @@ def variables():
     mass_windows = {"mJJ": (70.0, 150.0), "svMass": (90.0, 150.0)}
     mass_windows.update(fMass)
 
-    out = [{"var": "svMass",      "bins": ( 7,   0.0, 350.0), "cuts": {}},
-           {"var": "fMassKinFit", "bins": ( 4, 250.0, 410.0), "cuts": fMass},
+    out = [#{"var": "svMass",      "bins": ( 7,   0.0, 350.0), "cuts": {}},
+           #{"var": "fMassKinFit", "bins": ( 4, 250.0, 410.0), "cuts": fMass},
            {"var": "fMassKinFit", "bins": ( 4, 250.0, 410.0), "cuts": mass_windows},
-           #"var": "fMassKinFit", "bins": ( 4, 250.0, 410.0), "cuts": chi2},
+           ##"var": "fMassKinFit", "bins": ( 4, 250.0, 410.0), "cuts": chi2},
            ]
 
     if False:
