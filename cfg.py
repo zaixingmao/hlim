@@ -27,6 +27,26 @@ files = {"":                             "root/combined_inclusiveDY.root",
          "_CMS_scale_t_tautau_8TeVDown": "root/combined_inclusiveDY.root",
          }
 
+__fakeSignals = ["ggAToZhToLLTauTau", "ggAToZhToLLBB", "bbH"]
+
+def procs():
+    out = {"TT": ["tt_full", "tt_semi"],
+           "VV": ["ZZ"],
+           "W": ["W1JetsToLNu", "W2JetsToLNu", "W3JetsToLNu"],
+           "ZTT": ["DYJetsToLL"],
+           #"ZTT": ["DY1JetsToLL", "DY2JetsToLL", "DY3JetsToLL", "DY4JetsToLL"],
+           "QCD": ["dataOSRelax"],
+           }
+
+    out["bbH250"] = ["bbH250"]
+    for m in masses_spin0:
+        out["ggHTohhTo2Tau2B%3d" % m] = ["H2hh%3d" % m]
+        for stem in __fakeSignals:
+            sig = "%s%3d" % (stem, m)
+            out[sig] = [sig]
+
+    return out
+
 
 def isSignal(proc):
     return any([proc.startswith(p) for p in ["ggHTo", "ggATo", "bbH"]])
@@ -110,6 +130,19 @@ def cutDesc(cuts):
 def complain():
     if len(set(files.values())) != 3:
         print "FIXME: include variations"
+
+    print "FIXME: deal with 250"
+    if __fakeSignals:
+        print "FIXME: include", __fakeSignals
+
+    lst = []
+    for v in procs().values():
+        if type(v) != list:
+            sys.exit("ERROR: type of '%s' is not list." % str(v))
+        else:
+            lst += v
+    if len(set(lst)) != len(lst):
+        sys.exit("ERROR: procs values has duplicates: %s." % str(sorted(lst)))
 
 
 complain()
