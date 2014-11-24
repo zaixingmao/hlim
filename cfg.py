@@ -22,9 +22,9 @@ categories = {#"MM_LM": "tauTau_2jet2tag",
               "1M": "tauTau_2jet1tag",
               }
 
-files = {"central": "root/combined_inclusiveDY.root",
-         "up":      "root/combined_inclusiveDY.root",
-         "down":    "root/combined_inclusiveDY.root",
+files = {"":                             "root/combined_inclusiveDY.root",
+         "_CMS_scale_t_tautau_8TeVUp":   "root/combined_inclusiveDY.root",
+         "_CMS_scale_t_tautau_8TeVDown": "root/combined_inclusiveDY.root",
          }
 
 
