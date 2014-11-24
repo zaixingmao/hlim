@@ -4,6 +4,24 @@ import sys
 if "CMSSW_BASE" not in os.environ:
     sys.exit("Set up the CMSSW environment.")
 
+root_dest = "%s/src/auxiliaries/shapes/Brown" % os.environ["CMSSW_BASE"]
+
+substring_signal_example = "350"
+lumi     = 19.7   # /fb
+rescaleX = False
+
+signalXsPrefix = "H2hh"
+signalXs = 1.0e3  # fb (= 1.0 pb)
+
+#masses_spin0 = [260, 300, 350]
+masses_spin0 = range(260, 360, 10) #+ [500, 700]
+masses_spin2 = [500, 700]
+
+categories = {#"MM_LM": "tauTau_2jet2tag",
+              "2M": "tauTau_2jet2tag",
+              "1M": "tauTau_2jet1tag",
+              }
+
 
 def isSignal(proc):
     return any([proc.startswith(p) for p in ["H2hh", "ggA", "bbH"]])
@@ -13,34 +31,29 @@ def isAntiIsoData(proc):
     return proc == "dataOSRelax"
 
 
-root_dest = "%s/src/auxiliaries/shapes/Brown" % os.environ["CMSSW_BASE"]
+def cats():
+    return " ".join([s[-4] for s in categories.values()])
 
-substring_signal_example = "350"
-lumi     = 19.7   # /fb
 
-signalXsPrefix = "H2hh"
-signalXs = 1.0e3  # fb (= 1.0 pb)
+def workDir():
+    return "/".join(__file__.split("/")[:-1])
 
-masses_spin0 = [260, 300, 350][-1:]
-#masses_spin0 = range(260, 360, 10) #+ [500, 700]
-masses_spin2 = [500, 700]
-
-categories = {#"MM_LM": "tauTau_2jet2tag",
-              "2M": "tauTau_2jet2tag",
-              "1M": "tauTau_2jet1tag",
-              }
 
 
 def variables():
     preselection = {}
-    mass_windows = {"mJJ": (70.0, 150.0), "svMass": (90.0, 150.0), "fMassKinFit": (0.0, None)}
-    chi2 = {"chi2KinFit2": (0.0, 10.0)}
+    fMass = {"fMassKinFit": (0.0, None)}
+    #chi2 = {"chi2KinFit2": (0.0, 10.0)}
+    mass_windows = {"mJJ": (70.0, 150.0), "svMass": (90.0, 150.0)}
+    mass_windows.update(fMass)
 
-    out = [#{"var": "fMassKinFit", "bins": ( 4, 250.0, 410.0), "cuts": mass_windows},
-           #"var": "fMassKinFit", "bins": ( 4, 250.0, 410.0), "cuts": chi2},
+    out = [#{"var": "svMass",      "bins": ( 7,   0.0, 350.0), "cuts": {}},
+           #{"var": "fMassKinFit", "bins": ( 4, 250.0, 410.0), "cuts": fMass},
+           {"var": "fMassKinFit", "bins": ( 4, 250.0, 410.0), "cuts": mass_windows},
+           ##"var": "fMassKinFit", "bins": ( 4, 250.0, 410.0), "cuts": chi2},
            ]
 
-    if True:
+    if False:
         for var, bins in [("BDT", (8, -0.6, 0.2)),
                           #("BDT_270", (8, -0.6, 0.2)),
                           #("BDT_280", (8, -0.6, 0.2)),

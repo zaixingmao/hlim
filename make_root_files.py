@@ -39,12 +39,12 @@ def isData(proc):
     return proc.startswith("data")
 
 
-def histos(fileName="", bins=None, procs=[], var="", rescaleX=False, cuts={}, category=""):
+def histos(fileName="", bins=None, procs=[], var="", cuts={}, category=""):
     assert fileName
     assert bins
 
     # rescale so that bin width is 1.0
-    if rescaleX:
+    if cfg.rescaleX:
         assert bins[0]
         binWidth = (bins[2] - bins[1]) / bins[0]
         assert binWidth
@@ -161,9 +161,7 @@ def printTag(tag, l):
     print l, a
 
 
-def go(inFile="", sFactor=None, sKey="", bins=None, var="", rescaleX=True,
-       cuts=None, masses=[]):
-
+def go(inFile="", sFactor=None, sKey="", bins=None, var="", cuts=None, masses=[]):
     assert type(sFactor) is int, type(sFactor)
     assert bins
     assert var
@@ -200,7 +198,6 @@ def go(inFile="", sFactor=None, sKey="", bins=None, var="", rescaleX=True,
              "bins": bins,
              "var": var,
              "cuts": cuts,
-             "rescaleX": rescaleX,
              "fileName": inFile,
              }
 
@@ -303,7 +300,6 @@ def loop(inFile=""):
                 go(inFile=inFile,
                    sFactor=sFactor,
                    sKey="H2hh%3d" % mInj,
-                   rescaleX=True,
                    masses=masses,
                    **spec)
 
