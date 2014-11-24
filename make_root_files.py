@@ -1,20 +1,10 @@
 #!/usr/bin/env python
 
 import math
-import optparse
 import os
 import sys
 import ROOT as r
 import cfg
-
-
-def inputFile():
-    parser = optparse.OptionParser("usage: %prog xyz.root")
-    options, args = parser.parse_args()
-    if len(args) != 1 or not args[0].endswith(".root"):
-        parser.print_help()
-        exit()
-    return args[0]
 
 
 def combineBinContentAndError(h, binToContainCombo, binToBeKilled):
@@ -161,7 +151,7 @@ def printTag(tag, l):
     print l, a
 
 
-def go(inFile="", sFactor=None, sKey="", bins=None, var="", cuts=None, masses=[]):
+def go(sFactor=None, sKey="", bins=None, var="", cuts=None, masses=[]):
     assert type(sFactor) is int, type(sFactor)
     assert bins
     assert var
@@ -172,14 +162,17 @@ def go(inFile="", sFactor=None, sKey="", bins=None, var="", cuts=None, masses=[]
              "W1JetsToLNu": "W",
              "W2JetsToLNu": "W2",
              "W3JetsToLNu": "W3",
-             "DY1JetsToLL": "ZTT",
-             "DY2JetsToLL": "DY2",
-             "DY3JetsToLL": "DY3",
+             "DYJetsToLL": "ZTT",
+             #"DY1JetsToLL": "ZTT",
+             #"DY2JetsToLL": "DY2",
+             #"DY3JetsToLL": "DY3",
+             #"DY4JetsToLL": "DY4",
              "dataOSRelax": "QCD",
              }
 
     merge =  {"tt_full": ["tt_semi"],
-              "DY1JetsToLL": ["DY2JetsToLL", "DY3JetsToLL"],
+              #"DY1JetsToLL": ["DY2JetsToLL", "DY3JetsToLL"],
+              #"DY1JetsToLL": ["DY2JetsToLL", "DY3JetsToLL", "DY4JetsToLL"],
               "W1JetsToLNu": ["W2JetsToLNu", "W3JetsToLNu"],
               }
 
@@ -198,7 +191,7 @@ def go(inFile="", sFactor=None, sKey="", bins=None, var="", cuts=None, masses=[]
              "bins": bins,
              "var": var,
              "cuts": cuts,
-             "fileName": inFile,
+             "fileName": cfg.files["central"],
              }
 
     print "FIXME: include variations"
@@ -292,13 +285,12 @@ def fakeDataset(hs, sKey, sFactor, l):
     return d
 
 
-def loop(inFile=""):
+def loop():
     masses = cfg.masses_spin0
     for spec in cfg.variables():
         for mInj in masses[:1]:
             for sFactor in [0, 1, 2, 4][:1]:
-                go(inFile=inFile,
-                   sFactor=sFactor,
+                go(sFactor=sFactor,
                    sKey="H2hh%3d" % mInj,
                    masses=masses,
                    **spec)
@@ -308,4 +300,4 @@ if __name__ == "__main__":
     r.gROOT.SetBatch(True)
     r.gErrorIgnoreLevel = 2000
 
-    loop(inFile=inputFile())
+    loop()
