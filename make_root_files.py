@@ -29,8 +29,7 @@ def isData(proc):
     return proc.startswith("data")
 
 
-def histos(fileName="", bins=None, procs=[], var="", cuts={}, category=""):
-    assert fileName
+def histos(bins=None, procs=[], variable="", cuts={}, category=""):
     assert bins
 
     # rescale so that bin width is 1.0
@@ -40,14 +39,25 @@ def histos(fileName="", bins=None, procs=[], var="", cuts={}, category=""):
         assert binWidth
         factor = 1.0 / binWidth
         bins = (bins[0], bins[1] * factor, bins[2] * factor)
-        var = "(%g*%s)" % (factor, var)
+        variable = "(%g*%s)" % (factor, var)
 
-    f = r.TFile(fileName)
-    tree = f.Get("eventTree")
     out = {}
+    for variation, fileName in cfg.files.iteritems():
+        f = r.TFile(fileName)
 
+        tree = f.Get("eventTree")
+        dct = histosOneFile(f, tree, bins, procs, variable, cuts, category)
+        for proc, h in dct.iteritems():
+            out[proc+variation] = h
+
+        f.Close()
+    return out
+
+
+def histosOneFile(f, tree, bins, procs, variable, cuts, category):
+    out = {}
     for proc in procs:
-        h = r.TH1D(proc, proc+";%s;events / bin" % var, *bins)
+        h = r.TH1D(proc, proc+";%s;events / bin" % variable, *bins)
         h.Sumw2()
         w = "1.0" if isData(proc) else "triggerEff"
         cutString = '(sampleName=="%s")' % proc
@@ -60,7 +70,7 @@ def histos(fileName="", bins=None, procs=[], var="", cuts={}, category=""):
             if cutMax is not None:
                 cutString += " && (%s < %g)" % (cutVar, cutMax)
 
-        tree.Draw("%s>>%s" % (var, proc), '(%s)*(%s)' % (w, cutString))
+        tree.Draw("%s>>%s" % (variable, proc), '(%s)*(%s)' % (w, cutString))
         h.SetDirectory(0)
         shift(h)
         out[proc] = h
@@ -68,7 +78,6 @@ def histos(fileName="", bins=None, procs=[], var="", cuts={}, category=""):
             applyLooseToTight(h, f, category)
 
     applySampleWeights(out, f)
-    f.Close()
     return out
 
 
@@ -189,12 +198,10 @@ def go(sFactor=None, sKey="", bins=None, var="", cuts=None, masses=[]):
 
     kargs = {"procs": procs.keys(),
              "bins": bins,
-             "var": var,
+             "variable": var,
              "cuts": cuts,
-             "fileName": cfg.files["central"],
              }
 
-    print "FIXME: include variations"
     printHeader(var, cuts)
     l = " " * 4
 
@@ -236,14 +243,11 @@ def oneTag(tag, hs, procs, sKey, sFactor, l):
         #h.Print("all")
         if cfg.isSignal(proc) and cfg.substring_signal_example not in proc:
             pass
+        elif "CMS_scale_t" in proc:
+            pass
         else:
             integrals.append((tag, proc, h.Integral(0, 2 + h.GetNbinsX())))
-
-        nom = procs[proc]
-        h.Write(nom)
-        # fake
-        for var in ["Up", "Down"]:
-            h.Write("%s_CMS_scale_t_tautau_8TeV%s" % (nom, var))
+        h.Write()
 
     printIntegrals(integrals, l)
 
