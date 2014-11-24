@@ -29,7 +29,7 @@ def isData(proc):
     return proc.startswith("data") or proc == "QCD"
 
 
-def histos(bins=None, procs=[], variable="", cuts={}, category=""):
+def histos(bins=None, variable="", cuts={}, category=""):
     assert bins
 
     # rescale so that bin width is 1.0
@@ -46,9 +46,16 @@ def histos(bins=None, procs=[], variable="", cuts={}, category=""):
         f = r.TFile(fileName)
 
         tree = f.Get("eventTree")
-        dct = histosOneFile(f, tree, bins, procs.keys(), variable, cuts, category)
-        for proc, h in dct.iteritems():
-            out[procs[proc]+variation] = h
+
+        for destProc, srcProcs in cfg.procs().iteritems():
+            destProc += variation
+
+            for srcProc, h in histosOneFile(f, tree, bins, srcProcs, variable, cuts, category).iteritems():
+                if destProc not in out:
+                    out[destProc] = h.Clone(destProc)
+                    out[destProc].SetDirectory(0)
+                    out[destProc].Reset()
+                out[destProc].Add(h)
 
         f.Close()
     return out
@@ -165,39 +172,7 @@ def go(sFactor=None, sKey="", bins=None, var="", cuts=None, masses=[]):
     assert bins
     assert var
 
-    procs = {"tt_full": "TT",
-             "tt_semi": "tt_semi",
-             "ZZ": "VV",
-             "W1JetsToLNu": "W",
-             "W2JetsToLNu": "W2",
-             "W3JetsToLNu": "W3",
-             "DYJetsToLL": "ZTT",
-             #"DY1JetsToLL": "ZTT",
-             #"DY2JetsToLL": "DY2",
-             #"DY3JetsToLL": "DY3",
-             #"DY4JetsToLL": "DY4",
-             "dataOSRelax": "QCD",
-             }
-
-    merge =  {"TT": ["tt_semi"],
-              #"DY1JetsToLL": ["DY2JetsToLL", "DY3JetsToLL"],
-              #"DY1JetsToLL": ["DY2JetsToLL", "DY3JetsToLL", "DY4JetsToLL"],
-              "W": ["W2", "W3"],
-              }
-
-    fakeSigs = ["ggAToZhToLLTauTau", "ggAToZhToLLBB", "bbH"]
-    print "FIXME: include", fakeSigs
-    for m in masses:
-        procs["H2hh%3d" % m] = "ggHTohhTo2Tau2B%3d" % m
-        for stem in fakeSigs:
-            sig = "%s%3d" % (stem, m)
-            procs[sig] = sig
-
-    print "FIXME: deal with 250"
-    procs["bbH250"] = "bbH250"
-
-    hArgs = {"procs": procs,
-             "bins": bins,
+    hArgs = {"bins": bins,
              "variable": var,
              "cuts": cuts,
              }
@@ -214,10 +189,6 @@ def go(sFactor=None, sKey="", bins=None, var="", cuts=None, masses=[]):
     for category, tag in cfg.categories.iteritems():
         hs = histos(category=category, **hArgs)
         printTag(tag, l)
-        for target, sources in merge.iteritems():
-            for source in sources:
-                hs[target].Add(hs[source])
-                del hs[source]
         f.mkdir(tag).cd()
         oneTag(tag, hs, sKey, sFactor, l)
     f.Close()
@@ -238,6 +209,10 @@ def oneTag(tag, hs, sKey, sFactor, l):
     integrals = []
     # scale and write
     for (proc, h) in hs.iteritems():
+        if not h:
+            print "ERROR: %s" % proc, h
+            continue
+
         if not isData(proc):
             h.Scale(cfg.lumi)
         #h.Print("all")
