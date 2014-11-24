@@ -6,10 +6,10 @@ if "CMSSW_BASE" not in os.environ:
 
 root_dest = "%s/src/auxiliaries/shapes/Brown" % os.environ["CMSSW_BASE"]
 
-substring_signal_example = "350"
 lumi     = 19.7   # /fb
 rescaleX = False
 
+substring_signal_example = "2B350"
 signalXsPrefix = "H2hh"
 signalXs = 1.0e3  # fb (= 1.0 pb)
 
@@ -29,7 +29,7 @@ files = {"":                             "root/combined_inclusiveDY.root",
 
 
 def isSignal(proc):
-    return any([proc.startswith(p) for p in ["H2hh", "ggA", "bbH"]])
+    return any([proc.startswith(p) for p in ["ggHTo", "ggATo", "bbH"]])
 
 
 def isAntiIsoData(proc):
