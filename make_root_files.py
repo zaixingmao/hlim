@@ -26,7 +26,7 @@ def shift(h):
 
 
 def isData(proc):
-    return proc.startswith("data")
+    return proc.startswith("data") or proc == "QCD"
 
 
 def histos(bins=None, procs=[], variable="", cuts={}, category=""):
@@ -46,9 +46,9 @@ def histos(bins=None, procs=[], variable="", cuts={}, category=""):
         f = r.TFile(fileName)
 
         tree = f.Get("eventTree")
-        dct = histosOneFile(f, tree, bins, procs, variable, cuts, category)
+        dct = histosOneFile(f, tree, bins, procs.keys(), variable, cuts, category)
         for proc, h in dct.iteritems():
-            out[proc+variation] = h
+            out[procs[proc]+variation] = h
 
         f.Close()
     return out
@@ -179,10 +179,10 @@ def go(sFactor=None, sKey="", bins=None, var="", cuts=None, masses=[]):
              "dataOSRelax": "QCD",
              }
 
-    merge =  {"tt_full": ["tt_semi"],
+    merge =  {"TT": ["tt_semi"],
               #"DY1JetsToLL": ["DY2JetsToLL", "DY3JetsToLL"],
               #"DY1JetsToLL": ["DY2JetsToLL", "DY3JetsToLL", "DY4JetsToLL"],
-              "W1JetsToLNu": ["W2JetsToLNu", "W3JetsToLNu"],
+              "W": ["W2", "W3"],
               }
 
     fakeSigs = ["ggAToZhToLLTauTau", "ggAToZhToLLBB", "bbH"]
@@ -196,7 +196,7 @@ def go(sFactor=None, sKey="", bins=None, var="", cuts=None, masses=[]):
     print "FIXME: deal with 250"
     procs["bbH250"] = "bbH250"
 
-    kargs = {"procs": procs.keys(),
+    hArgs = {"procs": procs,
              "bins": bins,
              "variable": var,
              "cuts": cuts,
@@ -212,14 +212,14 @@ def go(sFactor=None, sKey="", bins=None, var="", cuts=None, masses=[]):
              }
     f = r.TFile(cfg.outFileName(**oArgs), "RECREATE")
     for category, tag in cfg.categories.iteritems():
-        hs = histos(category=category, **kargs)
+        hs = histos(category=category, **hArgs)
         printTag(tag, l)
         for target, sources in merge.iteritems():
             for source in sources:
                 hs[target].Add(hs[source])
                 del hs[source]
         f.mkdir(tag).cd()
-        oneTag(tag, hs, procs, sKey, sFactor, l)
+        oneTag(tag, hs, sKey, sFactor, l)
     f.Close()
 
 
@@ -234,7 +234,7 @@ def printIntegrals(lst=[], l=""):
     print l, hyphens
 
 
-def oneTag(tag, hs, procs, sKey, sFactor, l):
+def oneTag(tag, hs, sKey, sFactor, l):
     integrals = []
     # scale and write
     for (proc, h) in hs.iteritems():
