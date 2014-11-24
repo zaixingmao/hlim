@@ -15,7 +15,6 @@ cd HiggsAnalysis/HiggsToTauTau
 source environment.sh
 
 git clone https://github.com/zaixingmao/hlim
-git apply hlim/patches.txt
 cp -p hlim/HTT_TT_X_template.C test/templates/
 cp -p hlim/test.gitignore test/.gitignore
 cd ../..
