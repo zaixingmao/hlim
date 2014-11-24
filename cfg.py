@@ -105,3 +105,11 @@ def cutDesc(cuts):
             cutDesc = "%s.%.1f" % (cutDesc, cutMax)
         descs.append(cutDesc)
     return "_".join(descs)
+
+
+def complain():
+    if len(set(files.values())) != 3:
+        print "FIXME: include variations"
+
+
+complain()
