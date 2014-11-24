@@ -22,6 +22,11 @@ categories = {#"MM_LM": "tauTau_2jet2tag",
               "1M": "tauTau_2jet1tag",
               }
 
+files = {"central": "root/combined_inclusiveDY.root",
+         "up":      "root/combined_inclusiveDY.root",
+         "down":    "root/combined_inclusiveDY.root",
+         }
+
 
 def isSignal(proc):
     return any([proc.startswith(p) for p in ["H2hh", "ggA", "bbH"]])
@@ -47,7 +52,7 @@ def variables():
     mass_windows = {"mJJ": (70.0, 150.0), "svMass": (90.0, 150.0)}
     mass_windows.update(fMass)
 
-    out = [#{"var": "svMass",      "bins": ( 7,   0.0, 350.0), "cuts": {}},
+    out = [{"var": "svMass",      "bins": ( 14,   0.0, 350.0), "cuts": {}},
            #{"var": "fMassKinFit", "bins": ( 4, 250.0, 410.0), "cuts": fMass},
            {"var": "fMassKinFit", "bins": ( 4, 250.0, 410.0), "cuts": mass_windows},
            ##"var": "fMassKinFit", "bins": ( 4, 250.0, 410.0), "cuts": chi2},
