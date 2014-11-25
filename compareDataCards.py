@@ -223,12 +223,9 @@ if __name__ == "__main__":
     d2 = histograms(file2)
 
     subdirs, m1, m2 = common_keys(d1, d2)
-    if m1:
-        print "directories missing from '%s':" % file1, m1
-        print
-    if m2:
-        print "directories missing from '%s':" % file2, m2
-        print
+    report([(m1, "directories missing from '%s':" % file1),
+            (m2, "directories missing from '%s':" % file2),
+            ])
 
     pdf = "comparison.pdf"
     canvas = r.TCanvas()
