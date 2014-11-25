@@ -54,8 +54,12 @@ def procs():
     return out
 
 
+def isData(proc):
+    return proc.startswith("data") or proc.startswith("QCD")
+
+
 def isSignal(proc):
-    return any([proc.startswith(p) for p in ["ggHTo", "ggATo", "bbH"]])
+    return any([proc.startswith(p) for p in ["ggHTo", "ggATo", "ggGraviton", "ggRadion", "bbH"]])
 
 
 def isAntiIsoData(proc):
