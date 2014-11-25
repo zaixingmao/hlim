@@ -252,33 +252,7 @@ def report(l=[], suffixes=["8TeVUp", "8TeVDown"], recursive=False):
         print
 
 
-if __name__ == "__main__":
-    "Italians/htt_tt.inputs-Hhh-8TeV_m_ttbb_kinfit_only_massCut"
-    "Italians/htt_tt.inputs-Hhh-8TeV_m_bb_slice.root"
-    
-    "Italians/htt_tt.inputs-Hhh-8TeV_m_ttbb_kinfit_massCut.root"
-    "Italians/htt_tt.inputs-Hhh-8TeV_m_ttbb_kinfit_only.root"
-    "Brown/fMassKinFit_0.0.fMassKinFit.root"
-    "Brown/fMassKinFit_0.0.fMassKinFit_70.0.mJJ.150.0_90.0.svMass.150.0.root"
-
-    xTitle, file1, file2  = ("svMass (preselection)",
-                             "Italians/htt_tt.inputs-Hhh-8TeV_m_sv.root",
-                             "Brown/svMass.root")
-
-    #xTitle, file1, file2  = ("fMassKinFit (after cuts)",
-    #                         "Italians/htt_tt.inputs-Hhh-8TeV_m_ttbb_kinfit_massCut.root",
-    #                         "Brown/fMassKinFit_0.0.fMassKinFit_70.0.mJJ.150.0_90.0.svMass.150.0.root",
-    #                         )
-
-    ignorePrefixes = ["ggAToZh", "bbH", "W", "data_obs", "ggRadion", "ggGraviton"]
-
-    whiteList = ["TT", "QCD", "VV", "ZTT",
-                 "ggHTohhTo2Tau2B260", "ggHTohhTo2Tau2B300", "ggHTohhTo2Tau2B350",
-                 ]
-
-    r.gErrorIgnoreLevel = 2000
-    r.gStyle.SetOptStat("rme")
-    r.gROOT.SetBatch(True)
+def go(xTitle, file1, file2):
     d1 = histograms(file1)
     d2 = histograms(file2)
 
@@ -287,7 +261,7 @@ if __name__ == "__main__":
             (m2, "directories missing from '%s':" % file2),
             ])
 
-    pdf = "comparison.pdf"
+    pdf = "comparison_%s.pdf" % (xTitle.split()[0])
     canvas = r.TCanvas()
     canvas.Print(pdf + "[")
 
@@ -301,3 +275,24 @@ if __name__ == "__main__":
         oneDir(canvas, pdf, hNames, d1, d2, subdir, xTitle)
 
     canvas.Print(pdf + "]")
+
+
+if __name__ == "__main__":
+    ignorePrefixes = ["ggAToZh", "bbH", "W", "data_obs", "ggRadion", "ggGraviton"]
+
+    whiteList = ["TT", "QCD", "VV", "ZTT",
+                 "ggHTohhTo2Tau2B260", "ggHTohhTo2Tau2B300", "ggHTohhTo2Tau2B350",
+                 ]
+
+    r.gErrorIgnoreLevel = 2000
+    r.gStyle.SetOptStat("rme")
+    r.gROOT.SetBatch(True)
+
+    go("svMass (preselection)",
+       "Italians/htt_tt.inputs-Hhh-8TeV_m_sv.root",
+       "Brown/svMass.root")
+
+    go("fMassKinFit (after cuts)",
+       "Italians/htt_tt.inputs-Hhh-8TeV_m_ttbb_kinfit_massCut.root",
+       "Brown/fMassKinFit_0.0.fMassKinFit_70.0.mJJ.150.0_90.0.svMass.150.0.root",
+       )
