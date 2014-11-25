@@ -92,6 +92,20 @@ def band(u, d):
     return out
 
 
+def maximum(l=[]):
+    out = None
+    for h in l:
+        for i in range(1, 1 + h.GetNbinsX()):
+            value = h.GetBinContent(i) + h.GetBinError(i)
+            if (out is None) or (out < value):
+                out = value
+    return out
+
+
+def ls(h, s=""):
+    return "#color[%d]{%s  %.2f}" % (h.GetLineColor(), s, integral(h))
+
+
 def oneDir(canvas, pdf, hNames, d1, d2, subdir, xTitle):
     keep = []
     for i, hName in enumerate(whiteList):
@@ -125,22 +139,21 @@ def oneDir(canvas, pdf, hNames, d1, d2, subdir, xTitle):
         r.gPad.SetTickx()
         r.gPad.SetTicky()
             
-        i1 = integral(h1)
-        i2 = integral(h2)
-
-        title = hName
-        title += "  (#color[1]{%.2f},  #color[4]{%.2f})" % (i1, i2)
-
-        h1b.SetTitle("%s / %s;%s;events / GeV" % (subdir, title, xTitle))
+        h1b.SetTitle("%s / %s;%s;events / GeV" % (subdir, hName, xTitle))
         h1b.SetMinimum(0.0)
-        h1b.SetMaximum(1.2 * max([h1.GetMaximum(), h2.GetMaximum()]))
+
+        h1b.SetMaximum(1.1 * maximum([h1, h1u, h1d, h2, h2u, h2d]))
         h1b.SetStats(False)
         h1b.GetYaxis().SetTitleOffset(1.25)
 
         h1b.SetMarkerColor(r.kWhite)
+        h1b.SetLineColor(r.kGray)
         h1b.SetFillColor(r.kGray)
         h1b.SetFillStyle(3354)
         h1b.Draw("e2")
+
+        h1d.SetLineColor(r.kWhite)
+        h1d.Draw("histsame")
 
         h1u.SetLineColor(r.kGray)
         h1u.Draw("histsame")
@@ -151,9 +164,13 @@ def oneDir(canvas, pdf, hNames, d1, d2, subdir, xTitle):
         #keep.append(moveStatsBox(h1))
 
         h2b.SetMarkerColor(r.kWhite)
+        h2b.SetLineColor(r.kCyan)
         h2b.SetFillColor(r.kCyan)
         h2b.SetFillStyle(3345)
         h2b.Draw("e2same")
+
+        h2d.SetLineColor(r.kWhite)
+        h2d.Draw("histsame")
 
         h2u.SetLineColor(r.kCyan)
         h2u.Draw("histsame")
@@ -163,6 +180,23 @@ def oneDir(canvas, pdf, hNames, d1, d2, subdir, xTitle):
         h2.Draw("ehistsame")
         #keep.append(moveStatsBox(h2))
 
+        leg = r.TLegend(0.7, 0.6, 0.87, 0.87)
+        leg.SetBorderSize(0)
+        leg.SetFillStyle(0)
+
+        #leg.AddEntry(h1b, "band", "f")
+        leg.AddEntry(h1u, ls(h1u, "up"), "l")
+        leg.AddEntry(h1d, ls(h1d, "down"), "l")
+        leg.AddEntry(h1, ls(h1, "nominal"), "le")
+
+        #leg.AddEntry(h2b, "band", "f")
+        leg.AddEntry(h2u, ls(h2u, "up"), "l")
+        leg.AddEntry(h2d, ls(h2d, "down"), "l")
+        leg.AddEntry(h2, ls(h2, "nominal"), "le")
+
+        #leg.SetHeader("(#color[1]{%.2f},  #color[4]{%.2f})" % (integral(h1), integral(h2)))
+        leg.Draw()
+        keep.append(leg)
         if j == 3 or i == (len(whiteList) - 1):
             canvas.cd(0)
             canvas.Print(pdf)
