@@ -13,8 +13,8 @@ substring_signal_example = "2B350"
 signalXsPrefix = "H2hh"
 signalXs = 1.0e3  # fb (= 1.0 pb)
 
-#masses_spin0 = [260, 300, 350]
-masses_spin0 = range(260, 360, 10) #+ [500, 700]
+masses_spin0 = [260, 300, 350][:1]
+#masses_spin0 = range(260, 360, 10) #+ [500, 700]
 masses_spin2 = [500, 700]
 
 categories = {#"MM_LM": "tauTau_2jet2tag",
@@ -34,6 +34,8 @@ fakeSignals = {"ggAToZhToLLTauTau": masses_spin0,
                "bbH": range(90, 150, 10) + [160, 180, 200, 250, 300, 350, 400],
                }
 
+fakeBkgs = ["ZJ", "ZL", "ZLL"][:1]
+
 def procs():
     out = {"TT": ["tt_full", "tt_semi"],
            "VV": ["ZZ"],
@@ -45,6 +47,9 @@ def procs():
 
     for m in masses_spin0:
         out["ggHTohhTo2Tau2B%3d" % m] = ["H2hh%3d" % m]
+
+    for b in fakeBkgs:
+        out[b] = [b]
 
     for stem, masses in fakeSignals.iteritems():
         for m in masses:
@@ -82,7 +87,7 @@ def variables():
     mass_windows = {"mJJ": (70.0, 150.0), "svMass": (90.0, 150.0)}
     mass_windows.update(fMass)
 
-    out = [{"var": "svMass",      "bins": ( 14,   0.0, 350.0), "cuts": {}},
+    out = [#{"var": "svMass",      "bins": ( 14,   0.0, 350.0), "cuts": {}},
            #{"var": "fMassKinFit", "bins": ( 4, 250.0, 410.0), "cuts": fMass},
            {"var": "fMassKinFit", "bins": ( 4, 250.0, 410.0), "cuts": mass_windows},
            ##"var": "fMassKinFit", "bins": ( 4, 250.0, 410.0), "cuts": chi2},
@@ -143,6 +148,9 @@ def complain():
 
     if fakeSignals:
         print "FIXME: include", sorted(fakeSignals.keys())
+
+    if fakeBkgs:
+        print "FIXME: include", sorted(fakeBkgs)
 
     lst = []
     for v in procs().values():
