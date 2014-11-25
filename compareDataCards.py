@@ -146,13 +146,14 @@ def oneDir(canvas, pdf, hNames, d1, d2, subdir, xTitle):
         h1b.SetStats(False)
         h1b.GetYaxis().SetTitleOffset(1.25)
 
-        h1b.SetMarkerColor(r.kWhite)
+        h1b.SetMarkerColor(r.kGray)
         h1b.SetLineColor(r.kGray)
         h1b.SetFillColor(r.kGray)
         h1b.SetFillStyle(3354)
         h1b.Draw("e2")
 
-        h1d.SetLineColor(r.kWhite)
+        h1d.SetLineColor(r.kGray)
+        h1d.SetLineStyle(4)
         h1d.Draw("histsame")
 
         h1u.SetLineColor(r.kGray)
@@ -163,13 +164,14 @@ def oneDir(canvas, pdf, hNames, d1, d2, subdir, xTitle):
         h1.Draw("ehistsame")
         #keep.append(moveStatsBox(h1))
 
-        h2b.SetMarkerColor(r.kWhite)
+        h2b.SetMarkerColor(r.kCyan)
         h2b.SetLineColor(r.kCyan)
         h2b.SetFillColor(r.kCyan)
         h2b.SetFillStyle(3345)
         h2b.Draw("e2same")
 
-        h2d.SetLineColor(r.kWhite)
+        h2d.SetLineColor(r.kCyan)
+        h2d.SetLineStyle(4)
         h2d.Draw("histsame")
 
         h2u.SetLineColor(r.kCyan)
