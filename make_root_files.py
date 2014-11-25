@@ -129,8 +129,8 @@ def applyLooseToTight(h=None, tfile=None, category=""):
     h.Scale(factor)
 
 
-def describe(h, l):
-    print l, h.GetXaxis().GetTitle()
+def describe(h, l, keys):
+    print l, h.GetXaxis().GetTitle(), "(sum of %s)" % str(keys)
     headers = "bin       x         cont  +-   err    (   rel)"
     print l, headers
     print l, "-" * len(headers)
@@ -228,15 +228,20 @@ def oneTag(tag, hs, sKey, sFactor, l):
 
 def fakeDataset(hs, sKey, sFactor, l):
     d = None
+    keys = []
     for key, histo in hs.iteritems():
         if cfg.isSignal(key):
             continue
+        if key.endswith("8TeVUp") or key.endswith("8TeVDown"):
+            continue
+
         if d is None:
             d = histo.Clone("data_obs")
             d.Reset()
         d.Add(histo)
+        keys.append(key)
 
-    describe(d, l)
+    describe(d, l, keys)
 
     zTitle = "Observed = floor(sum(bkg)"  # missing ) added below
     if sFactor:
