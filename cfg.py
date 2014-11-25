@@ -23,8 +23,8 @@ categories = {#"MM_LM": "tauTau_2jet2tag",
               }
 
 files = {"":                             "root/combined_inclusiveDY.root",
-         "_CMS_scale_t_tautau_8TeVUp":   "root/combined_inclusiveDY.root",
-         "_CMS_scale_t_tautau_8TeVDown": "root/combined_inclusiveDY.root",
+         "_CMS_scale_t_tautau_8TeVUp":   "root/combined_up.root",
+         "_CMS_scale_t_tautau_8TeVDown": "root/combined_down.root",
          }
 
 __fakeSignals = ["ggAToZhToLLTauTau", "ggAToZhToLLBB", "bbH"]
