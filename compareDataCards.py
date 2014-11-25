@@ -182,7 +182,7 @@ def oneDir(canvas, pdf, hNames, d1, d2, subdir, xTitle):
         h2.Draw("ehistsame")
         #keep.append(moveStatsBox(h2))
 
-        leg = r.TLegend(0.7, 0.6, 0.87, 0.87)
+        leg = r.TLegend(0.6, 0.6, 0.87, 0.87)
         leg.SetBorderSize(0)
         leg.SetFillStyle(0)
 
