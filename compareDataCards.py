@@ -1,8 +1,22 @@
 #!/usr/bin/env python
 
 import ROOT as r
+import collections
 import os
 import sys
+
+
+def fetchOneDir(f, subdir):
+    out = {}
+    for key in r.gDirectory.GetListOfKeys():
+        name2 = key.GetName()
+        if name2.endswith("8TeVUp") or name2.endswith("8TeVDown"):
+            continue
+        h = f.Get("%s/%s" % (subdir, name2)).Clone()
+        h.SetDirectory(0)
+        normalize(h)
+        out[name2] = h
+    return out
 
 
 def histograms(fileName=""):
@@ -14,17 +28,7 @@ def histograms(fileName=""):
     for key in f.GetListOfKeys():
         name = key.GetName()
         f.cd(name)
-
-        out[name] = {}
-        for key2 in r.gDirectory.GetListOfKeys():
-            name2 = key2.GetName()
-            if name2.endswith("8TeVUp") or name2.endswith("8TeVDown"):
-                continue
-            h = f.Get("%s/%s" % (name, name2)).Clone()
-            h.SetDirectory(0)
-            normalize(h)
-            out[name][name2] = h
-
+        out[name] = fetchOneDir(f, name)
     f.Close()
     return out
 
@@ -103,9 +107,36 @@ def oneDir(canvas, pdf, hNames, d1, d2, subdir, xTitle):
         title = hName
         title += "  (#color[1]{%.2f},  #color[4]{%.2f})" % (i1, i2)
         h1.SetTitle("%s / %s;%s;events / GeV" % (subdir, title, xTitle))
+
+        h1.SetMinimum(0.0)
+        # h1.SetMaximum(1.2 * max([h1.GetMaximum(), h2.GetMaximum()]))
+
+        # h1.SetMarkerStyle(8)
+        # h1.SetMarkerSize(0.6)
+        # h1.SetLineWidth(2)
+        # h1.SetMarkerColor(1)
+        # h1.SetLineColor(1)
+        # h1.SetLineStyle(1)
+        # h1.SetFillColor(0)
+        # h1.Draw("hist")
         h1.Draw()
         #keep.append(moveStatsBox(h1))
-        h1.SetMinimum(0.0)
+
+        # h4 = h1.Clone()
+        # h4.SetLineWidth(0)
+        # h4.SetFillColor(r.kGray)
+        # h4.SetFillStyle(3344)
+        # h4.Draw("e2same")
+
+        # h2.SetMarkerStyle(8)
+        # h2.SetMarkerSize(0.6)
+        # h2.SetMarkerColor(4)
+        # h2.SetLineWidth(2)
+        # h2.SetLineStyle(1)
+        # h2.SetLineColor(4)
+        # h2.SetFillColor(0)
+        # h2.Draw("hist e same")
+
         h2.SetLineColor(r.kBlue)
         h2.Draw("same")
         #keep.append(moveStatsBox(h2))
@@ -114,8 +145,38 @@ def oneDir(canvas, pdf, hNames, d1, d2, subdir, xTitle):
             canvas.cd(0)
             canvas.Print(pdf)
 
-    if hNames:
-        print "Skipping", hNames
+    report([(hNames, "Skipping")])
+
+
+def report(l=[]):
+    for (hs, message) in l:
+        if hs:
+            m = collections.defaultdict(list)
+            for h in sorted(hs):
+                num = None
+                for i in range(-4, -1):
+                    try:
+                        num = int(h[i:])
+                        key = h[:i]
+                        m[key].append(num)
+                        break
+                    except ValueError, e:
+                        continue
+                if num is None:
+                    m[h[:-3]].append(h[-3:])
+            print message
+
+            singles = []
+            for key, lst in sorted(m.iteritems()):
+                if not key:
+                    singles += lst
+                elif len(lst) == 1:
+                    singles.append(key+str(lst[0]))
+                else:
+                    print key, sorted(lst)
+            if singles:
+                print sorted(singles)
+            print
 
 
 if __name__ == "__main__":
@@ -160,10 +221,9 @@ if __name__ == "__main__":
 
     for subdir in reversed(subdirs):
         hNames, h1, h2 = common_keys(d1[subdir], d2[subdir])
-        if h1:
-            print "histograms missing from '%s/%s':" % (file1, subdir), h1
-        if h2:
-            print "histograms missing from '%s/%s':" % (file2, subdir), h2
+        report([(h1, 'histograms missing from %s/%s:' % (file1, subdir)),
+                (h2, 'histograms missing from %s/%s:' % (file2, subdir)),
+                ])
 
         hNames = filter(lambda hName: not any([hName.startswith(x) for x in ignorePrefixes]), hNames)
         oneDir(canvas, pdf, hNames, d1, d2, subdir, xTitle)
