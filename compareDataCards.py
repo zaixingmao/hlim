@@ -74,6 +74,24 @@ def integral(h):
     return out
 
 
+def band(u, d):
+    ux = u.GetXaxis()
+    dx = d.GetXaxis()
+    for func in ["GetNbins", "GetXmin", "GetXmax"]:
+        if getattr(ux, func)() != getattr(dx, func)():
+            sys.exit("Binning (%s) check failed for %s, %s" % (func, u.GetName(), d.GetName()))
+
+    out = u.Clone()
+    out.Reset()
+    for i in range(1, 1 + out.GetNbinsX()):
+        c1 = u.GetBinContent(i)
+        c2 = d.GetBinContent(i)
+        out.SetBinContent(i, (c1 + c2) / 2.0)
+        error = abs(c1 - c2) / 2.0
+        out.SetBinError(i, max(0.00001, error))
+    return out
+
+
 def oneDir(canvas, pdf, hNames, d1, d2, subdir, xTitle):
     keep = []
     for i, hName in enumerate(whiteList):
@@ -92,50 +110,56 @@ def oneDir(canvas, pdf, hNames, d1, d2, subdir, xTitle):
             print "ERROR: %s not found" % hName
 
         h1 = d1[subdir][hName]
+        h1u = d1[subdir]["%s_CMS_scale_t_tautau_8TeVUp" % hName]
+        h1d = d1[subdir]["%s_CMS_scale_t_tautau_8TeVDown" % hName]
+        h1b = band(h1u, h1d)
+        keep.append(h1b)
+
         h2 = d2[subdir][hName]
+        h2u = d2[subdir]["%s_CMS_scale_t_tautau_8TeVUp" % hName]
+        h2d = d2[subdir]["%s_CMS_scale_t_tautau_8TeVDown" % hName]
+        h2b = band(h2u, h2d)
+        keep.append(h2b)
 
         canvas.cd(1 + j)
         r.gPad.SetTickx()
         r.gPad.SetTicky()
             
-        h1.SetLineColor(r.kBlack)
         i1 = integral(h1)
         i2 = integral(h2)
 
         title = hName
         title += "  (#color[1]{%.2f},  #color[4]{%.2f})" % (i1, i2)
-        h1.SetTitle("%s / %s;%s;events / GeV" % (subdir, title, xTitle))
 
-        h1.SetMinimum(0.0)
-        # h1.SetMaximum(1.2 * max([h1.GetMaximum(), h2.GetMaximum()]))
+        h1b.SetTitle("%s / %s;%s;events / GeV" % (subdir, title, xTitle))
+        h1b.SetMinimum(0.0)
+        h1b.SetMaximum(1.2 * max([h1.GetMaximum(), h2.GetMaximum()]))
+        h1b.SetStats(False)
+        h1b.GetYaxis().SetTitleOffset(1.25)
 
-        # h1.SetMarkerStyle(8)
-        # h1.SetMarkerSize(0.6)
-        # h1.SetLineWidth(2)
-        # h1.SetMarkerColor(1)
-        # h1.SetLineColor(1)
-        # h1.SetLineStyle(1)
-        # h1.SetFillColor(0)
-        # h1.Draw("hist")
-        h1.Draw()
+        h1b.SetMarkerColor(r.kWhite)
+        h1b.SetFillColor(r.kGray)
+        h1b.SetFillStyle(3354)
+        h1b.Draw("e2")
+
+        h1u.SetLineColor(r.kGray)
+        h1u.Draw("hsame")
+
+        h1.SetLineColor(r.kBlack)
+        h1.SetMarkerColor(r.kBlack)
+        h1.Draw("same")
         #keep.append(moveStatsBox(h1))
 
-        # h4 = h1.Clone()
-        # h4.SetLineWidth(0)
-        # h4.SetFillColor(r.kGray)
-        # h4.SetFillStyle(3344)
-        # h4.Draw("e2same")
+        h2b.SetMarkerColor(r.kWhite)
+        h2b.SetFillColor(r.kCyan)
+        h2b.SetFillStyle(3345)
+        h2b.Draw("e2same")
 
-        # h2.SetMarkerStyle(8)
-        # h2.SetMarkerSize(0.6)
-        # h2.SetMarkerColor(4)
-        # h2.SetLineWidth(2)
-        # h2.SetLineStyle(1)
-        # h2.SetLineColor(4)
-        # h2.SetFillColor(0)
-        # h2.Draw("hist e same")
+        h2u.SetLineColor(r.kCyan)
+        h2u.Draw("histsame")
 
         h2.SetLineColor(r.kBlue)
+        h2.SetMarkerColor(r.kBlue)
         h2.Draw("same")
         #keep.append(moveStatsBox(h2))
 
