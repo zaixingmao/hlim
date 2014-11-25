@@ -10,8 +10,6 @@ def fetchOneDir(f, subdir):
     out = {}
     for key in r.gDirectory.GetListOfKeys():
         name = key.GetName()
-        if name.endswith("8TeVUp") or name.endswith("8TeVDown"):
-            continue
         h = f.Get("%s/%s" % (subdir, name)).Clone()
         h.SetDirectory(0)
         normalize(h)
@@ -161,17 +159,25 @@ def tryNums(m, h):
     return num
 
 
-def report(l=[]):
+def report(l=[], suffixes=["8TeVUp", "8TeVDown"], recursive=False):
     for (hs, message) in l:
         if not hs:
             continue
 
+        for suffix in suffixes:
+            hs2 = filter(lambda x: x.endswith(suffix), hs)
+            for h in hs2:
+                hs.remove(h)
+            hs3 = [x[:x.find("_%s" % suffix)] for x in hs2]
+            if recursive:
+                report([(hs3, "%s (%s)" % (message, suffix))])
+
         m = collections.defaultdict(list)
+        print message
         for h in sorted(hs):
             if tryNums(m, h) is None:
-                pass
+                m[''].append(h)
 
-        print message
         singles = []
         for key, lst in sorted(m.iteritems()):
             if not key:
@@ -219,8 +225,10 @@ if __name__ == "__main__":
     subdirs, m1, m2 = common_keys(d1, d2)
     if m1:
         print "directories missing from '%s':" % file1, m1
+        print
     if m2:
         print "directories missing from '%s':" % file2, m2
+        print
 
     pdf = "comparison.pdf"
     canvas = r.TCanvas()
