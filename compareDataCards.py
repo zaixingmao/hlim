@@ -143,11 +143,11 @@ def oneDir(canvas, pdf, hNames, d1, d2, subdir, xTitle):
         h1b.Draw("e2")
 
         h1u.SetLineColor(r.kGray)
-        h1u.Draw("hsame")
+        h1u.Draw("histsame")
 
         h1.SetLineColor(r.kBlack)
         h1.SetMarkerColor(r.kBlack)
-        h1.Draw("same")
+        h1.Draw("ehistsame")
         #keep.append(moveStatsBox(h1))
 
         h2b.SetMarkerColor(r.kWhite)
@@ -160,7 +160,7 @@ def oneDir(canvas, pdf, hNames, d1, d2, subdir, xTitle):
 
         h2.SetLineColor(r.kBlue)
         h2.SetMarkerColor(r.kBlue)
-        h2.Draw("same")
+        h2.Draw("ehistsame")
         #keep.append(moveStatsBox(h2))
 
         if j == 3 or i == (len(whiteList) - 1):
