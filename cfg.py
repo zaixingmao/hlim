@@ -27,7 +27,8 @@ files = {"":                             "root/combined_inclusiveDY.root",
          "_CMS_scale_t_tautau_8TeVDown": "root/combined_down.root",
          }
 
-__fakeSignals = ["ggAToZhToLLTauTau", "ggAToZhToLLBB", "bbH"]
+__fakeSignals = ["ggAToZhToLLTauTau", "ggAToZhToLLBB"]
+__fakebbH = [90, 100, 110, 120, 130, 140, 160, 180, 200, 250, 300, 350, 400]
 
 def procs():
     out = {"TT": ["tt_full", "tt_semi"],
@@ -38,7 +39,9 @@ def procs():
            "QCD": ["dataOSRelax"],
            }
 
-    out["bbH250"] = ["bbH250"]
+    for m in __fakebbH:
+        out["bbH%d" % m] = ["bbH%d" % m]
+
     for m in masses_spin0:
         out["ggHTohhTo2Tau2B%3d" % m] = ["H2hh%3d" % m]
         for stem in __fakeSignals:
@@ -131,7 +134,9 @@ def complain():
     if len(set(files.values())) != 3:
         print "FIXME: include variations"
 
-    print "FIXME: deal with 250"
+    if __fakebbH:
+        print "FIXME: include bbH"
+
     if __fakeSignals:
         print "FIXME: include", __fakeSignals
 
