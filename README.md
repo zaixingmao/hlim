@@ -27,6 +27,7 @@ scram b -j 4
 cd CMSSW_7_1_5/src/HiggsAnalysis/HiggsToTauTau/hlim
 cmsenv
 
-./make_root_files.py xyz.root
+# edit cfg.py
+./make_root_files.py
 ./go.py --file=root/a.root --full
 ```

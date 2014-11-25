@@ -1,20 +1,10 @@
 #!/usr/bin/env python
 
 import math
-import optparse
 import os
 import sys
 import ROOT as r
 import cfg
-
-
-def inputFile():
-    parser = optparse.OptionParser("usage: %prog xyz.root")
-    options, args = parser.parse_args()
-    if len(args) != 1 or not args[0].endswith(".root"):
-        parser.print_help()
-        exit()
-    return args[0]
 
 
 def combineBinContentAndError(h, binToContainCombo, binToBeKilled):
@@ -35,12 +25,7 @@ def shift(h):
     combineBinContentAndError(h, 1, 0)  # underflows
 
 
-def isData(proc):
-    return proc.startswith("data")
-
-
-def histos(fileName="", bins=None, procs=[], var="", cuts={}, category=""):
-    assert fileName
+def histos(bins=None, variable="", cuts={}, category=""):
     assert bins
 
     # rescale so that bin width is 1.0
@@ -50,16 +35,34 @@ def histos(fileName="", bins=None, procs=[], var="", cuts={}, category=""):
         assert binWidth
         factor = 1.0 / binWidth
         bins = (bins[0], bins[1] * factor, bins[2] * factor)
-        var = "(%g*%s)" % (factor, var)
+        variable = "(%g*%s)" % (factor, var)
 
-    f = r.TFile(fileName)
-    tree = f.Get("eventTree")
     out = {}
+    for variation, fileName in cfg.files.iteritems():
+        f = r.TFile(fileName)
 
+        tree = f.Get("eventTree")
+
+        for destProc, srcProcs in cfg.procs().iteritems():
+            destProc += variation
+
+            for srcProc, h in histosOneFile(f, tree, bins, srcProcs, variable, cuts, category).iteritems():
+                if destProc not in out:
+                    out[destProc] = h.Clone(destProc)
+                    out[destProc].SetDirectory(0)
+                    out[destProc].Reset()
+                out[destProc].Add(h)
+
+        f.Close()
+    return out
+
+
+def histosOneFile(f, tree, bins, procs, variable, cuts, category):
+    out = {}
     for proc in procs:
-        h = r.TH1D(proc, proc+";%s;events / bin" % var, *bins)
+        h = r.TH1D(proc, proc+";%s;events / bin" % variable, *bins)
         h.Sumw2()
-        w = "1.0" if isData(proc) else "triggerEff"
+        w = "1.0" if cfg.isData(proc) else "triggerEff"
         cutString = '(sampleName=="%s")' % proc
         if category:
             cutString += ' && (Category=="%s")' % category
@@ -70,7 +73,7 @@ def histos(fileName="", bins=None, procs=[], var="", cuts={}, category=""):
             if cutMax is not None:
                 cutString += " && (%s < %g)" % (cutVar, cutMax)
 
-        tree.Draw("%s>>%s" % (var, proc), '(%s)*(%s)' % (w, cutString))
+        tree.Draw("%s>>%s" % (variable, proc), '(%s)*(%s)' % (w, cutString))
         h.SetDirectory(0)
         shift(h)
         out[proc] = h
@@ -78,7 +81,6 @@ def histos(fileName="", bins=None, procs=[], var="", cuts={}, category=""):
             applyLooseToTight(h, f, category)
 
     applySampleWeights(out, f)
-    f.Close()
     return out
 
 
@@ -112,7 +114,7 @@ def scale_denom(h, denom, proc):
 
 def applySampleWeights(hs={}, tfile=None):
     for proc, h in hs.iteritems():
-        if isData(proc):
+        if cfg.isData(proc):
             continue
         scale_numer(h, tfile.Get("xs"), proc)
         scale_denom(h, tfile.Get("initEvents"), proc)
@@ -161,47 +163,16 @@ def printTag(tag, l):
     print l, a
 
 
-def go(inFile="", sFactor=None, sKey="", bins=None, var="", cuts=None, masses=[]):
+def go(sFactor=None, sKey="", bins=None, var="", cuts=None, masses=[]):
     assert type(sFactor) is int, type(sFactor)
     assert bins
     assert var
 
-    procs = {"tt_full": "TT",
-             "tt_semi": "tt_semi",
-             "ZZ": "VV",
-             "W1JetsToLNu": "W",
-             "W2JetsToLNu": "W2",
-             "W3JetsToLNu": "W3",
-             "DY1JetsToLL": "ZTT",
-             "DY2JetsToLL": "DY2",
-             "DY3JetsToLL": "DY3",
-             "dataOSRelax": "QCD",
-             }
-
-    merge =  {"tt_full": ["tt_semi"],
-              "DY1JetsToLL": ["DY2JetsToLL", "DY3JetsToLL"],
-              "W1JetsToLNu": ["W2JetsToLNu", "W3JetsToLNu"],
-              }
-
-    fakeSigs = ["ggAToZhToLLTauTau", "ggAToZhToLLBB", "bbH"]
-    print "FIXME: include", fakeSigs
-    for m in masses:
-        procs["H2hh%3d" % m] = "ggHTohhTo2Tau2B%3d" % m
-        for stem in fakeSigs:
-            sig = "%s%3d" % (stem, m)
-            procs[sig] = sig
-
-    print "FIXME: deal with 250"
-    procs["bbH250"] = "bbH250"
-
-    kargs = {"procs": procs.keys(),
-             "bins": bins,
-             "var": var,
+    hArgs = {"bins": bins,
+             "variable": var,
              "cuts": cuts,
-             "fileName": inFile,
              }
 
-    print "FIXME: include variations"
     printHeader(var, cuts)
     l = " " * 4
 
@@ -212,14 +183,10 @@ def go(inFile="", sFactor=None, sKey="", bins=None, var="", cuts=None, masses=[]
              }
     f = r.TFile(cfg.outFileName(**oArgs), "RECREATE")
     for category, tag in cfg.categories.iteritems():
-        hs = histos(category=category, **kargs)
+        hs = histos(category=category, **hArgs)
         printTag(tag, l)
-        for target, sources in merge.iteritems():
-            for source in sources:
-                hs[target].Add(hs[source])
-                del hs[source]
         f.mkdir(tag).cd()
-        oneTag(tag, hs, procs, sKey, sFactor, l)
+        oneTag(tag, hs, sKey, sFactor, l)
     f.Close()
 
 
@@ -234,23 +201,24 @@ def printIntegrals(lst=[], l=""):
     print l, hyphens
 
 
-def oneTag(tag, hs, procs, sKey, sFactor, l):
+def oneTag(tag, hs, sKey, sFactor, l):
     integrals = []
     # scale and write
     for (proc, h) in hs.iteritems():
-        if not isData(proc):
+        if not h:
+            print "ERROR: %s" % proc, h
+            continue
+
+        if not cfg.isData(proc):
             h.Scale(cfg.lumi)
         #h.Print("all")
         if cfg.isSignal(proc) and cfg.substring_signal_example not in proc:
             pass
+        elif "CMS_scale_t" in proc:
+            pass
         else:
             integrals.append((tag, proc, h.Integral(0, 2 + h.GetNbinsX())))
-
-        nom = procs[proc]
-        h.Write(nom)
-        # fake
-        for var in ["Up", "Down"]:
-            h.Write("%s_CMS_scale_t_tautau_8TeV%s" % (nom, var))
+        h.Write()
 
     printIntegrals(integrals, l)
 
@@ -292,13 +260,12 @@ def fakeDataset(hs, sKey, sFactor, l):
     return d
 
 
-def loop(inFile=""):
+def loop():
     masses = cfg.masses_spin0
     for spec in cfg.variables():
         for mInj in masses[:1]:
             for sFactor in [0, 1, 2, 4][:1]:
-                go(inFile=inFile,
-                   sFactor=sFactor,
+                go(sFactor=sFactor,
                    sKey="H2hh%3d" % mInj,
                    masses=masses,
                    **spec)
@@ -308,4 +275,4 @@ if __name__ == "__main__":
     r.gROOT.SetBatch(True)
     r.gErrorIgnoreLevel = 2000
 
-    loop(inFile=inputFile())
+    loop()

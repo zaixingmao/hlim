@@ -6,10 +6,10 @@ if "CMSSW_BASE" not in os.environ:
 
 root_dest = "%s/src/auxiliaries/shapes/Brown" % os.environ["CMSSW_BASE"]
 
-substring_signal_example = "350"
 lumi     = 19.7   # /fb
 rescaleX = False
 
+substring_signal_example = "2B350"
 signalXsPrefix = "H2hh"
 signalXs = 1.0e3  # fb (= 1.0 pb)
 
@@ -22,9 +22,44 @@ categories = {#"MM_LM": "tauTau_2jet2tag",
               "1M": "tauTau_2jet1tag",
               }
 
+files = {"":                             "root/combined_inclusiveDY.root",
+         "_CMS_scale_t_tautau_8TeVUp":   "root/combined_up.root",
+         "_CMS_scale_t_tautau_8TeVDown": "root/combined_down.root",
+         }
+
+fakeSignals = {"ggAToZhToLLTauTau": masses_spin0,
+               "ggAToZhToLLBB": [250] + masses_spin0,
+               "ggGravitonTohhTo2Tau2B": [270, 300, 500, 700, 1000],
+               "ggRadionTohhTo2Tau2B":   [     300, 500, 700, 1000],
+               "bbH": range(90, 150, 10) + [160, 180, 200, 250, 300, 350, 400],
+               }
+
+def procs():
+    out = {"TT": ["tt_full", "tt_semi"],
+           "VV": ["ZZ"],
+           "W": ["W1JetsToLNu", "W2JetsToLNu", "W3JetsToLNu"],
+           "ZTT": ["DYJetsToLL"],
+           #"ZTT": ["DY1JetsToLL", "DY2JetsToLL", "DY3JetsToLL", "DY4JetsToLL"],
+           "QCD": ["dataOSRelax"],
+           }
+
+    for m in masses_spin0:
+        out["ggHTohhTo2Tau2B%3d" % m] = ["H2hh%3d" % m]
+
+    for stem, masses in fakeSignals.iteritems():
+        for m in masses:
+            s = "%s%d" % (stem, m)
+            out[s] = [s]
+
+    return out
+
+
+def isData(proc):
+    return proc.startswith("data") or proc.startswith("QCD")
+
 
 def isSignal(proc):
-    return any([proc.startswith(p) for p in ["H2hh", "ggA", "bbH"]])
+    return any([proc.startswith(p) for p in ["ggHTo", "ggATo", "ggGraviton", "ggRadion", "bbH"]])
 
 
 def isAntiIsoData(proc):
@@ -47,7 +82,7 @@ def variables():
     mass_windows = {"mJJ": (70.0, 150.0), "svMass": (90.0, 150.0)}
     mass_windows.update(fMass)
 
-    out = [#{"var": "svMass",      "bins": ( 7,   0.0, 350.0), "cuts": {}},
+    out = [{"var": "svMass",      "bins": ( 14,   0.0, 350.0), "cuts": {}},
            #{"var": "fMassKinFit", "bins": ( 4, 250.0, 410.0), "cuts": fMass},
            {"var": "fMassKinFit", "bins": ( 4, 250.0, 410.0), "cuts": mass_windows},
            ##"var": "fMassKinFit", "bins": ( 4, 250.0, 410.0), "cuts": chi2},
@@ -100,3 +135,23 @@ def cutDesc(cuts):
             cutDesc = "%s.%.1f" % (cutDesc, cutMax)
         descs.append(cutDesc)
     return "_".join(descs)
+
+
+def complain():
+    if len(set(files.values())) != 3:
+        print "FIXME: include variations"
+
+    if fakeSignals:
+        print "FIXME: include", sorted(fakeSignals.keys())
+
+    lst = []
+    for v in procs().values():
+        if type(v) != list:
+            sys.exit("ERROR: type of '%s' is not list." % str(v))
+        else:
+            lst += v
+    if len(set(lst)) != len(lst):
+        sys.exit("ERROR: procs values has duplicates: %s." % str(sorted(lst)))
+
+
+complain()
