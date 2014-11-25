@@ -9,13 +9,13 @@ import sys
 def fetchOneDir(f, subdir):
     out = {}
     for key in r.gDirectory.GetListOfKeys():
-        name2 = key.GetName()
-        if name2.endswith("8TeVUp") or name2.endswith("8TeVDown"):
+        name = key.GetName()
+        if name.endswith("8TeVUp") or name.endswith("8TeVDown"):
             continue
-        h = f.Get("%s/%s" % (subdir, name2)).Clone()
+        h = f.Get("%s/%s" % (subdir, name)).Clone()
         h.SetDirectory(0)
         normalize(h)
-        out[name2] = h
+        out[name] = h
     return out
 
 
@@ -148,35 +148,42 @@ def oneDir(canvas, pdf, hNames, d1, d2, subdir, xTitle):
     report([(hNames, "Skipping")])
 
 
+def tryNums(m, h):
+    num = None
+    for i in range(-4, -1):
+        try:
+            num = int(h[i:])
+            key = h[:i]
+            m[key].append(num)
+            break
+        except ValueError, e:
+            continue
+    return num
+
+
 def report(l=[]):
     for (hs, message) in l:
-        if hs:
-            m = collections.defaultdict(list)
-            for h in sorted(hs):
-                num = None
-                for i in range(-4, -1):
-                    try:
-                        num = int(h[i:])
-                        key = h[:i]
-                        m[key].append(num)
-                        break
-                    except ValueError, e:
-                        continue
-                if num is None:
-                    m[h[:-3]].append(h[-3:])
-            print message
+        if not hs:
+            continue
 
-            singles = []
-            for key, lst in sorted(m.iteritems()):
-                if not key:
-                    singles += lst
-                elif len(lst) == 1:
-                    singles.append(key+str(lst[0]))
-                else:
-                    print key, sorted(lst)
-            if singles:
-                print sorted(singles)
-            print
+        m = collections.defaultdict(list)
+        for h in sorted(hs):
+            if tryNums(m, h) is None:
+                pass
+
+        print message
+        singles = []
+        for key, lst in sorted(m.iteritems()):
+            if not key:
+                singles += lst
+            elif len(lst) == 1:
+                singles.append(key+str(lst[0]))
+            else:
+                print key, sorted(lst)
+
+        if singles:
+            print sorted(singles)
+        print
 
 
 if __name__ == "__main__":
