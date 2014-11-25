@@ -27,8 +27,12 @@ files = {"":                             "root/combined_inclusiveDY.root",
          "_CMS_scale_t_tautau_8TeVDown": "root/combined_down.root",
          }
 
-__fakeSignals = ["ggAToZhToLLTauTau", "ggAToZhToLLBB"]
-__fakebbH = [90, 100, 110, 120, 130, 140, 160, 180, 200, 250, 300, 350, 400]
+fakeSignals = {"ggAToZhToLLTauTau": masses_spin0,
+               "ggAToZhToLLBB": [250] + masses_spin0,
+               "ggGravitonTohhTo2Tau2B": [270, 300, 500, 700, 1000],
+               "ggRadionTohhTo2Tau2B":   [     300, 500, 700, 1000],
+               "bbH": range(90, 150, 10) + [160, 180, 200, 250, 300, 350, 400],
+               }
 
 def procs():
     out = {"TT": ["tt_full", "tt_semi"],
@@ -39,14 +43,13 @@ def procs():
            "QCD": ["dataOSRelax"],
            }
 
-    for m in __fakebbH:
-        out["bbH%d" % m] = ["bbH%d" % m]
-
     for m in masses_spin0:
         out["ggHTohhTo2Tau2B%3d" % m] = ["H2hh%3d" % m]
-        for stem in __fakeSignals:
-            sig = "%s%3d" % (stem, m)
-            out[sig] = [sig]
+
+    for stem, masses in fakeSignals.iteritems():
+        for m in masses:
+            s = "%s%d" % (stem, m)
+            out[s] = [s]
 
     return out
 
@@ -134,11 +137,8 @@ def complain():
     if len(set(files.values())) != 3:
         print "FIXME: include variations"
 
-    if __fakebbH:
-        print "FIXME: include bbH"
-
-    if __fakeSignals:
-        print "FIXME: include", __fakeSignals
+    if fakeSignals:
+        print "FIXME: include", sorted(fakeSignals.keys())
 
     lst = []
     for v in procs().values():
