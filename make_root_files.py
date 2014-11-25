@@ -25,10 +25,6 @@ def shift(h):
     combineBinContentAndError(h, 1, 0)  # underflows
 
 
-def isData(proc):
-    return proc.startswith("data") or proc == "QCD"
-
-
 def histos(bins=None, variable="", cuts={}, category=""):
     assert bins
 
@@ -66,7 +62,7 @@ def histosOneFile(f, tree, bins, procs, variable, cuts, category):
     for proc in procs:
         h = r.TH1D(proc, proc+";%s;events / bin" % variable, *bins)
         h.Sumw2()
-        w = "1.0" if isData(proc) else "triggerEff"
+        w = "1.0" if cfg.isData(proc) else "triggerEff"
         cutString = '(sampleName=="%s")' % proc
         if category:
             cutString += ' && (Category=="%s")' % category
@@ -118,7 +114,7 @@ def scale_denom(h, denom, proc):
 
 def applySampleWeights(hs={}, tfile=None):
     for proc, h in hs.iteritems():
-        if isData(proc):
+        if cfg.isData(proc):
             continue
         scale_numer(h, tfile.Get("xs"), proc)
         scale_denom(h, tfile.Get("initEvents"), proc)
@@ -213,7 +209,7 @@ def oneTag(tag, hs, sKey, sFactor, l):
             print "ERROR: %s" % proc, h
             continue
 
-        if not isData(proc):
+        if not cfg.isData(proc):
             h.Scale(cfg.lumi)
         #h.Print("all")
         if cfg.isSignal(proc) and cfg.substring_signal_example not in proc:
