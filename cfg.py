@@ -13,7 +13,7 @@ substring_signal_example = "2B350"
 signalXsPrefix = "H2hh"
 signalXs = 1.0e3  # fb (= 1.0 pb)
 
-masses_spin0 = [260, 300, 350][:1]
+masses_spin0 = [260, 300, 350]
 #masses_spin0 = range(260, 360, 10) #+ [500, 700]
 masses_spin2 = [500, 700]
 
@@ -81,15 +81,22 @@ def workDir():
 
 
 def variables():
+    fm_bins = [200, 250, 270, 290, 310, 330, 350, 370, 390, 410, 430, 450, 500, 550, 600, 650, 700]
+
     preselection = {}
     fMass = {"fMassKinFit": (0.0, None)}
     #chi2 = {"chi2KinFit2": (0.0, 10.0)}
     mass_windows = {"mJJ": (70.0, 150.0), "svMass": (90.0, 150.0)}
     mass_windows.update(fMass)
 
-    out = [#{"var": "svMass",      "bins": ( 14,   0.0, 350.0), "cuts": {}},
+    ## bins are either a tuple: (n, xMin, xMax)
+    ##  or
+    ## a list of bin lower edges
+
+    out = [{"var": "svMass",      "bins": ( 14,   0.0, 350.0), "cuts": {}},
            #{"var": "fMassKinFit", "bins": ( 4, 250.0, 410.0), "cuts": fMass},
-           {"var": "fMassKinFit", "bins": ( 4, 250.0, 410.0), "cuts": mass_windows},
+           #{"var": "fMassKinFit", "bins": ( 4, 250.0, 410.0), "cuts": mass_windows},
+           {"var": "fMassKinFit", "bins": fm_bins, "cuts": mass_windows},
            ##"var": "fMassKinFit", "bins": ( 4, 250.0, 410.0), "cuts": chi2},
            ]
 
