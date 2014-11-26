@@ -82,6 +82,8 @@ def workDir():
 
 def variables():
     fm_bins = [200, 250, 270, 290, 310, 330, 350, 370, 390, 410, 430, 450, 500, 550, 600, 650, 700]
+    it_sv_bins_cat2 = range(0, 210, 20) + [250, 300, 350]
+    it_fm_bins_cats = range(0, 510, 20) + range(550, 1050, 50)
 
     preselection = {}
     fMass = {"fMassKinFit": (0.0, None)}
@@ -93,11 +95,12 @@ def variables():
     ##  or
     ## a list of bin lower edges
 
-    out = [{"var": "svMass",      "bins": ( 14,   0.0, 350.0), "cuts": {}},
-           #{"var": "fMassKinFit", "bins": ( 4, 250.0, 410.0), "cuts": fMass},
+    out = [#{"var": "svMass",      "bins": ( 14,   0.0, 350.0), "cuts": {}},
+           {"var": "svMass",      "bins": it_sv_bins_cat2, "cuts": {}},
+
            #{"var": "fMassKinFit", "bins": ( 4, 250.0, 410.0), "cuts": mass_windows},
-           {"var": "fMassKinFit", "bins": fm_bins, "cuts": mass_windows},
-           ##"var": "fMassKinFit", "bins": ( 4, 250.0, 410.0), "cuts": chi2},
+           {"var": "fMassKinFit", "bins": it_fm_bins_cats, "cuts": mass_windows},
+           #{"var": "fMassKinFit", "bins": fm_bins, "cuts": mass_windows},
            ]
 
     if False:
