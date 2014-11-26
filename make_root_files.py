@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+import array
 import math
 import os
 import sys
@@ -30,12 +31,15 @@ def histos(bins=None, variable="", cuts={}, category=""):
 
     # rescale so that bin width is 1.0
     if cfg.rescaleX:
+        if type(bins) is not tuple:
+            sys.exit("ERROR: cannot rescale X for non-uniform binning (%s)." % variable)
+
         assert bins[0]
         binWidth = (bins[2] - bins[1]) / bins[0]
         assert binWidth
         factor = 1.0 / binWidth
         bins = (bins[0], bins[1] * factor, bins[2] * factor)
-        variable = "(%g*%s)" % (factor, var)
+        variable = "(%g*%s)" % (factor, variable)
 
     out = {}
     for variation, fileName in cfg.files.iteritems():
@@ -58,6 +62,10 @@ def histos(bins=None, variable="", cuts={}, category=""):
 
 
 def histosOneFile(f, tree, bins, procs, variable, cuts, category):
+    if type(bins) is list:
+        a = array.array('d', bins)
+        bins = (len(a) - 1, a)
+
     out = {}
     for proc in procs:
         h = r.TH1D(proc, proc+";%s;events / bin" % variable, *bins)
@@ -164,16 +172,14 @@ def printTag(tag, l):
 
 
 def go(sFactor=None, sKey="", bins=None, var="", cuts=None, masses=[]):
-    assert type(sFactor) is int, type(sFactor)
-    assert bins
     assert var
+    printHeader(var, cuts)
 
     hArgs = {"bins": bins,
              "variable": var,
              "cuts": cuts,
              }
 
-    printHeader(var, cuts)
     l = " " * 4
 
     oArgs = {"sFactor": sFactor,
@@ -227,6 +233,8 @@ def oneTag(tag, hs, sKey, sFactor, l):
 
 
 def fakeDataset(hs, sKey, sFactor, l):
+    assert type(sFactor) is int, type(sFactor)
+
     d = None
     keys = []
     for key, histo in hs.iteritems():
