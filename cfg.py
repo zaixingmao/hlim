@@ -22,10 +22,18 @@ categories = {#"MM_LM": "tauTau_2jet2tag",
               "1M": "tauTau_2jet1tag",
               }
 
-files = {"":                             "root/combined_inclusiveDY.root",
-         "_CMS_scale_t_tautau_8TeVUp":   "root/combined_up.root",
-         "_CMS_scale_t_tautau_8TeVDown": "root/combined_down.root",
+files = {"":                             "root/take2/combined_inclusiveDY.root",
+         "_CMS_scale_t_tautau_8TeVUp":   "root/take2/combined_up.root",
+         "_CMS_scale_t_tautau_8TeVDown": "root/take2/combined_down.root",
          }
+
+# __stem = "root/combined_newConfig%s.root"
+# files = {"":                             __stem % "",
+#          "_CMS_scale_t_tautau_8TeVUp":   __stem % "_tauUp",
+#          "_CMS_scale_t_tautau_8TeVDown": __stem % "_tauDown",
+#          #"_CMS_scale_j_tautau_8TeVUp":   __stem % "_jetUp",
+#          #"_CMS_scale_j_tautau_8TeVDown": __stem % "_jetDown",
+#          }
 
 fakeSignals = {"ggAToZhToLLTauTau": masses_spin0,
                "ggAToZhToLLBB": [250] + masses_spin0,
@@ -38,7 +46,7 @@ fakeBkgs = ["ZJ", "ZL", "ZLL"][:1]
 
 def procs():
     out = {"TT": ["tt_full", "tt_semi"],
-           "VV": ["ZZ"],
+           "VV": ["ZZ", "WZJetsTo2L2Q"],
            "W": ["W1JetsToLNu", "W2JetsToLNu", "W3JetsToLNu"],
            "ZTT": ["DYJetsToLL"],
            #"ZTT": ["DY1JetsToLL", "DY2JetsToLL", "DY3JetsToLL", "DY4JetsToLL"],
@@ -82,6 +90,7 @@ def workDir():
 
 def variables():
     fm_bins = [200, 250, 270, 290, 310, 330, 350, 370, 390, 410, 430, 450, 500, 550, 600, 650, 700]
+    it_sv_bins_cat1 = range(0, 200, 10) + range(200, 375, 25)
     it_sv_bins_cat2 = range(0, 210, 20) + [250, 300, 350]
     it_fm_bins_cats = range(0, 510, 20) + range(550, 1050, 50)
 
