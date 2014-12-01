@@ -1,12 +1,14 @@
 #!/usr/bin/env python
 
-from compareDataCards import report
 import array
+import collections
 import math
 import os
 import sys
+
 import ROOT as r
 import cfg
+from compareDataCards import report
 
 
 def combineBinContentAndError(h, binToContainCombo, binToBeKilled):
@@ -45,8 +47,8 @@ def histos(bins=None, variable="", cuts={}, category=""):
     out = {}
     for variation, fileName in cfg.files.iteritems():
         f = r.TFile(fileName)
-        checkSamples(f)
         tree = f.Get("eventTree")
+        checkSamples(tree, fileName)
 
         for destProc, srcProcs in cfg.procs().iteritems():
             destProc += variation
@@ -130,12 +132,23 @@ def applySampleWeights(hs={}, tfile=None):
         scale_denom(h, tfile.Get("initEvents"), proc)
 
 
-def checkSamples(tfile):
-    h = tfile.Get("xs")
-    labels = []
-    for iBin in range(1, 1 + h.GetNbinsX()):
-        labels.append(h.GetXaxis().GetBinLabel(iBin))
-    assert len(labels) == len(set(labels))
+def checkSamples(tree, fileName=".root file"):
+    xs = collections.defaultdict(set)
+    ini = collections.defaultdict(set)
+
+    for iEntry in range(tree.GetEntries()):
+        tree.GetEntry(iEntry)
+        sn = tree.sampleName
+        sn = sn[:sn.find("\x00")]
+        xs[sn].add(1.0)
+        ini[sn].add(3.0)
+
+        if 2 <= len(xs[sn]):
+            sys.exit("ERROR: sample %s has multiple values of xs: %s" % (sn, xs[sn]))
+        if 2 <= len(ini[sn]):
+            sys.exit("ERROR: sample %s has multiple values of ini: %s" % (sn, ini[sn]))
+
+    labels = xs.keys()
 
     extra = []
     for procs in cfg.procs().values():
@@ -147,8 +160,8 @@ def checkSamples(tfile):
             else:
                 extra.append(proc)
 
-    report([(labels, "Samples in .root file but not procs():"),
-            (extra, "Samples in procs() but not .root file:"),
+    report([(labels, "Samples in %s but not procs():" % fileName),
+            (extra, "Samples in procs() but not %s:" % fileName),
             ])
 
 
