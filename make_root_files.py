@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+from compareDataCards import report
 import array
 import math
 import os
@@ -44,7 +45,7 @@ def histos(bins=None, variable="", cuts={}, category=""):
     out = {}
     for variation, fileName in cfg.files.iteritems():
         f = r.TFile(fileName)
-
+        checkSamples(f)
         tree = f.Get("eventTree")
 
         for destProc, srcProcs in cfg.procs().iteritems():
@@ -107,6 +108,7 @@ def scale_numer(h, numer, proc):
     if found != 1 and h.Integral():
         sys.exit("ERROR: found %s numerator histograms for '%s'." % (found, proc))
 
+
 def scale_denom(h, denom, proc):
     found = 0
     for iBin in range(1, 1 + denom.GetNbinsX()):
@@ -126,6 +128,28 @@ def applySampleWeights(hs={}, tfile=None):
             continue
         scale_numer(h, tfile.Get("xs"), proc)
         scale_denom(h, tfile.Get("initEvents"), proc)
+
+
+def checkSamples(tfile):
+    h = tfile.Get("xs")
+    labels = []
+    for iBin in range(1, 1 + h.GetNbinsX()):
+        labels.append(h.GetXaxis().GetBinLabel(iBin))
+    assert len(labels) == len(set(labels))
+
+    extra = []
+    for procs in cfg.procs().values():
+        for proc in procs:
+            if proc in cfg.fakeSignalList() or proc in cfg.fakeBkgs:
+                continue  # warning is done in cfg.complain()
+            if proc in labels:
+                labels.remove(proc)
+            else:
+                extra.append(proc)
+
+    report([(labels, "Samples in .root file but not procs():"),
+            (extra, "Samples in procs() but not .root file:"),
+            ])
 
 
 def applyLooseToTight(h=None, tfile=None, category=""):
