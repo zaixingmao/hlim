@@ -35,12 +35,12 @@ files = {"":                             "root/take2/combined_inclusiveDY.root",
 #          #"_CMS_scale_j_tautau_8TeVDown": __stem % "_jetDown",
 #          }
 
-fakeSignals = {"ggAToZhToLLTauTau": masses_spin0,
-               "ggAToZhToLLBB": [250] + masses_spin0,
-               "ggGravitonTohhTo2Tau2B": [270, 300, 500, 700, 1000],
-               "ggRadionTohhTo2Tau2B":   [     300, 500, 700, 1000],
-               "bbH": range(90, 150, 10) + [160, 180, 200, 250, 300, 350, 400],
-               }
+__fakeSignals = {"ggAToZhToLLTauTau": masses_spin0,
+                 "ggAToZhToLLBB": [250] + masses_spin0,
+                 "ggGravitonTohhTo2Tau2B": [270, 300, 500, 700, 1000],
+                 "ggRadionTohhTo2Tau2B":   [     300, 500, 700, 1000],
+                 "bbH": range(90, 150, 10) + [160, 180, 200, 250, 300, 350, 400],
+                 }
 
 fakeBkgs = ["ZJ", "ZL", "ZLL"][:1]
 
@@ -56,14 +56,17 @@ def procs():
     for m in masses_spin0:
         out["ggHTohhTo2Tau2B%3d" % m] = ["H2hh%3d" % m]
 
-    for b in fakeBkgs:
-        out[b] = [b]
+    for p in fakeBkgs + fakeSignalList():
+        out[p] = [p]
 
-    for stem, masses in fakeSignals.iteritems():
+    return out
+
+
+def fakeSignalList():
+    out = []
+    for stem, masses in __fakeSignals.iteritems():
         for m in masses:
-            s = "%s%d" % (stem, m)
-            out[s] = [s]
-
+            out.append("%s%d" % (stem, m))
     return out
 
 
@@ -165,8 +168,8 @@ def complain():
     if len(set(files.values())) != 3:
         print "FIXME: include variations"
 
-    if fakeSignals:
-        print "FIXME: include", sorted(fakeSignals.keys())
+    if __fakeSignals:
+        print "FIXME: include", sorted(__fakeSignals.keys())
 
     if fakeBkgs:
         print "FIXME: include", sorted(fakeBkgs)
