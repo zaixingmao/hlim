@@ -96,35 +96,6 @@ def histosOneFile(f, tree, bins, procs, variable, cuts, category):
     return out
 
 
-def scale_numer(h, numer, proc):
-    found = 0
-    for iBin in range(1, 1 + numer.GetNbinsX()):
-        if numer.GetXaxis().GetBinLabel(iBin) == proc:
-            found += 1
-            xs = numer.GetBinContent(iBin)
-            if proc.startswith(cfg.signalXsPrefix):
-                xs = cfg.signalXs
-            h.Scale(xs)
-            h.GetZaxis().SetTitle("@ %g fb" % xs)
-            #print proc, xs
-
-    if found != 1 and h.Integral():
-        sys.exit("ERROR: found %s numerator histograms for '%s'." % (found, proc))
-
-
-def scale_denom(h, denom, proc):
-    found = 0
-    for iBin in range(1, 1 + denom.GetNbinsX()):
-        if denom.GetXaxis().GetBinLabel(iBin) == proc:
-            found += 1
-            content = denom.GetBinContent(iBin)
-            assert content, "%s_%d" % (proc, iBin)
-            h.Scale(1.0 / content)
-
-    if found != 1 and h.Integral():
-        sys.exit("ERROR: found %s denominator histograms for '%s'." % (found, proc))
-
-
 def checkSamples(tree, fileName=".root file"):
     xs = collections.defaultdict(set)
     ini = collections.defaultdict(set)
