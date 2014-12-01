@@ -73,7 +73,9 @@ def histosOneFile(f, tree, bins, procs, variable, cuts, category):
     for proc in procs:
         h = r.TH1D(proc, proc+";%s;events / bin" % variable, *bins)
         h.Sumw2()
-        w = "1.0" if cfg.isData(proc) else "triggerEff"
+
+        w = "(1.0)" if cfg.isData(proc) else "(triggerEff*xs/initEvents)"
+
         cutString = '(sampleName=="%s")' % proc
         if category:
             cutString += ' && (Category=="%s")' % category
@@ -91,7 +93,6 @@ def histosOneFile(f, tree, bins, procs, variable, cuts, category):
         if cfg.isAntiIsoData(proc):
             applyLooseToTight(h, f, category)
 
-    applySampleWeights(out, f)
     return out
 
 
@@ -122,14 +123,6 @@ def scale_denom(h, denom, proc):
 
     if found != 1 and h.Integral():
         sys.exit("ERROR: found %s denominator histograms for '%s'." % (found, proc))
-
-
-def applySampleWeights(hs={}, tfile=None):
-    for proc, h in hs.iteritems():
-        if cfg.isData(proc):
-            continue
-        scale_numer(h, tfile.Get("xs"), proc)
-        scale_denom(h, tfile.Get("initEvents"), proc)
 
 
 def checkSamples(tree, fileName=".root file"):
