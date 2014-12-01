@@ -148,19 +148,17 @@ def checkSamples(tree, fileName=".root file"):
         if 2 <= len(ini[sn]):
             sys.exit("ERROR: sample %s has multiple values of ini: %s" % (sn, ini[sn]))
 
-    labels = xs.keys()
-
+    procs = sum(cfg.procs().values(), [])
     extra = []
-    for procs in cfg.procs().values():
-        for proc in procs:
-            if proc in cfg.fakeSignalList() or proc in cfg.fakeBkgs:
-                continue  # warning is done in cfg.complain()
-            if proc in labels:
-                labels.remove(proc)
-            else:
-                extra.append(proc)
+    for proc in procs:
+        if proc in cfg.fakeSignalList() or proc in cfg.fakeBkgs:
+            continue  # warning is done in cfg.complain()
+        if proc in xs:
+            del xs[proc]
+        else:
+            extra.append(proc)
 
-    report([(labels, "Samples in %s but not procs():" % fileName),
+    report([(xs.keys(), "Samples in %s but not procs():" % fileName),
             (extra, "Samples in procs() but not %s:" % fileName),
             ])
 
