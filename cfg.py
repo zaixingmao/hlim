@@ -10,8 +10,6 @@ lumi     = 19.7   # /fb
 rescaleX = False
 
 substring_signal_example = "2B350"
-signalXsPrefix = "H2hh"
-signalXs = 1.0e3  # fb (= 1.0 pb)
 
 #masses_spin0 = [260, 300, 350]
 masses_spin0 = range(260, 360, 10) #+ [500, 700]
@@ -22,18 +20,18 @@ categories = {#"MM_LM": "tauTau_2jet2tag",
               "1M": "tauTau_2jet1tag",
               }
 
-files = {"":                             "root/take2/combined_inclusiveDY.root",
-         "_CMS_scale_t_tautau_8TeVUp":   "root/take2/combined_up.root",
-         "_CMS_scale_t_tautau_8TeVDown": "root/take2/combined_down.root",
-         }
-
-# __stem = "root/combined_newConfig%s.root"
-# files = {"":                             __stem % "",
-#          "_CMS_scale_t_tautau_8TeVUp":   __stem % "_tauUp",
-#          "_CMS_scale_t_tautau_8TeVDown": __stem % "_tauDown",
-#          #"_CMS_scale_j_tautau_8TeVUp":   __stem % "_jetUp",
-#          #"_CMS_scale_j_tautau_8TeVDown": __stem % "_jetDown",
+# files = {"":                             "root/take2/combined_inclusiveDY.root",
+#          "_CMS_scale_t_tautau_8TeVUp":   "root/take2/combined_up.root",
+#          "_CMS_scale_t_tautau_8TeVDown": "root/take2/combined_down.root",
 #          }
+
+__stem = "root/combined_relaxed_%s.root"
+files = {"":                             __stem % "",
+         #"_CMS_scale_t_tautau_8TeVUp":   __stem % "_tauUp",
+         #"_CMS_scale_t_tautau_8TeVDown": __stem % "_tauDown",
+         #"_CMS_scale_j_tautau_8TeVUp":   __stem % "_jetUp",
+         #"_CMS_scale_j_tautau_8TeVDown": __stem % "_jetDown",
+         }
 
 __fakeSignals = {"ggAToZhToLLTauTau": masses_spin0,
                  "ggAToZhToLLBB": [250] + masses_spin0,
@@ -45,11 +43,11 @@ __fakeSignals = {"ggAToZhToLLTauTau": masses_spin0,
 fakeBkgs = ["ZJ", "ZL", "ZLL"][:1]
 
 def procs():
-    out = {"TT": ["tt_full", "tt_semi"],
+    out = {"TT": ["tt", "tt_semi"],
            "VV": ["ZZ", "WZJetsTo2L2Q"],
-           "W": ["W2JetsToLNu", "W3JetsToLNu"],
-           "ZTT": ["DYJetsToLL"],
-           #"ZTT": ["DY1JetsToLL", "DY2JetsToLL", "DY3JetsToLL", "DY4JetsToLL"],
+           "W": ["W2JetsToLNu", "W3JetsToLNu", "W4JetsToLNu"],  # W1 provides no events
+           #"ZTT": ["DYJetsToLL"],
+           "ZTT": ["DY1JetsToLL", "DY2JetsToLL", "DY3JetsToLL", "DY4JetsToLL"],
            "QCD": ["dataOSRelax"],
            }
 
