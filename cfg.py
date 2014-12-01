@@ -13,8 +13,8 @@ substring_signal_example = "2B350"
 signalXsPrefix = "H2hh"
 signalXs = 1.0e3  # fb (= 1.0 pb)
 
-masses_spin0 = [260, 300, 350]
-#masses_spin0 = range(260, 360, 10) #+ [500, 700]
+#masses_spin0 = [260, 300, 350]
+masses_spin0 = range(260, 360, 10) #+ [500, 700]
 masses_spin2 = [500, 700]
 
 categories = {#"MM_LM": "tauTau_2jet2tag",
@@ -47,7 +47,7 @@ fakeBkgs = ["ZJ", "ZL", "ZLL"][:1]
 def procs():
     out = {"TT": ["tt_full", "tt_semi"],
            "VV": ["ZZ", "WZJetsTo2L2Q"],
-           "W": ["W1JetsToLNu", "W2JetsToLNu", "W3JetsToLNu"],
+           "W": ["W2JetsToLNu", "W3JetsToLNu"],
            "ZTT": ["DYJetsToLL"],
            #"ZTT": ["DY1JetsToLL", "DY2JetsToLL", "DY3JetsToLL", "DY4JetsToLL"],
            "QCD": ["dataOSRelax"],
