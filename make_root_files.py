@@ -3,10 +3,10 @@
 import array
 import collections
 import math
+import optparse
 import os
 import sys
 
-import ROOT as r
 import cfg
 from compareDataCards import report
 
@@ -120,7 +120,7 @@ def printSampleInfo(xs, ini):
     print "-" * len(header)
 
 
-def checkSamples(tree, fileName=".root file", printXs=False):
+def checkSamples(tree, fileName=".root file"):
     xs = collections.defaultdict(set)
     ini = collections.defaultdict(set)
 
@@ -136,7 +136,7 @@ def checkSamples(tree, fileName=".root file", printXs=False):
         if len(ini[sn]) != 1:
             sys.exit("ERROR: sample %s (file %s) has multiple values of ini: %s" % (sn, fileName, ini[sn]))
 
-    if printXs:
+    if options.xs:
         printSampleInfo(xs, ini)
 
     procs = sum(cfg.procs().values(), [])
@@ -246,13 +246,14 @@ def oneTag(tag, hs, sKey, sFactor, l):
         #h.Print("all")
         if cfg.isSignal(proc) and cfg.substring_signal_example not in proc:
             pass
-        elif "CMS_scale_t" in proc:
+        elif proc.endswith("Down") or proc.endswith("Up"):
             pass
         else:
             integrals.append((tag, proc, h.Integral(0, 2 + h.GetNbinsX())))
         h.Write()
 
-    printIntegrals(integrals, l)
+    if options.integrals:
+        printIntegrals(integrals, l)
 
     d = fakeDataset(hs, sKey, sFactor, l)
     d.Write()
@@ -275,7 +276,8 @@ def fakeDataset(hs, sKey, sFactor, l):
         d.Add(histo)
         keys.append(key)
 
-    describe(d, l, keys)
+    if options.contents:
+        describe(d, l, keys)
 
     zTitle = "Observed = floor(sum(bkg)"  # missing ) added below
     if sFactor:
@@ -310,7 +312,35 @@ def loop():
                    **spec)
 
 
+def opts():
+    parser = optparse.OptionParser()
+
+    parser.add_option("--contents",
+                      dest="contents",
+                      default=False,
+                      action="store_true",
+                      help="print bin contents")
+
+    parser.add_option("--xs",
+                      dest="xs",
+                      default=False,
+                      action="store_true",
+                      help="print xs table")
+
+    parser.add_option("--integrals",
+                      dest="integrals",
+                      default=False,
+                      action="store_true",
+                      help="print integrals")
+
+    options, args = parser.parse_args()
+    return options
+
+
 if __name__ == "__main__":
+    options = opts()
+
+    import ROOT as r
     r.gROOT.SetBatch(True)
     r.gErrorIgnoreLevel = 2000
 
