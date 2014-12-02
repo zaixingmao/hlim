@@ -124,32 +124,42 @@ def oneDir(canvas, pdf, hNames, d1, d2, subdir, xTitle, band):
             print "ERROR: %s not found" % hName
 
         h1 = d1[subdir][hName]
+        h1b = None
         if band:
-            h1u = d1[subdir]["%s_%sUp" % (hName, band)]
-            h1d = d1[subdir]["%s_%sDown" % (hName, band)]
-            h1b = bandHisto(h1u, h1d)
-            keep.append(h1b)
+            h1u = d1[subdir].get("%s_%sUp" % (hName, band))
+            h1d = d1[subdir].get("%s_%sDown" % (hName, band))
+            if h1u and h1d:
+                h1b = bandHisto(h1u, h1d)
+                keep.append(h1b)
 
         h2 = d2[subdir][hName]
+        h2b = None
         if band:
-            h2u = d2[subdir]["%s_%sUp" % (hName, band)]
-            h2d = d2[subdir]["%s_%sDown" % (hName, band)]
-            h2b = bandHisto(h2u, h2d)
-            keep.append(h2b)
+            h2u = d2[subdir].get("%s_%sUp" % (hName, band))
+            h2d = d2[subdir].get("%s_%sDown" % (hName, band))
+            if h2u and h2d:
+                h2b = bandHisto(h2u, h2d)
+                keep.append(h2b)
 
         canvas.cd(1 + j)
         r.gPad.SetTickx()
         r.gPad.SetTicky()
 
-        hFirst = h1b if band else h1
+        hFirst = h1b if (band and h1b) else h1
 
         hFirst.SetTitle("%s / %s;%s;events / GeV" % (subdir, hName, xTitle))
         hFirst.SetMinimum(0.0)
-        hFirst.SetMaximum(1.1 * maximum([h1, h2] + ([h1u, h1d, h2, h2u, h2d] if band else [])))
+        maxList = [h1, h2]
+        if h1b:
+            maxList += [h1u, h1d]
+        if h2b:
+            maxList += [h2u, h2d]
+
+        hFirst.SetMaximum(1.1 * maximum(maxList))
         hFirst.SetStats(False)
         hFirst.GetYaxis().SetTitleOffset(1.25)
 
-        if band:
+        if band and h1b:
             h1b.SetMarkerColor(r.kGray)
             h1b.SetLineColor(r.kGray)
             h1b.SetFillColor(r.kGray)
@@ -168,7 +178,7 @@ def oneDir(canvas, pdf, hNames, d1, d2, subdir, xTitle, band):
         h1.Draw("ehistsame" if band else "ehist")
         #keep.append(moveStatsBox(h1))
 
-        if band:
+        if band and h2b:
             h2b.SetMarkerColor(r.kCyan)
             h2b.SetLineColor(r.kCyan)
             h2b.SetFillColor(r.kCyan)
@@ -191,13 +201,13 @@ def oneDir(canvas, pdf, hNames, d1, d2, subdir, xTitle, band):
         leg.SetBorderSize(0)
         leg.SetFillStyle(0)
 
-        if band:
+        if band and h1b:
             #leg.AddEntry(h1b, "band", "f")
             leg.AddEntry(h1u, ls(h1u, "up"), "l")
             leg.AddEntry(h1d, ls(h1d, "down"), "l")
         leg.AddEntry(h1, ls(h1, "nominal"), "le")
 
-        if band:
+        if band and h2b:
             #leg.AddEntry(h2b, "band", "f")
             leg.AddEntry(h2u, ls(h2u, "up"), "l")
             leg.AddEntry(h2d, ls(h2d, "down"), "l")
@@ -291,8 +301,8 @@ if __name__ == "__main__":
                  "ggHTohhTo2Tau2B260", "ggHTohhTo2Tau2B300", "ggHTohhTo2Tau2B350",
                  ]
 
-    band = ""
-    #band = "CMS_scale_t_tautau_8TeV"
+    band = ["", "CMS_scale_t_tautau_8TeV", "CMS_scale_j_tautau_8TeV"][2]
+
     r.gErrorIgnoreLevel = 2000
     r.gStyle.SetOptStat("rme")
     r.gROOT.SetBatch(True)
