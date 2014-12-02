@@ -96,6 +96,30 @@ def histosOneFile(f, tree, bins, procs, variable, cuts, category):
     return out
 
 
+def printSampleInfo(xs, ini):
+    n = max([len(x) for x in xs.keys()])
+    header = "      ".join(["sample".ljust(n),
+                            "xs (fb)",
+                            "#eventsAOD",
+                            "lumi_MC (/fb)",
+                            ])
+    print header + "  (before weight)"
+    print "-" * len(header)
+    for key, xsValues in sorted(xs.iteritems()):
+        for x in xsValues:
+            continue
+        for nEvents in ini[key]:
+            continue
+        fields = [key.ljust(n)]
+        if not cfg.isData(key):
+            fields += ["%8.0f" % x,
+                       " %12.0f" % nEvents,
+                       "       %7.1f" % (nEvents / x),
+                       ]
+        print "    ".join(fields)
+    print "-" * len(header)
+
+
 def checkSamples(tree, fileName=".root file", printXs=False):
     xs = collections.defaultdict(set)
     ini = collections.defaultdict(set)
@@ -108,32 +132,12 @@ def checkSamples(tree, fileName=".root file", printXs=False):
         ini[sn].add(tree.initEvents)
 
         if len(xs[sn]) != 1:
-            sys.exit("ERROR: sample %s has multiple values of xs: %s" % (sn, xs[sn]))
+            sys.exit("ERROR: sample %s (file %s) has multiple values of xs: %s" % (sn, fileName, xs[sn]))
         if len(ini[sn]) != 1:
-            sys.exit("ERROR: sample %s has multiple values of ini: %s" % (sn, ini[sn]))
+            sys.exit("ERROR: sample %s (file %s) has multiple values of ini: %s" % (sn, fileName, ini[sn]))
 
     if printXs:
-        n = max([len(x) for x in xs.keys()])
-        header = "      ".join(["sample".ljust(n),
-                                "xs (fb)",
-                                "#eventsAOD",
-                                "lumi_MC (/fb)",
-                                ])
-        print header + "  (before weight)"
-        print "-" * len(header)
-        for key, xsValues in sorted(xs.iteritems()):
-            for x in xsValues:
-                continue
-            for nEvents in ini[key]:
-                continue
-            fields = [key.ljust(n)]
-            if not cfg.isData(key):
-                fields += ["%8.0f" % x,
-                           " %12.0f" % nEvents,
-                           "       %7.1f" % (nEvents / x),
-                           ]
-
-            print "    ".join(fields)
+        printSampleInfo(xs, ini)
 
     procs = sum(cfg.procs().values(), [])
     extra = []
