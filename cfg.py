@@ -29,8 +29,8 @@ __stem = "root/combined_relaxed_%s.root"
 files = {"":                             __stem % "",
          "_CMS_scale_t_tautau_8TeVUp":   __stem % "tauUp",
          "_CMS_scale_t_tautau_8TeVDown": __stem % "tauDown",
-         #"_CMS_scale_j_tautau_8TeVUp":   __stem % "jetUp",
-         #"_CMS_scale_j_tautau_8TeVDown": __stem % "jetDown",
+         "_CMS_scale_j_tautau_8TeVUp":   __stem % "jetUp",
+         "_CMS_scale_j_tautau_8TeVDown": __stem % "jetDown",
          }
 
 __fakeSignals = {"ggAToZhToLLTauTau": masses_spin0,
