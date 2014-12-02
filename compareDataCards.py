@@ -106,6 +106,10 @@ def ls(h, s=""):
     return "#color[%d]{%s  %.2f}" % (h.GetLineColor(), s, integral(h))
 
 
+def shortened(band):
+    return band.replace("_tautau_8TeV", "").replace("CMS_", "")
+
+
 def oneDir(canvas, pdf, hNames, d1, d2, subdir, xTitle, band):
     keep = []
     for i, hName in enumerate(whiteList):
@@ -148,7 +152,7 @@ def oneDir(canvas, pdf, hNames, d1, d2, subdir, xTitle, band):
         hFirst = h1b if (band and h1b) else h1
         title = "%s / %s" % (subdir, hName)
         if band:
-            title += " / %s" % band.replace("_tautau_8TeV", "").replace("CMS_", "")
+            title += " / %s" % shortened(band)
         hFirst.SetTitle("%s;%s;events / GeV" % (title, xTitle))
         hFirst.SetMinimum(0.0)
         maxList = [h1, h2]
@@ -280,7 +284,11 @@ def go(xTitle, file1, file2, band=""):
             (m2, "directories missing from '%s':" % file2),
             ])
 
-    pdf = "comparison_%s.pdf" % (xTitle.split()[0])
+    pdf = "comparison_%s" % xTitle.split()[0]
+    if band:
+        pdf += "_%s" % shortened(band)
+    pdf += ".pdf"
+
     canvas = r.TCanvas()
     canvas.Print(pdf + "[")
 
@@ -291,6 +299,8 @@ def go(xTitle, file1, file2, band=""):
                 ])
 
         hNames = filter(lambda hName: not any([hName.startswith(x) for x in ignorePrefixes]), hNames)
+        if "1tag" in subdir:
+            continue
         oneDir(canvas, pdf, hNames, d1, d2, subdir, xTitle, band)
 
     canvas.Print(pdf + "]")
@@ -303,7 +313,7 @@ if __name__ == "__main__":
                  "ggHTohhTo2Tau2B260", "ggHTohhTo2Tau2B300", "ggHTohhTo2Tau2B350",
                  ]
 
-    band = ["", "CMS_scale_t_tautau_8TeV", "CMS_scale_j_tautau_8TeV"][2]
+    band = ["", "CMS_scale_t_tautau_8TeV", "CMS_scale_j_tautau_8TeV"][1]
 
     r.gErrorIgnoreLevel = 2000
     r.gStyle.SetOptStat("rme")
