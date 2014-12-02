@@ -299,8 +299,6 @@ def go(xTitle, file1, file2, band=""):
                 ])
 
         hNames = filter(lambda hName: not any([hName.startswith(x) for x in ignorePrefixes]), hNames)
-        if "1tag" in subdir:
-            continue
         oneDir(canvas, pdf, hNames, d1, d2, subdir, xTitle, band)
 
     canvas.Print(pdf + "]")
@@ -313,20 +311,20 @@ if __name__ == "__main__":
                  "ggHTohhTo2Tau2B260", "ggHTohhTo2Tau2B300", "ggHTohhTo2Tau2B350",
                  ]
 
-    band = ["", "CMS_scale_t_tautau_8TeV", "CMS_scale_j_tautau_8TeV"][1]
 
     r.gErrorIgnoreLevel = 2000
     r.gStyle.SetOptStat("rme")
     r.gROOT.SetBatch(True)
 
-    go("svMass (preselection)",
-       "Italians/htt_tt.inputs-Hhh-8TeV_m_sv.root",
-       "Brown/svMass.root",
-       band
-       )
+    for band in ["CMS_scale_t_tautau_8TeV", "CMS_scale_j_tautau_8TeV"]:
+        go("svMass (preselection)",
+           "Italians/htt_tt.inputs-Hhh-8TeV_m_sv.root",
+           "Brown/svMass.root",
+           band
+           )
 
-    go("fMassKinFit (after cuts)",
-       "Italians/htt_tt.inputs-Hhh-8TeV_m_ttbb_kinfit_massCut.root",
-       "Brown/fMassKinFit_0.0.fMassKinFit_70.0.mJJ.150.0_90.0.svMass.150.0.root",
-       band
-       )
+        go("fMassKinFit (after cuts)",
+           "Italians/htt_tt.inputs-Hhh-8TeV_m_ttbb_kinfit_massCut.root",
+           "Brown/fMassKinFit_0.0.fMassKinFit_70.0.mJJ.150.0_90.0.svMass.150.0.root",
+           band
+           )
