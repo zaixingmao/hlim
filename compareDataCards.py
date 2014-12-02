@@ -146,8 +146,10 @@ def oneDir(canvas, pdf, hNames, d1, d2, subdir, xTitle, band):
         r.gPad.SetTicky()
 
         hFirst = h1b if (band and h1b) else h1
-
-        hFirst.SetTitle("%s / %s;%s;events / GeV" % (subdir, hName, xTitle))
+        title = "%s / %s" % (subdir, hName)
+        if band:
+            title += " / %s" % band.replace("_tautau_8TeV", "").replace("CMS_", "")
+        hFirst.SetTitle("%s;%s;events / GeV" % (title, xTitle))
         hFirst.SetMinimum(0.0)
         maxList = [h1, h2]
         if h1b:
