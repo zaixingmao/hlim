@@ -216,7 +216,8 @@ def go(sFactor=None, sKey="", bins=None, var="", cuts=None, masses=[]):
     f = r.TFile(cfg.outFileName(**oArgs), "RECREATE")
     for category, tag in cfg.categories.iteritems():
         hs = histos(category=category, **hArgs)
-        printTag(tag, l)
+        if options.integrals or options.xs or options.contents:
+            printTag(tag, l)
         f.mkdir(tag).cd()
         oneTag(tag, hs, sKey, sFactor, l)
     f.Close()
