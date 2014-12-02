@@ -27,10 +27,10 @@ categories = {#"MM_LM": "tauTau_2jet2tag",
 
 __stem = "root/combined_relaxed_%s.root"
 files = {"":                             __stem % "",
-         #"_CMS_scale_t_tautau_8TeVUp":   __stem % "_tauUp",
-         #"_CMS_scale_t_tautau_8TeVDown": __stem % "_tauDown",
-         #"_CMS_scale_j_tautau_8TeVUp":   __stem % "_jetUp",
-         #"_CMS_scale_j_tautau_8TeVDown": __stem % "_jetDown",
+         "_CMS_scale_t_tautau_8TeVUp":   __stem % "tauUp",
+         "_CMS_scale_t_tautau_8TeVDown": __stem % "tauDown",
+         #"_CMS_scale_j_tautau_8TeVUp":   __stem % "jetUp",
+         #"_CMS_scale_j_tautau_8TeVDown": __stem % "jetDown",
          }
 
 __fakeSignals = {"ggAToZhToLLTauTau": masses_spin0,
@@ -43,8 +43,8 @@ __fakeSignals = {"ggAToZhToLLTauTau": masses_spin0,
 fakeBkgs = ["ZJ", "ZL", "ZLL"][:1]
 
 def procs():
-    out = {"TT": ["tt", "tt_semi"],
-           "VV": ["ZZ", "WZJetsTo2L2Q"],
+    out = {"TT": ["tt", "tt_semi", "t", "tbar"],
+           "VV": ["ZZ", "WZJetsTo2L2Q", "WW", "WZ3L", "zzTo2L2Nu", "zzTo4L"],
            "W": ["W2JetsToLNu", "W3JetsToLNu", "W4JetsToLNu"],  # W1 provides no events
            #"ZTT": ["DYJetsToLL"],
            "ZTT": ["DY1JetsToLL", "DY2JetsToLL", "DY3JetsToLL", "DY4JetsToLL"],
