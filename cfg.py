@@ -10,11 +10,9 @@ lumi     = 19.7   # /fb
 rescaleX = False
 
 substring_signal_example = "2B350"
-signalXsPrefix = "H2hh"
-signalXs = 1.0e3  # fb (= 1.0 pb)
 
-masses_spin0 = [260, 300, 350]
-#masses_spin0 = range(260, 360, 10) #+ [500, 700]
+#masses_spin0 = [260, 300, 350]
+masses_spin0 = range(260, 360, 10) #+ [500, 700]
 masses_spin2 = [500, 700]
 
 categories = {#"MM_LM": "tauTau_2jet2tag",
@@ -22,40 +20,51 @@ categories = {#"MM_LM": "tauTau_2jet2tag",
               "1M": "tauTau_2jet1tag",
               }
 
-files = {"":                             "root/combined_inclusiveDY.root",
-         "_CMS_scale_t_tautau_8TeVUp":   "root/combined_up.root",
-         "_CMS_scale_t_tautau_8TeVDown": "root/combined_down.root",
+# files = {"":                             "root/take2/combined_inclusiveDY.root",
+#          "_CMS_scale_t_tautau_8TeVUp":   "root/take2/combined_up.root",
+#          "_CMS_scale_t_tautau_8TeVDown": "root/take2/combined_down.root",
+#          }
+
+__stem = "root/combined_relaxed_%s.root"
+files = {"":                             __stem % "",
+         "_CMS_scale_t_tautau_8TeVUp":   __stem % "tauUp",
+         "_CMS_scale_t_tautau_8TeVDown": __stem % "tauDown",
+         "_CMS_scale_j_tautau_8TeVUp":   __stem % "jetUp",
+         "_CMS_scale_j_tautau_8TeVDown": __stem % "jetDown",
          }
 
-fakeSignals = {"ggAToZhToLLTauTau": masses_spin0,
-               "ggAToZhToLLBB": [250] + masses_spin0,
-               "ggGravitonTohhTo2Tau2B": [270, 300, 500, 700, 1000],
-               "ggRadionTohhTo2Tau2B":   [     300, 500, 700, 1000],
-               "bbH": range(90, 150, 10) + [160, 180, 200, 250, 300, 350, 400],
-               }
+__fakeSignals = {"ggAToZhToLLTauTau": masses_spin0,
+                 "ggAToZhToLLBB": [250] + masses_spin0,
+                 "ggGravitonTohhTo2Tau2B": [270, 300, 500, 700, 1000],
+                 "ggRadionTohhTo2Tau2B":   [     300, 500, 700, 1000],
+                 "bbH": range(90, 150, 10) + [160, 180, 200, 250, 300, 350, 400],
+                 }
 
 fakeBkgs = ["ZJ", "ZL", "ZLL"][:1]
 
 def procs():
-    out = {"TT": ["tt_full", "tt_semi"],
-           "VV": ["ZZ"],
-           "W": ["W1JetsToLNu", "W2JetsToLNu", "W3JetsToLNu"],
-           "ZTT": ["DYJetsToLL"],
-           #"ZTT": ["DY1JetsToLL", "DY2JetsToLL", "DY3JetsToLL", "DY4JetsToLL"],
+    out = {"TT": ["tt", "tt_semi", "t", "tbar"],
+           "VV": ["ZZ", "WZJetsTo2L2Q", "WW", "WZ3L", "zzTo2L2Nu", "zzTo4L"],
+           "W": ["W2JetsToLNu", "W3JetsToLNu", "W4JetsToLNu"],  # W1 provides no events
+           #"ZTT": ["DYJetsToLL"],
+           "ZTT": ["DY1JetsToLL", "DY2JetsToLL", "DY3JetsToLL", "DY4JetsToLL"],
            "QCD": ["dataOSRelax"],
            }
 
     for m in masses_spin0:
         out["ggHTohhTo2Tau2B%3d" % m] = ["H2hh%3d" % m]
 
-    for b in fakeBkgs:
-        out[b] = [b]
+    for p in fakeBkgs + fakeSignalList():
+        out[p] = [p]
 
-    for stem, masses in fakeSignals.iteritems():
+    return out
+
+
+def fakeSignalList():
+    out = []
+    for stem, masses in __fakeSignals.iteritems():
         for m in masses:
-            s = "%s%d" % (stem, m)
-            out[s] = [s]
-
+            out.append("%s%d" % (stem, m))
     return out
 
 
@@ -82,6 +91,7 @@ def workDir():
 
 def variables():
     fm_bins = [200, 250, 270, 290, 310, 330, 350, 370, 390, 410, 430, 450, 500, 550, 600, 650, 700]
+    it_sv_bins_cat1 = range(0, 200, 10) + range(200, 375, 25)
     it_sv_bins_cat2 = range(0, 210, 20) + [250, 300, 350]
     it_fm_bins_cats = range(0, 510, 20) + range(550, 1050, 50)
 
@@ -156,8 +166,8 @@ def complain():
     if len(set(files.values())) != 3:
         print "FIXME: include variations"
 
-    if fakeSignals:
-        print "FIXME: include", sorted(fakeSignals.keys())
+    if __fakeSignals:
+        print "FIXME: include", sorted(__fakeSignals.keys())
 
     if fakeBkgs:
         print "FIXME: include", sorted(fakeBkgs)

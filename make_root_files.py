@@ -1,11 +1,14 @@
 #!/usr/bin/env python
 
 import array
+import collections
 import math
+import optparse
 import os
 import sys
-import ROOT as r
+
 import cfg
+from compareDataCards import report
 
 
 def combineBinContentAndError(h, binToContainCombo, binToBeKilled):
@@ -44,8 +47,8 @@ def histos(bins=None, variable="", cuts={}, category=""):
     out = {}
     for variation, fileName in cfg.files.iteritems():
         f = r.TFile(fileName)
-
         tree = f.Get("eventTree")
+        checkSamples(tree, fileName)
 
         for destProc, srcProcs in cfg.procs().iteritems():
             destProc += variation
@@ -70,7 +73,9 @@ def histosOneFile(f, tree, bins, procs, variable, cuts, category):
     for proc in procs:
         h = r.TH1D(proc, proc+";%s;events / bin" % variable, *bins)
         h.Sumw2()
-        w = "1.0" if cfg.isData(proc) else "triggerEff"
+
+        w = "(1.0)" if cfg.isData(proc) else "(triggerEff*xs/initEvents)"
+
         cutString = '(sampleName=="%s")' % proc
         if category:
             cutString += ' && (Category=="%s")' % category
@@ -88,44 +93,65 @@ def histosOneFile(f, tree, bins, procs, variable, cuts, category):
         if cfg.isAntiIsoData(proc):
             applyLooseToTight(h, f, category)
 
-    applySampleWeights(out, f)
     return out
 
 
-def scale_numer(h, numer, proc):
-    found = 0
-    for iBin in range(1, 1 + numer.GetNbinsX()):
-        if numer.GetXaxis().GetBinLabel(iBin) == proc:
-            found += 1
-            xs = numer.GetBinContent(iBin)
-            if proc.startswith(cfg.signalXsPrefix):
-                xs = cfg.signalXs
-            h.Scale(xs)
-            h.GetZaxis().SetTitle("@ %g fb" % xs)
-            #print proc, xs
-
-    if found != 1 and h.Integral():
-        sys.exit("ERROR: found %s numerator histograms for '%s'." % (found, proc))
-
-def scale_denom(h, denom, proc):
-    found = 0
-    for iBin in range(1, 1 + denom.GetNbinsX()):
-        if denom.GetXaxis().GetBinLabel(iBin) == proc:
-            found += 1
-            content = denom.GetBinContent(iBin)
-            assert content, "%s_%d" % (proc, iBin)
-            h.Scale(1.0 / content)
-
-    if found != 1 and h.Integral():
-        sys.exit("ERROR: found %s denominator histograms for '%s'." % (found, proc))
-
-
-def applySampleWeights(hs={}, tfile=None):
-    for proc, h in hs.iteritems():
-        if cfg.isData(proc):
+def printSampleInfo(xs, ini):
+    n = max([len(x) for x in xs.keys()])
+    header = "      ".join(["sample".ljust(n),
+                            "xs (fb)",
+                            "#eventsAOD",
+                            "lumi_MC (/fb)",
+                            ])
+    print header + "  (before weight)"
+    print "-" * len(header)
+    for key, xsValues in sorted(xs.iteritems()):
+        for x in xsValues:
             continue
-        scale_numer(h, tfile.Get("xs"), proc)
-        scale_denom(h, tfile.Get("initEvents"), proc)
+        for nEvents in ini[key]:
+            continue
+        fields = [key.ljust(n)]
+        if not cfg.isData(key):
+            fields += ["%8.0f" % x,
+                       " %12.0f" % nEvents,
+                       "       %7.1f" % (nEvents / x),
+                       ]
+        print "    ".join(fields)
+    print "-" * len(header)
+
+
+def checkSamples(tree, fileName=".root file"):
+    xs = collections.defaultdict(set)
+    ini = collections.defaultdict(set)
+
+    for iEntry in range(tree.GetEntries()):
+        tree.GetEntry(iEntry)
+        sn = tree.sampleName
+        sn = sn[:sn.find("\x00")]
+        xs[sn].add(tree.xs)
+        ini[sn].add(tree.initEvents)
+
+        if len(xs[sn]) != 1:
+            sys.exit("ERROR: sample %s (file %s) has multiple values of xs: %s" % (sn, fileName, xs[sn]))
+        if len(ini[sn]) != 1:
+            sys.exit("ERROR: sample %s (file %s) has multiple values of ini: %s" % (sn, fileName, ini[sn]))
+
+    if options.xs:
+        printSampleInfo(xs, ini)
+
+    procs = sum(cfg.procs().values(), [])
+    extra = []
+    for proc in procs:
+        if proc in cfg.fakeSignalList() or proc in cfg.fakeBkgs:
+            continue  # warning is done in cfg.complain()
+        if proc in xs:
+            del xs[proc]
+        else:
+            extra.append(proc)
+
+    report([(xs.keys(), "Samples in %s but not procs():" % fileName),
+            (extra, "Samples in procs() but not %s:" % fileName),
+            ])
 
 
 def applyLooseToTight(h=None, tfile=None, category=""):
@@ -190,7 +216,8 @@ def go(sFactor=None, sKey="", bins=None, var="", cuts=None, masses=[]):
     f = r.TFile(cfg.outFileName(**oArgs), "RECREATE")
     for category, tag in cfg.categories.iteritems():
         hs = histos(category=category, **hArgs)
-        printTag(tag, l)
+        if options.integrals or options.xs or options.contents:
+            printTag(tag, l)
         f.mkdir(tag).cd()
         oneTag(tag, hs, sKey, sFactor, l)
     f.Close()
@@ -220,13 +247,14 @@ def oneTag(tag, hs, sKey, sFactor, l):
         #h.Print("all")
         if cfg.isSignal(proc) and cfg.substring_signal_example not in proc:
             pass
-        elif "CMS_scale_t" in proc:
+        elif proc.endswith("Down") or proc.endswith("Up"):
             pass
         else:
             integrals.append((tag, proc, h.Integral(0, 2 + h.GetNbinsX())))
         h.Write()
 
-    printIntegrals(integrals, l)
+    if options.integrals:
+        printIntegrals(integrals, l)
 
     d = fakeDataset(hs, sKey, sFactor, l)
     d.Write()
@@ -249,7 +277,8 @@ def fakeDataset(hs, sKey, sFactor, l):
         d.Add(histo)
         keys.append(key)
 
-    describe(d, l, keys)
+    if options.contents:
+        describe(d, l, keys)
 
     zTitle = "Observed = floor(sum(bkg)"  # missing ) added below
     if sFactor:
@@ -284,7 +313,35 @@ def loop():
                    **spec)
 
 
+def opts():
+    parser = optparse.OptionParser()
+
+    parser.add_option("--contents",
+                      dest="contents",
+                      default=False,
+                      action="store_true",
+                      help="print bin contents")
+
+    parser.add_option("--xs",
+                      dest="xs",
+                      default=False,
+                      action="store_true",
+                      help="print xs table")
+
+    parser.add_option("--integrals",
+                      dest="integrals",
+                      default=False,
+                      action="store_true",
+                      help="print integrals")
+
+    options, args = parser.parse_args()
+    return options
+
+
 if __name__ == "__main__":
+    options = opts()
+
+    import ROOT as r
     r.gROOT.SetBatch(True)
     r.gErrorIgnoreLevel = 2000
 
