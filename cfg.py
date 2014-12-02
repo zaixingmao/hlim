@@ -43,8 +43,8 @@ __fakeSignals = {"ggAToZhToLLTauTau": masses_spin0,
 fakeBkgs = ["ZJ", "ZL", "ZLL"][:1]
 
 def procs():
-    out = {"TT": ["tt", "tt_semi", "t", "tbar"],
-           "VV": ["ZZ", "WZJetsTo2L2Q", "WW", "WZ3L", "zzTo2L2Nu", "zzTo4L"],
+    out = {"TT": ["tt", "tt_semi"],
+           "VV": ["ZZ", "WZJetsTo2L2Q", "WW", "WZ3L", "zzTo2L2Nu", "zzTo4L", "t", "tbar"],
            "W": ["W2JetsToLNu", "W3JetsToLNu", "W4JetsToLNu"],  # W1 provides no events
            #"ZTT": ["DYJetsToLL"],
            "ZTT": ["DY1JetsToLL", "DY2JetsToLL", "DY3JetsToLL", "DY4JetsToLL"],
