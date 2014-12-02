@@ -74,7 +74,7 @@ def integral(h):
     return out
 
 
-def band(u, d):
+def bandHisto(u, d):
     ux = u.GetXaxis()
     dx = d.GetXaxis()
     for func in ["GetNbins", "GetXmin", "GetXmax"]:
@@ -106,7 +106,7 @@ def ls(h, s=""):
     return "#color[%d]{%s  %.2f}" % (h.GetLineColor(), s, integral(h))
 
 
-def oneDir(canvas, pdf, hNames, d1, d2, subdir, xTitle):
+def oneDir(canvas, pdf, hNames, d1, d2, subdir, xTitle, band):
     keep = []
     for i, hName in enumerate(whiteList):
         if not hName:
@@ -124,58 +124,63 @@ def oneDir(canvas, pdf, hNames, d1, d2, subdir, xTitle):
             print "ERROR: %s not found" % hName
 
         h1 = d1[subdir][hName]
-        h1u = d1[subdir]["%s_CMS_scale_t_tautau_8TeVUp" % hName]
-        h1d = d1[subdir]["%s_CMS_scale_t_tautau_8TeVDown" % hName]
-        h1b = band(h1u, h1d)
-        keep.append(h1b)
+        if band:
+            h1u = d1[subdir]["%s_%sUp" % (hName, band)]
+            h1d = d1[subdir]["%s_%sDown" % (hName, band)]
+            h1b = bandHisto(h1u, h1d)
+            keep.append(h1b)
 
         h2 = d2[subdir][hName]
-        h2u = d2[subdir]["%s_CMS_scale_t_tautau_8TeVUp" % hName]
-        h2d = d2[subdir]["%s_CMS_scale_t_tautau_8TeVDown" % hName]
-        h2b = band(h2u, h2d)
-        keep.append(h2b)
+        if band:
+            h2u = d2[subdir]["%s_%sUp" % (hName, band)]
+            h2d = d2[subdir]["%s_%sDown" % (hName, band)]
+            h2b = bandHisto(h2u, h2d)
+            keep.append(h2b)
 
         canvas.cd(1 + j)
         r.gPad.SetTickx()
         r.gPad.SetTicky()
-            
-        h1b.SetTitle("%s / %s;%s;events / GeV" % (subdir, hName, xTitle))
-        h1b.SetMinimum(0.0)
 
-        h1b.SetMaximum(1.1 * maximum([h1, h1u, h1d, h2, h2u, h2d]))
-        h1b.SetStats(False)
-        h1b.GetYaxis().SetTitleOffset(1.25)
+        hFirst = h1b if band else h1
 
-        h1b.SetMarkerColor(r.kGray)
-        h1b.SetLineColor(r.kGray)
-        h1b.SetFillColor(r.kGray)
-        h1b.SetFillStyle(3354)
-        h1b.Draw("e2")
+        hFirst.SetTitle("%s / %s;%s;events / GeV" % (subdir, hName, xTitle))
+        hFirst.SetMinimum(0.0)
+        hFirst.SetMaximum(1.1 * maximum([h1, h2] + ([h1u, h1d, h2, h2u, h2d] if band else [])))
+        hFirst.SetStats(False)
+        hFirst.GetYaxis().SetTitleOffset(1.25)
 
-        h1d.SetLineColor(r.kGray)
-        h1d.SetLineStyle(4)
-        h1d.Draw("histsame")
+        if band:
+            h1b.SetMarkerColor(r.kGray)
+            h1b.SetLineColor(r.kGray)
+            h1b.SetFillColor(r.kGray)
+            h1b.SetFillStyle(3354)
+            h1b.Draw("e2")
 
-        h1u.SetLineColor(r.kGray)
-        h1u.Draw("histsame")
+            h1d.SetLineColor(r.kGray)
+            h1d.SetLineStyle(4)
+            h1d.Draw("histsame")
+
+            h1u.SetLineColor(r.kGray)
+            h1u.Draw("histsame")
 
         h1.SetLineColor(r.kBlack)
         h1.SetMarkerColor(r.kBlack)
-        h1.Draw("ehistsame")
+        h1.Draw("ehistsame" if band else "ehist")
         #keep.append(moveStatsBox(h1))
 
-        h2b.SetMarkerColor(r.kCyan)
-        h2b.SetLineColor(r.kCyan)
-        h2b.SetFillColor(r.kCyan)
-        h2b.SetFillStyle(3345)
-        h2b.Draw("e2same")
+        if band:
+            h2b.SetMarkerColor(r.kCyan)
+            h2b.SetLineColor(r.kCyan)
+            h2b.SetFillColor(r.kCyan)
+            h2b.SetFillStyle(3345)
+            h2b.Draw("e2same")
 
-        h2d.SetLineColor(r.kCyan)
-        h2d.SetLineStyle(4)
-        h2d.Draw("histsame")
+            h2d.SetLineColor(r.kCyan)
+            h2d.SetLineStyle(4)
+            h2d.Draw("histsame")
 
-        h2u.SetLineColor(r.kCyan)
-        h2u.Draw("histsame")
+            h2u.SetLineColor(r.kCyan)
+            h2u.Draw("histsame")
 
         h2.SetLineColor(r.kBlue)
         h2.SetMarkerColor(r.kBlue)
@@ -186,14 +191,16 @@ def oneDir(canvas, pdf, hNames, d1, d2, subdir, xTitle):
         leg.SetBorderSize(0)
         leg.SetFillStyle(0)
 
-        #leg.AddEntry(h1b, "band", "f")
-        leg.AddEntry(h1u, ls(h1u, "up"), "l")
-        leg.AddEntry(h1d, ls(h1d, "down"), "l")
+        if band:
+            #leg.AddEntry(h1b, "band", "f")
+            leg.AddEntry(h1u, ls(h1u, "up"), "l")
+            leg.AddEntry(h1d, ls(h1d, "down"), "l")
         leg.AddEntry(h1, ls(h1, "nominal"), "le")
 
-        #leg.AddEntry(h2b, "band", "f")
-        leg.AddEntry(h2u, ls(h2u, "up"), "l")
-        leg.AddEntry(h2d, ls(h2d, "down"), "l")
+        if band:
+            #leg.AddEntry(h2b, "band", "f")
+            leg.AddEntry(h2u, ls(h2u, "up"), "l")
+            leg.AddEntry(h2d, ls(h2d, "down"), "l")
         leg.AddEntry(h2, ls(h2, "nominal"), "le")
 
         #leg.SetHeader("(#color[1]{%.2f},  #color[4]{%.2f})" % (integral(h1), integral(h2)))
@@ -219,7 +226,7 @@ def tryNums(m, h):
     return num
 
 
-def report(l=[], suffixes=["8TeVUp", "8TeVDown"], recursive=False):
+def report(l=[], suffixes=["Up", "Down"], recursive=False):
     for (hs, message) in l:
         if not hs:
             continue
@@ -252,7 +259,7 @@ def report(l=[], suffixes=["8TeVUp", "8TeVDown"], recursive=False):
         print
 
 
-def go(xTitle, file1, file2):
+def go(xTitle, file1, file2, band=""):
     d1 = histograms(file1)
     d2 = histograms(file2)
 
@@ -272,7 +279,7 @@ def go(xTitle, file1, file2):
                 ])
 
         hNames = filter(lambda hName: not any([hName.startswith(x) for x in ignorePrefixes]), hNames)
-        oneDir(canvas, pdf, hNames, d1, d2, subdir, xTitle)
+        oneDir(canvas, pdf, hNames, d1, d2, subdir, xTitle, band)
 
     canvas.Print(pdf + "]")
 
@@ -284,15 +291,20 @@ if __name__ == "__main__":
                  "ggHTohhTo2Tau2B260", "ggHTohhTo2Tau2B300", "ggHTohhTo2Tau2B350",
                  ]
 
+    band = ""
+    #band = "CMS_scale_t_tautau_8TeV"
     r.gErrorIgnoreLevel = 2000
     r.gStyle.SetOptStat("rme")
     r.gROOT.SetBatch(True)
 
     go("svMass (preselection)",
        "Italians/htt_tt.inputs-Hhh-8TeV_m_sv.root",
-       "Brown/svMass.root")
+       "Brown/svMass.root",
+       band
+       )
 
     go("fMassKinFit (after cuts)",
        "Italians/htt_tt.inputs-Hhh-8TeV_m_ttbb_kinfit_massCut.root",
        "Brown/fMassKinFit_0.0.fMassKinFit_70.0.mJJ.150.0_90.0.svMass.150.0.root",
+       band
        )
