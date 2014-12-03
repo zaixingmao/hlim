@@ -25,7 +25,10 @@ categories = {#"MM_LM": "tauTau_2jet2tag",
 #          "_CMS_scale_t_tautau_8TeVDown": "root/take2/combined_down.root",
 #          }
 
+#__stem = "root/combined_1.0_relaxed_%s.root"
 __stem = "root/combined_relaxed_%s.root"
+#__stem = "root/combined_H260_7_n150_mJJ_1M_test_%s.root"
+
 files = {"":                             __stem % "",
          "_CMS_scale_t_tautau_8TeVUp":   __stem % "tauUp",
          "_CMS_scale_t_tautau_8TeVDown": __stem % "tauDown",
@@ -94,6 +97,7 @@ def variables():
     it_sv_bins_cat1 = range(0, 200, 10) + range(200, 375, 25)
     it_sv_bins_cat2 = range(0, 210, 20) + [250, 300, 350]
     it_fm_bins_cats = range(0, 510, 20) + range(550, 1050, 50)
+    it_fm_bins_new  = [200, 250, 280, 310, 340, 370, 400, 500, 600, 700]
 
     preselection = {}
     fMass = {"fMassKinFit": (0.0, None)}
@@ -109,7 +113,7 @@ def variables():
            {"var": "svMass",      "bins": it_sv_bins_cat2, "cuts": {}},
 
            #{"var": "fMassKinFit", "bins": ( 4, 250.0, 410.0), "cuts": mass_windows},
-           {"var": "fMassKinFit", "bins": it_fm_bins_cats, "cuts": mass_windows},
+           {"var": "fMassKinFit", "bins": it_fm_bins_new, "cuts": mass_windows},
            #{"var": "fMassKinFit", "bins": fm_bins, "cuts": mass_windows},
            ]
 
