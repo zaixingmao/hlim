@@ -166,40 +166,40 @@ def oneDir(canvas, pdf, hNames, d1, d2, subdir, xTitle, band):
         hFirst.GetYaxis().SetTitleOffset(1.25)
 
         if band and h1b:
-            h1b.SetMarkerColor(r.kGray)
-            h1b.SetLineColor(r.kGray)
-            h1b.SetFillColor(r.kGray)
+            h1b.SetMarkerColor(bandColor1)
+            h1b.SetLineColor(bandColor1)
+            h1b.SetFillColor(bandColor1)
             h1b.SetFillStyle(3354)
             h1b.Draw("e2")
 
-            h1d.SetLineColor(r.kGray)
+            h1d.SetLineColor(bandColor1)
             h1d.SetLineStyle(4)
             h1d.Draw("histsame")
 
-            h1u.SetLineColor(r.kGray)
+            h1u.SetLineColor(bandColor1)
             h1u.Draw("histsame")
 
-        h1.SetLineColor(r.kBlack)
-        h1.SetMarkerColor(r.kBlack)
+        h1.SetLineColor(lineColor1)
+        h1.SetMarkerColor(lineColor1)
         h1.Draw("ehistsame" if band else "ehist")
         #keep.append(moveStatsBox(h1))
 
         if band and h2b:
-            h2b.SetMarkerColor(r.kCyan)
-            h2b.SetLineColor(r.kCyan)
-            h2b.SetFillColor(r.kCyan)
+            h2b.SetMarkerColor(bandColor2)
+            h2b.SetLineColor(bandColor2)
+            h2b.SetFillColor(bandColor2)
             h2b.SetFillStyle(3345)
             h2b.Draw("e2same")
 
-            h2d.SetLineColor(r.kCyan)
+            h2d.SetLineColor(bandColor2)
             h2d.SetLineStyle(4)
             h2d.Draw("histsame")
 
-            h2u.SetLineColor(r.kCyan)
+            h2u.SetLineColor(bandColor2)
             h2u.Draw("histsame")
 
-        h2.SetLineColor(r.kBlue)
-        h2.SetMarkerColor(r.kBlue)
+        h2.SetLineColor(lineColor2)
+        h2.SetMarkerColor(lineColor2)
         h2.Draw("ehistsame")
         #keep.append(moveStatsBox(h2))
 
@@ -275,6 +275,22 @@ def report(l=[], suffixes=["Up", "Down"], recursive=False):
         print
 
 
+def drawTitlePage(canvas, pdf, xTitle, file1, file2, band):
+    text = r.TText()
+    text.SetNDC()
+    text.SetTextAlign(22)
+
+    text.DrawText(0.5, 0.8, xTitle)
+    text.DrawText(0.5, 0.7, "band: %s" % band)
+
+    text.SetTextSize(0.7 * text.GetTextSize())
+    text.SetTextColor(lineColor1)
+    text.DrawText(0.5, 0.4, file1)
+    text.SetTextColor(lineColor2)
+    text.DrawText(0.5, 0.3, file2)
+    canvas.Print(pdf)
+
+
 def go(xTitle, file1, file2, band=""):
     d1 = histograms(file1)
     d2 = histograms(file2)
@@ -291,6 +307,8 @@ def go(xTitle, file1, file2, band=""):
 
     canvas = r.TCanvas()
     canvas.Print(pdf + "[")
+
+    drawTitlePage(canvas, pdf, xTitle, file1, file2, band)
 
     for subdir in reversed(subdirs):
         hNames, h1, h2 = common_keys(d1[subdir], d2[subdir])
@@ -316,12 +334,19 @@ if __name__ == "__main__":
     r.gStyle.SetOptStat("rme")
     r.gROOT.SetBatch(True)
 
+    lineColor1 = r.kBlack
+    bandColor1 = r.kGray
+
+    lineColor2 = r.kBlue
+    bandColor2 = r.kCyan
+
     for band in ["CMS_scale_t_tautau_8TeV", "CMS_scale_j_tautau_8TeV"]:
         go("svMass (preselection)",
            "Italians/htt_tt.inputs-Hhh-8TeV_m_sv.root",
            "Brown/svMass.root",
            band
            )
+
 
         go("fMassKinFit (after cuts)",
            "Italians/htt_tt.inputs-Hhh-8TeV_m_ttbb_kinfit_massCut.root",
