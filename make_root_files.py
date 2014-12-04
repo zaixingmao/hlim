@@ -74,7 +74,7 @@ def histosOneFile(f, tree, bins, procs, variable, cuts, category):
         h = r.TH1D(proc, proc+";%s;events / bin" % variable, *bins)
         h.Sumw2()
 
-        w = "(1.0)" if cfg.isData(proc) else "(triggerEff*xs/initEvents)"
+        w = "(1.0)" if cfg.isData(proc) else "(triggerEff*xs*PUWeight/initEvents)"
 
         cutString = '(sampleName=="%s")' % proc
         if category:
