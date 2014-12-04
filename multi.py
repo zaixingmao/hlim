@@ -16,14 +16,16 @@ for d in cfg.variables():
     dirName = "%s_%s" % (d["var"], cfg.cutDesc(d["cuts"]))
     os.system("rm -rf %s" % dirName)
     os.system("mkdir %s" % dirName)
-    os.system(" ".join(["cd %s &&" % workDir,
-                        "./go.py",
-                        "--file=%s" % cfg.outFileName(var=d["var"], cuts=d["cuts"]),
-                        "--full",
-                        "--postfitonlyone",
-                        "--masses='%s'" % masses,
-                        "--categories='%s'" % cats,
-                        ]))
+    cmd = " ".join(["cd %s &&" % workDir,
+                    "./go.py",
+                    "--file=%s" % cfg.outFileName(var=d["var"], cuts=d["cuts"]),
+                    "--full",
+                    "--postfitonlyone",
+                    #"--alsoObs",
+                    "--masses='%s'" % masses,
+                    "--categories='%s'" % cats,
+                    ])
+    os.system(cmd)
 
     files = ["tt_ggHTohh-limit.pdf", "tt_ggHTohh-limit.txt"]
     for cat in cats.split():
