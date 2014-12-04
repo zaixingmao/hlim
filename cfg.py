@@ -95,13 +95,16 @@ def workDir():
 
 
 def variables():
-    fm_bins = [200, 250, 270, 290, 310, 330, 350, 370, 390, 410, 430, 450, 500, 550, 600, 650, 700]
+    fm_bins_old= (4, 250.0, 410.0)
+    fm_bins_lt = [200, 250, 270, 290, 310, 330, 350, 370, 390, 410, 430, 450, 500, 550, 600, 650, 700]
+    fm_bins_tt = [200, 250, 280, 310, 340, 370, 400, 500, 600, 700]
+
     it_sv_bins_cat1_old = range(0, 200, 10) + range(200, 375, 25)
     it_sv_bins_cat2_old = range(0, 210, 20) + [250, 300, 350]
     it_sv_bins_cat1_new = range(0, 200, 10) + range(200, 375, 25)
     it_sv_bins_cat2_new = range(0, 200, 20) + range(200, 400, 50)
     it_fm_bins_cats = range(0, 510, 20) + range(550, 1050, 50)
-    it_fm_bins_new  = [200, 250, 280, 310, 340, 370, 400, 500, 600, 700]
+
 
     preselection = {}
     fMass = {"fMassKinFit": (0.0, None)}
@@ -113,12 +116,8 @@ def variables():
     ##  or
     ## a list of bin lower edges
 
-    out = [#{"var": "svMass",      "bins": ( 14,   0.0, 350.0), "cuts": {}},
-           {"var": "svMass",      "bins": it_sv_bins_cat2_new, "cuts": {}},
-
-           #{"var": "fMassKinFit", "bins": ( 4, 250.0, 410.0), "cuts": mass_windows},
-           {"var": "fMassKinFit", "bins": it_fm_bins_new, "cuts": mass_windows},
-           #{"var": "fMassKinFit", "bins": fm_bins, "cuts": mass_windows},
+    out = [#{"var": "svMass",      "bins": it_sv_bins_cat2_new, "cuts": {}},
+           {"var": "fMassKinFit", "bins": fm_bins_tt, "cuts": mass_windows},
            #{"var": "BDT", "bins": (8, -0.6, 0.2), "cuts": preselection},
            ]
 
@@ -159,7 +158,7 @@ def cutDesc(cuts):
 
 
 def complain():
-    if len(set(files.values())) != 3:
+    if len(set(files.values())) <= 2:
         print "FIXME: include variations"
 
     if __fakeSignals:
