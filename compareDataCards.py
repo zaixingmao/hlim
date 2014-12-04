@@ -316,6 +316,8 @@ def go(xTitle, file1, file2, band=""):
                 (h2, 'histograms missing from %s/%s:' % (file2, subdir)),
                 ])
 
+        #if subdir == "tauTau_2jet2tag":
+        #    continue
         hNames = filter(lambda hName: not any([hName.startswith(x) for x in ignorePrefixes]), hNames)
         oneDir(canvas, pdf, hNames, d1, d2, subdir, xTitle, band)
 
@@ -340,16 +342,25 @@ if __name__ == "__main__":
     lineColor2 = r.kBlue
     bandColor2 = r.kCyan
 
-    for band in ["CMS_scale_t_tautau_8TeV", "CMS_scale_j_tautau_8TeV"]:
+    for band in ["", "CMS_scale_t_tautau_8TeV", "CMS_scale_j_tautau_8TeV"][1:2]:
         go("svMass (preselection)",
-           "Italians/htt_tt.inputs-Hhh-8TeV_m_sv.root",
+           #"Italians-old/htt_tt.inputs-Hhh-8TeV_m_sv.root",
+           #"Italians/htt_tt.inputs-Hhh-8TeV_m_sv.root",
+           "Italians-afs/htt_tt.inputs-Hhh-8TeV_m_sv.root",
+           #"Brown-1.5/svMass.root",
            "Brown/svMass.root",
+           #"Brown/cutbased/svMass.root",
+           #"Brown/350/svMass.root",
            band
-           )
-
+        )
 
         go("fMassKinFit (after cuts)",
-           "Italians/htt_tt.inputs-Hhh-8TeV_m_ttbb_kinfit_massCut.root",
+           #"Italians-old/htt_tt.inputs-Hhh-8TeV_m_ttbb_kinfit_only_massCut.root",
+           #"Italians/htt_tt.inputs-Hhh-8TeV_m_ttbb_kinfit_only_massCut.root",
+           "Italians-afs/htt_tt.inputs-Hhh-8TeV_m_ttbb_kinfit_KinFitConvergedWithMassWindow.root",
+           #"Brown-1.5/fMassKinFit_0.0.fMassKinFit_70.0.mJJ.150.0_90.0.svMass.150.0.root",
            "Brown/fMassKinFit_0.0.fMassKinFit_70.0.mJJ.150.0_90.0.svMass.150.0.root",
+           #"Brown/cutbased/fMassKinFit_0.0.fMassKinFit_70.0.mJJ.150.0_90.0.svMass.150.0.root",
+           #"Brown/350/fMassKinFit_0.0.fMassKinFit_70.0.mJJ.150.0_90.0.svMass.150.0.root",
            band
            )
