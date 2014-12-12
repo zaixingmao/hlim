@@ -88,7 +88,9 @@ def histosOneFile(f, tree, bins, procs, variable, cuts, category):
 
         tree.Draw("%s>>%s" % (variable, proc), '(%s)*(%s)' % (w, cutString))
         h.SetDirectory(0)
-        shift(h)
+        if options.shift:
+            shift(h)
+
         out[proc] = h
         if cfg.isAntiIsoData(proc):
             applyLooseToTight(h, f, category)
@@ -333,6 +335,12 @@ def opts():
                       default=False,
                       action="store_true",
                       help="print integrals")
+
+    parser.add_option("--shift",
+                      dest="shift",
+                      default=False,
+                      action="store_true",
+                      help="shift under- and over-flows into visible bins")
 
     options, args = parser.parse_args()
     return options
