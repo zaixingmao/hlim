@@ -20,22 +20,22 @@ categories = {#"MM_LM": "tauTau_2jet2tag",
               "1M": "tauTau_2jet1tag",
               }
 
-# files = {"":                             "root/take2/combined_inclusiveDY.root",
-#          "_CMS_scale_t_tautau_8TeVUp":   "root/take2/combined_up.root",
-#          "_CMS_scale_t_tautau_8TeVDown": "root/take2/combined_down.root",
-#          }
-
 #__stem = "root/combined_relaxed_%s.root"
-#__stem = "root/combined_H350_7_n150_mJJ_1M_test_%s.root"
 #__stem = "root/combined_1.0_relaxed_%s.root"
 #__stem = "root/combined_1.0_relaxed__newCat%s.root"
-__stem = "root/combined_1.0_INFN_relaxed_%s_newCat.root"
+#__stem = "root/combined_1.0_INFN_relaxed_%s_newCat.root"
+
+#__stem = "root/combined_1.0_INFN_relaxed_withDYEmbed_norm%s.root"
+__stem = "root/combined_1.0_INFN_relaxed_withDYEmbed_massWindowCut%s.root"
+
+#__stem = "root/bdt/2/combined_H280_7_n150_mJJ_1M_test_%s.root"
+
 
 files = {"":                             __stem % "",
-         "_CMS_scale_t_tautau_8TeVUp":   __stem % "tauUp",
-         "_CMS_scale_t_tautau_8TeVDown": __stem % "tauDown",
-         "_CMS_scale_j_tautau_8TeVUp":   __stem % "jetUp",
-         "_CMS_scale_j_tautau_8TeVDown": __stem % "jetDown",
+         # "_CMS_scale_t_tautau_8TeVUp":   __stem % "tauUp",
+         # "_CMS_scale_t_tautau_8TeVDown": __stem % "tauDown",
+         # "_CMS_scale_j_tautau_8TeVUp":   __stem % "jetUp",
+         # "_CMS_scale_j_tautau_8TeVDown": __stem % "jetDown",
          }
 
 __fakeSignals = {"ggAToZhToLLTauTau": masses_spin0,
@@ -48,9 +48,9 @@ __fakeSignals = {"ggAToZhToLLTauTau": masses_spin0,
 fakeBkgs = ["ZJ", "ZL", "ZLL"][:1]
 
 def procs():
-    out = {"TT": ["tt", "tt_semi"],
-           "VV": ["ZZ", "WZJetsTo2L2Q", "WW", "WZ3L", "zzTo2L2Nu", "zzTo4L", "t", "tbar"],
-           "W": ["W2JetsToLNu", "W3JetsToLNu", "W4JetsToLNu"],  # W1 provides no events
+    out = {"TT": ["tt", "tt_semi", "tthad"],
+           "VV": ["ZZ", "WZJetsTo2L2Q", "WW", "WZ3L", "zzTo2L2Nu", "zzTo4L"], # + ["t", "tbar"],
+           #"W": ["W2JetsToLNu", "W3JetsToLNu", "W4JetsToLNu"],  # W1 provides no events
            #"ZTT": ["DYJetsToLL"],
            "ZTT": ["DY1JetsToLL", "DY2JetsToLL", "DY3JetsToLL", "DY4JetsToLL"],
            "QCD": ["dataOSRelax"],
@@ -97,7 +97,7 @@ def workDir():
 def variables():
     fm_bins_old= (4, 250.0, 410.0)
     fm_bins_lt = [200, 250, 270, 290, 310, 330, 350, 370, 390, 410, 430, 450, 500, 550, 600, 650, 700]
-    fm_bins_tt = [200, 250, 280, 310, 340, 370, 400, 500, 600, 700]
+    fm_bins_tt = [200, 250, 280, 310, 340, 370, 400, 500, 600, 700]#[:-2]
 
     it_sv_bins_cat1_old = range(0, 200, 10) + range(200, 375, 25)
     it_sv_bins_cat2_old = range(0, 210, 20) + [250, 300, 350]
@@ -119,6 +119,7 @@ def variables():
     out = [#{"var": "svMass",      "bins": it_sv_bins_cat2_new, "cuts": {}},
            {"var": "fMassKinFit", "bins": fm_bins_tt, "cuts": mass_windows},
            #{"var": "BDT", "bins": (8, -0.6, 0.2), "cuts": preselection},
+           #{"var": "BDT", "bins": (9, -0.6, 0.3), "cuts": preselection},
            ]
 
     return out
