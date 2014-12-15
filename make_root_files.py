@@ -133,6 +133,9 @@ def checkSamples(tree, fileName=".root file"):
         xs[sn].add(tree.xs)
         ini[sn].add(tree.initEvents)
 
+        if options.allowMultiXs:
+            continue
+
         if len(xs[sn]) != 1:
             sys.exit("ERROR: sample %s (file %s) has multiple values of xs: %s" % (sn, fileName, xs[sn]))
         if len(ini[sn]) != 1:
@@ -341,6 +344,12 @@ def opts():
                       default=False,
                       action="store_true",
                       help="shift under- and over-flows into visible bins")
+
+    parser.add_option("--allow-multi-xs",
+                      dest="allowMultiXs",
+                      default=False,
+                      action="store_true",
+                      help="skip check of uniqueness of xs for each process name")
 
     options, args = parser.parse_args()
     return options
