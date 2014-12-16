@@ -58,7 +58,12 @@ def histos(bins=None, variable="", cuts={}, category=""):
                     out[destProc] = h.Clone(destProc)
                     out[destProc].SetDirectory(0)
                     out[destProc].Reset()
-                out[destProc].Add(h)
+                factor = -1.0 if srcProc[0] == "-" else 1.0
+                out[destProc].Add(h, factor)
+
+        ztt_sources = cfg.procs().get("ZTT", [])
+        if any(["embed" in src for src in ztt_sources]):
+           applyEmbeddedScale(out["ZTT"], f, category)
 
         f.Close()
     return out
@@ -70,11 +75,23 @@ def histosOneFile(f, tree, bins, procs, variable, cuts, category):
         bins = (len(a) - 1, a)
 
     out = {}
-    for proc in procs:
+    for proc_orig in procs:
+        if proc_orig and proc_orig[0] == "-":
+            proc = proc_orig[1:]
+        else:
+            proc = proc_orig
+
         h = r.TH1D(proc, proc+";%s;events / bin" % variable, *bins)
         h.Sumw2()
 
-        w = "(1.0)" if cfg.isData(proc) else "(triggerEff*xs*PUWeight/initEvents)"
+        if cfg.isData(proc):
+            w = "(1.0)"
+        elif cfg.isDataEmbedded(proc):
+            w = "(triggerEff)"
+        elif cfg.isMcEmbedded(proc):
+            w = "(%g*triggerEff*xs/initEvents)" % cfg.lumi
+        else:
+            w = "(%g*triggerEff*xs*PUWeight/initEvents)" % cfg.lumi
 
         cutString = '(sampleName=="%s")' % proc
         if category:
@@ -91,7 +108,7 @@ def histosOneFile(f, tree, bins, procs, variable, cuts, category):
         if options.shift:
             shift(h)
 
-        out[proc] = h
+        out[proc_orig] = h
         if cfg.isAntiIsoData(proc):
             applyLooseToTight(h, f, category)
 
@@ -144,9 +161,10 @@ def checkSamples(tree, fileName=".root file"):
     if options.xs:
         printSampleInfo(xs, ini)
 
-    procs = sum(cfg.procs().values(), [])
     extra = []
-    for proc in procs:
+    for proc in sum(cfg.procs().values(), []):
+        if proc and proc[0] == "-":
+            proc = proc[1:]
         if proc in cfg.fakeSignalList() or proc in cfg.fakeBkgs:
             continue  # warning is done in cfg.complain()
         if proc in xs:
@@ -157,6 +175,21 @@ def checkSamples(tree, fileName=".root file"):
     report([(xs.keys(), "Samples in %s but not procs():" % fileName),
             (extra, "Samples in procs() but not %s:" % fileName),
             ])
+
+
+def applyEmbeddedScale(h=None, tfile=None, category=""):
+    i = h.Integral(0, 1 + h.GetNbinsX())  # fixme: under/overflows?
+    if not i:
+        h.Print("all")
+        sys.exit("Empty histogram '%s'." % h.GetName())
+    h.Scale(1.0 / i)
+
+    hName = "MC2Embed2Cat_%s" % category
+    hFactor = tfile.Get(hName)
+    if not hFactor:
+        sys.exit("Could not find histogram '%s' in file '%s'." % (hName, tfile.GetName()))
+    factor = hFactor.GetBinContent(1)
+    h.Scale(factor)
 
 
 def applyLooseToTight(h=None, tfile=None, category=""):
@@ -247,8 +280,6 @@ def oneTag(tag, hs, sKey, sFactor, l):
             print "ERROR: %s" % proc, h
             continue
 
-        if not cfg.isData(proc):
-            h.Scale(cfg.lumi)
         #h.Print("all")
         if cfg.isSignal(proc) and cfg.substring_signal_example not in proc:
             pass
