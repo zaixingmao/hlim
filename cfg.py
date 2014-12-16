@@ -27,7 +27,10 @@ categories = {#"MM_LM": "tauTau_2jet2tag",
 
 #__stem = "root/combined_1.0_INFN_relaxed_withDYEmbed_norm%s.root"
 #__stem = "root/combined_1.0_INFN_relaxed_withDYEmbed_massWindowCut%s.root"
-__stem = "root/combined_1.0_INFN_relaxed_withDYEmbed_massWindow%s.root"
+#__stem = "root/combined_1.0_INFN_relaxed_withDYEmbed_massWindow%s.root"
+
+#__stem = "root/combined_withDYEmbed_newMC%s.root"
+__stem = "root/combined_withDYEmbed_massWindow_newMC%s.root"
 
 #__stem = "root/bdt/2/combined_H280_7_n150_mJJ_1M_test_%s.root"
 
@@ -56,7 +59,7 @@ def procs():
            #"ZTT": ["DYJetsToLL"],
            #"ZTT": ["DY1JetsToLL", "DY2JetsToLL", "DY3JetsToLL", "DY4JetsToLL"],
            "ZTT": ["DY_embed", "-tt_embed"],
-           "QCD": ["dataOSRelax"],
+           "QCD": ["dataOSRelax", "-MCOSRelax"],
            }
 
     for m in masses_spin0:
@@ -90,10 +93,6 @@ def isMcEmbedded(proc):
 
 def isSignal(proc):
     return any([proc.startswith(p) for p in ["ggHTo", "ggATo", "ggGraviton", "ggRadion", "bbH"]])
-
-
-def isAntiIsoData(proc):
-    return proc == "dataOSRelax"
 
 
 def cats():
