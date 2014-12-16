@@ -61,6 +61,8 @@ def histos(bins=None, variable="", cuts={}, category=""):
                 factor = -1.0 if srcProc[0] == "-" else 1.0
                 out[destProc].Add(h, factor)
 
+        applyLooseToTight(out["QCD"], f, category)
+
         ztt_sources = cfg.procs().get("ZTT", [])
         if any(["embed" in src for src in ztt_sources]):
            applyEmbeddedScale(out["ZTT"], f, category)
@@ -109,9 +111,6 @@ def histosOneFile(f, tree, bins, procs, variable, cuts, category):
             shift(h)
 
         out[proc_orig] = h
-        if cfg.isAntiIsoData(proc):
-            applyLooseToTight(h, f, category)
-
     return out
 
 
@@ -195,7 +194,7 @@ def applyEmbeddedScale(h=None, tfile=None, category=""):
 
 
 def applyLooseToTight(h=None, tfile=None, category=""):
-    hName = "L_to_T_%s" % category
+    hName = "L_to_T_SF_%s" % category
     hFactor = tfile.Get(hName)
     if not hFactor:
         sys.exit("Could not find histogram '%s' in file '%s'." % (hName, tfile.GetName()))
