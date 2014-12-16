@@ -26,7 +26,8 @@ categories = {#"MM_LM": "tauTau_2jet2tag",
 #__stem = "root/combined_1.0_INFN_relaxed_%s_newCat.root"
 
 #__stem = "root/combined_1.0_INFN_relaxed_withDYEmbed_norm%s.root"
-__stem = "root/combined_1.0_INFN_relaxed_withDYEmbed_massWindowCut%s.root"
+#__stem = "root/combined_1.0_INFN_relaxed_withDYEmbed_massWindowCut%s.root"
+__stem = "root/combined_1.0_INFN_relaxed_withDYEmbed_massWindow%s.root"
 
 #__stem = "root/bdt/2/combined_H280_7_n150_mJJ_1M_test_%s.root"
 
@@ -48,11 +49,13 @@ __fakeSignals = {"ggAToZhToLLTauTau": masses_spin0,
 fakeBkgs = ["ZJ", "ZL", "ZLL"][:1]
 
 def procs():
+    # first character '-' means subtract rather than add
     out = {"TT": ["tt", "tt_semi", "tthad"],
            "VV": ["ZZ", "WZJetsTo2L2Q", "WW", "WZ3L", "zzTo2L2Nu", "zzTo4L"], # + ["t", "tbar"],
            #"W": ["W2JetsToLNu", "W3JetsToLNu", "W4JetsToLNu"],  # W1 provides no events
            #"ZTT": ["DYJetsToLL"],
-           "ZTT": ["DY1JetsToLL", "DY2JetsToLL", "DY3JetsToLL", "DY4JetsToLL"],
+           #"ZTT": ["DY1JetsToLL", "DY2JetsToLL", "DY3JetsToLL", "DY4JetsToLL"],
+           "ZTT": ["DY_embed", "-tt_embed"],
            "QCD": ["dataOSRelax"],
            }
 
@@ -75,6 +78,14 @@ def fakeSignalList():
 
 def isData(proc):
     return proc.startswith("data") or proc.startswith("QCD")
+
+
+def isDataEmbedded(proc):
+    return proc.startswith("DY_embed")  # fixme: dimuon
+
+
+def isMcEmbedded(proc):
+    return proc.endswith("tt_embed")
 
 
 def isSignal(proc):
