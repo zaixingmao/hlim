@@ -189,6 +189,8 @@ def applyEmbeddedScale(h=None, tfile=None, category=""):
     if not hFactor:
         sys.exit("Could not find histogram '%s' in file '%s'." % (hName, tfile.GetName()))
     factor = hFactor.GetBinContent(1)
+    if options.factors:
+        print "%s: %8.6f" % (hName, factor)
     h.Scale(factor)
 
 
@@ -198,6 +200,8 @@ def applyLooseToTight(h=None, tfile=None, category=""):
     if not hFactor:
         sys.exit("Could not find histogram '%s' in file '%s'." % (hName, tfile.GetName()))
     factor = hFactor.GetBinContent(1)
+    if options.factors:
+        print "%s: %8.6f" % (hName, factor)
     h.Scale(factor)
 
 
@@ -369,6 +373,12 @@ def opts():
                       default=False,
                       action="store_true",
                       help="print integrals")
+
+    parser.add_option("--factors",
+                      dest="factors",
+                      default=False,
+                      action="store_true",
+                      help="print loose-to-tight and embedded-sample rate factors")
 
     parser.add_option("--shift",
                       dest="shift",
