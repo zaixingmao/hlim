@@ -80,7 +80,7 @@ def fakeSignalList():
 
 
 def isData(proc):
-    return proc.startswith("data") or proc.startswith("QCD")
+    return proc.startswith("data")
 
 
 def isDataEmbedded(proc):
