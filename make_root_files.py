@@ -40,10 +40,14 @@ def applyFactor(h=None, tfile=None, proc="", category=""):
     h.Scale(factor)
 
 
-def merge_second_layer(d, f, category):
+def merge_second_layer(d, f, category, variation):
     for destProc, srcProcs in cfg.procs2().iteritems():
+        destProc += variation
+
         for srcProc in srcProcs:
-            h = d[srcProc]
+            key = srcProc + variation
+            h = d[key]
+
             if destProc not in d:
                 d[destProc] = h.Clone(destProc)
                 d[destProc].SetDirectory(0)
@@ -53,10 +57,12 @@ def merge_second_layer(d, f, category):
                 i = h.Integral(0, 1 + h.GetNbinsX())
                 assert i, h.GetName()
                 h.Scale(1.0 / i)
+                if variation:
+                    print "FIXME: check varied factors"
                 applyFactor(h, f, srcProc[1:], category)
 
             d[destProc].Add(h)
-            del d[srcProc]
+            del d[key]
 
 
 def histos(bins=None, variable="", cuts={}, category=""):
@@ -92,13 +98,13 @@ def histos(bins=None, variable="", cuts={}, category=""):
                 factor = -1.0 if srcProc[0] == "-" else 1.0
                 out[destProc].Add(h, factor)
 
-        applyLooseToTight(out["QCD"], f, category)
+        applyLooseToTight(out["QCD"+variation], f, category)
 
-        ztt_sources = cfg.procs().get("ZTT", [])
+        ztt_sources = cfg.procs().get("ZTT"+variation, [])
         if any(["embed" in src for src in ztt_sources]):
-           applyEmbeddedScale(out["ZTT"], f, category)
+           applyEmbeddedScale(out["ZTT"+variation], f, category)
 
-        merge_second_layer(out, f, category)
+        merge_second_layer(out, f, category, variation)
         f.Close()
     return out
 
