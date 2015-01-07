@@ -30,14 +30,18 @@ categories = {#"MM_LM": "tauTau_2jet2tag",
 #__stem = "root/combined_1.0_INFN_relaxed_withDYEmbed_massWindow%s.root"
 
 #__stem = "root/combined_withDYEmbed_newMC%s.root"
-__stem = "root/combined_withDYEmbed_massWindow_newMC%s.root"
+#__stem = "root/combined_withDYEmbed_massWindow_newMC%s.root"
+#__stem = "root/combined_withDYEmbed_massWindow_newMethod%s.root"
+#__stem = "root/combined_one1To4_withDYEmbed_massWindow%s.root"
+__stem = "root/combined_iso1.0_one1To4%s.root"
 
 #__stem = "root/bdt/2/combined_H280_7_n150_mJJ_1M_test_%s.root"
+#__stem = "root/bdt/3/combined_H280%s.root"
 
 
 files = {"":                             __stem % "",
-         # "_CMS_scale_t_tautau_8TeVUp":   __stem % "tauUp",
-         # "_CMS_scale_t_tautau_8TeVDown": __stem % "tauDown",
+         # "_CMS_scale_t_tautau_8TeVUp":   __stem % "",
+         # "_CMS_scale_t_tautau_8TeVDown": __stem % "",
          # "_CMS_scale_j_tautau_8TeVUp":   __stem % "jetUp",
          # "_CMS_scale_j_tautau_8TeVDown": __stem % "jetDown",
          }
@@ -49,15 +53,17 @@ __fakeSignals = {"ggAToZhToLLTauTau": masses_spin0,
                  "bbH": range(90, 150, 10) + [160, 180, 200, 250, 300, 350, 400],
                  }
 
-fakeBkgs = ["ZJ", "ZL", "ZLL"][:1]
+fakeBkgs = ["W", "ZJ", "ggH125", "qqH125", "VH125", "ZL", "ZLL"][:-2]
+
 
 def procs():
     # first character '-' means subtract rather than add
     out = {"TT": ["tt", "tt_semi", "tthad"],
-           "VV": ["ZZ", "WZJetsTo2L2Q", "WW", "WZ3L", "zzTo2L2Nu", "zzTo4L"], # + ["t", "tbar"],
+           "*VV": ["ZZ", "WZJetsTo2L2Q", "WW", "WZ3L", "zzTo2L2Nu", "zzTo4L"],
            #"W": ["W2JetsToLNu", "W3JetsToLNu", "W4JetsToLNu"],  # W1 provides no events
            #"ZTT": ["DYJetsToLL"],
            #"ZTT": ["DY1JetsToLL", "DY2JetsToLL", "DY3JetsToLL", "DY4JetsToLL"],
+           "*singleT": ["t", "tbar"],
            "ZTT": ["DY_embed", "-tt_embed"],
            "QCD": ["dataOSRelax", "-MCOSRelax"],
            }
@@ -69,6 +75,11 @@ def procs():
         out[p] = [p]
 
     return out
+
+
+def procs2():
+    # first character '*' means unit normalize and then use factor
+    return {"VV": ["*VV", "*singleT"]}
 
 
 def fakeSignalList():
@@ -96,7 +107,7 @@ def isSignal(proc):
 
 
 def cats():
-    return " ".join([s[-4] for s in categories.values()])
+    return " ".join([s[-4] for s in sorted(categories.values())])
 
 
 def workDir():
