@@ -98,11 +98,13 @@ def histos(bins=None, variable="", cuts={}, category=""):
                 factor = -1.0 if srcProc[0] == "-" else 1.0
                 out[destProc].Add(h, factor)
 
-        applyLooseToTight(out["QCD"+variation], f, category)
+        qcdKey = "QCD" + variation
+        applyLooseToTight(out[qcdKey], f, category)
 
-        ztt_sources = cfg.procs().get("ZTT"+variation, [])
+        zttKey = "ZTT" + variation
+        ztt_sources = cfg.procs().get(zttKey, [])
         if any(["embed" in src for src in ztt_sources]):
-           applyEmbeddedScale(out["ZTT"+variation], f, category)
+           applyEmbeddedScale(out[zttKey], f, category)
 
         merge_second_layer(out, f, category, variation)
         f.Close()
