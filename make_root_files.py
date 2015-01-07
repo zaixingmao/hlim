@@ -29,6 +29,36 @@ def shift(h):
     combineBinContentAndError(h, 1, 0)  # underflows
 
 
+def applyFactor(h=None, tfile=None, proc="", category=""):
+    hName = "%s_%s" % (proc, category)
+    hFactor = tfile.Get(hName)
+    if not hFactor:
+        sys.exit("Could not find histogram '%s' in file '%s'." % (hName, tfile.GetName()))
+    factor = hFactor.GetBinContent(1)
+    if options.factors:
+        print "%s: %8.6f" % (hName, factor)
+    h.Scale(factor)
+
+
+def merge_second_layer(d, f, category):
+    for destProc, srcProcs in cfg.procs2().iteritems():
+        for srcProc in srcProcs:
+            h = d[srcProc]
+            if destProc not in d:
+                d[destProc] = h.Clone(destProc)
+                d[destProc].SetDirectory(0)
+                d[destProc].Reset()
+
+            if srcProc[0] == "*":
+                i = h.Integral(0, 1 + h.GetNbinsX())
+                assert i, h.GetName()
+                h.Scale(1.0 / i)
+                applyFactor(h, f, srcProc[1:], category)
+
+            d[destProc].Add(h)
+            del d[srcProc]
+
+
 def histos(bins=None, variable="", cuts={}, category=""):
     assert bins
 
@@ -50,6 +80,7 @@ def histos(bins=None, variable="", cuts={}, category=""):
         tree = f.Get("eventTree")
         checkSamples(tree, fileName)
 
+        # first layer of merging
         for destProc, srcProcs in cfg.procs().iteritems():
             destProc += variation
 
@@ -67,6 +98,7 @@ def histos(bins=None, variable="", cuts={}, category=""):
         if any(["embed" in src for src in ztt_sources]):
            applyEmbeddedScale(out["ZTT"], f, category)
 
+        merge_second_layer(out, f, category)
         f.Close()
     return out
 
