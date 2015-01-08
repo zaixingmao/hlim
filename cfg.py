@@ -33,15 +33,16 @@ categories = {#"MM_LM": "tauTau_2jet2tag",
 #__stem = "root/combined_withDYEmbed_massWindow_newMC%s.root"
 #__stem = "root/combined_withDYEmbed_massWindow_newMethod%s.root"
 #__stem = "root/combined_one1To4_withDYEmbed_massWindow%s.root"
-__stem = "root/combined_iso1.0_one1To4%s.root"
+#__stem = "root/combined_iso1.0_one1To4%s.root"
+__stem = "root/combined_iso1.0_one1To4_pt_%s__withDYEmbed_massWindow.root"
 
 #__stem = "root/bdt/2/combined_H280_7_n150_mJJ_1M_test_%s.root"
 #__stem = "root/bdt/3/combined_H280%s.root"
 
 
 files = {"":                             __stem % "",
-         # "_CMS_scale_t_tautau_8TeVUp":   __stem % "",
-         # "_CMS_scale_t_tautau_8TeVDown": __stem % "",
+         "_CMS_scale_t_tautau_8TeVUp":   __stem % "tauUp",
+         "_CMS_scale_t_tautau_8TeVDown": __stem % "tauDown",
          # "_CMS_scale_j_tautau_8TeVUp":   __stem % "jetUp",
          # "_CMS_scale_j_tautau_8TeVDown": __stem % "jetDown",
          }
@@ -99,7 +100,7 @@ def isDataEmbedded(proc):
 
 
 def isMcEmbedded(proc):
-    return proc.endswith("tt_embed")
+    return proc.endswith("tt_embed")  # first character may be minus sign
 
 
 def isSignal(proc):
