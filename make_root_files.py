@@ -89,13 +89,10 @@ def histos(bins=None, variable="", cuts={}, category=""):
                 factor = -1.0 if srcProc[0] == "-" else 1.0
                 out[destProc].Add(h, factor)
 
-        qcdKey = "QCD" + variation
-        applyFactor(out[qcdKey], f, hName="L_to_T_SF_%s" % category, unit=False)
+        applyFactor(out["QCD" + variation], f, hName="L_to_T_SF_%s" % category, unit=False)
 
-        zttKey = "ZTT" + variation
-        ztt_sources = cfg.procs().get(zttKey, [])
-        if any(["embed" in src for src in ztt_sources]):
-           applyFactor(out[zttKey], f, hName="MC2Embed2Cat_%s" % category, unit=True)
+        if any(["embed" in src for src in cfg.procs().get("ZTT", [])]):
+           applyFactor(out["ZTT" + variation], f, hName="MC2Embed2Cat_%s" % category, unit=True)
 
         merge_second_layer(out, f, category, variation)
         f.Close()
