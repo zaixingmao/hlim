@@ -7,7 +7,7 @@ cmsenv
 
 git clone https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit HiggsAnalysis/CombinedLimit
 cd HiggsAnalysis/CombinedLimit
-git checkout slc6-root5.34.17
+git checkout v5.0.1
 cd ../..
 
 git clone https://github.com/cms-analysis/HiggsAnalysis-HiggsToTauTau HiggsAnalysis/HiggsToTauTau
@@ -15,7 +15,6 @@ cd HiggsAnalysis/HiggsToTauTau
 source environment.sh
 
 git clone https://github.com/zaixingmao/hlim
-cp -p hlim/HTT_TT_X_template.C test/templates/
 cp -p hlim/test.gitignore test/.gitignore
 cd ../..
 
