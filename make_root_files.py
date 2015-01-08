@@ -29,17 +29,6 @@ def shift(h):
     combineBinContentAndError(h, 1, 0)  # underflows
 
 
-def applyFactor(h=None, tfile=None, proc="", category=""):
-    hName = "%s_%s" % (proc, category)
-    hFactor = tfile.Get(hName)
-    if not hFactor:
-        sys.exit("Could not find histogram '%s' in file '%s'." % (hName, tfile.GetName()))
-    factor = hFactor.GetBinContent(1)
-    if options.factors:
-        print "%s: %8.6f" % (hName, factor)
-    h.Scale(factor)
-
-
 def merge_second_layer(d, f, category, variation):
     for destProc, srcProcs in cfg.procs2().iteritems():
         destProc += variation
@@ -54,12 +43,9 @@ def merge_second_layer(d, f, category, variation):
                 d[destProc].Reset()
 
             if srcProc[0] == "*":
-                i = h.Integral(0, 1 + h.GetNbinsX())
-                assert i, h.GetName()
-                h.Scale(1.0 / i)
+                applyFactor(h, f, hName="%s_%s" % (srcProc[1:], category), unit=True)
                 if variation:
                     print "FIXME: check varied factors"
-                applyFactor(h, f, srcProc[1:], category)
 
             d[destProc].Add(h)
             del d[key]
@@ -104,12 +90,12 @@ def histos(bins=None, variable="", cuts={}, category=""):
                 out[destProc].Add(h, factor)
 
         qcdKey = "QCD" + variation
-        applyLooseToTight(out[qcdKey], f, category)
+        applyFactor(out[qcdKey], f, hName="L_to_T_SF_%s" % category, unit=False)
 
         zttKey = "ZTT" + variation
         ztt_sources = cfg.procs().get(zttKey, [])
         if any(["embed" in src for src in ztt_sources]):
-           applyEmbeddedScale(out[zttKey], f, category)
+           applyFactor(out[zttKey], f, hName="MC2Embed2Cat_%s" % category, unit=True)
 
         merge_second_layer(out, f, category, variation)
         f.Close()
@@ -221,25 +207,14 @@ def checkSamples(tree, fileName=".root file"):
             ])
 
 
-def applyEmbeddedScale(h=None, tfile=None, category=""):
-    i = h.Integral(0, 1 + h.GetNbinsX())  # fixme: under/overflows?
-    if not i:
-        h.Print("all")
-        sys.exit("Empty histogram '%s'." % h.GetName())
-    h.Scale(1.0 / i)
+def applyFactor(h=None, tfile=None, hName="", unit=False):
+    if unit:
+        i = h.Integral(0, 1 + h.GetNbinsX())  # fixme: under/overflows?
+        if not i:
+            h.Print("all")
+            sys.exit("Empty histogram '%s'." % h.GetName())
+        h.Scale(1.0 / i)
 
-    hName = "MC2Embed2Cat_%s" % category
-    hFactor = tfile.Get(hName)
-    if not hFactor:
-        sys.exit("Could not find histogram '%s' in file '%s'." % (hName, tfile.GetName()))
-    factor = hFactor.GetBinContent(1)
-    if options.factors:
-        print "%s: %8.6f" % (hName, factor)
-    h.Scale(factor)
-
-
-def applyLooseToTight(h=None, tfile=None, category=""):
-    hName = "L_to_T_SF_%s" % category
     hFactor = tfile.Get(hName)
     if not hFactor:
         sys.exit("Could not find histogram '%s' in file '%s'." % (hName, tfile.GetName()))
