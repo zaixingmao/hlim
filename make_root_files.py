@@ -65,20 +65,25 @@ def merge_second_layer(d, f, category, variation):
             del d[key]
 
 
+def rescaled_bins(bins, variable):
+    if type(bins) is not tuple:
+        sys.exit("ERROR: cannot rescale X for non-uniform binning (%s)." % variable)
+
+    assert bins[0]
+    binWidth = (bins[2] - bins[1]) / bins[0]
+    assert binWidth
+    factor = 1.0 / binWidth
+    bins = (bins[0], bins[1] * factor, bins[2] * factor)
+    variable = "(%g*%s)" % (factor, variable)
+    return bins, variable
+
+
 def histos(bins=None, variable="", cuts={}, category=""):
     assert bins
 
     # rescale so that bin width is 1.0
     if cfg.rescaleX:
-        if type(bins) is not tuple:
-            sys.exit("ERROR: cannot rescale X for non-uniform binning (%s)." % variable)
-
-        assert bins[0]
-        binWidth = (bins[2] - bins[1]) / bins[0]
-        assert binWidth
-        factor = 1.0 / binWidth
-        bins = (bins[0], bins[1] * factor, bins[2] * factor)
-        variable = "(%g*%s)" % (factor, variable)
+        bins, variable = rescaled_bins(bins, variable)
 
     out = {}
     for variation, fileName in cfg.files.iteritems():
