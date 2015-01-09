@@ -67,6 +67,7 @@ def procs():
            "*singleT": ["t", "tbar"],
            "ZTT": ["DY_embed", "-tt_embed"],
            "QCD": ["dataOSRelax", "-MCOSRelax"],
+           "data_obs": ["dataOSTight"],
            }
 
     for m in masses_spin0:
