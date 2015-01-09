@@ -79,6 +79,9 @@ def histos(bins=None, variable="", cuts={}, category=""):
 
         # first layer of merging
         for destProc, srcProcs in cfg.procs().iteritems():
+            if destProc == "data_obs" and not options.unblind:
+                continue
+
             destProc += variation
 
             for srcProc, h in histosOneFile(f, tree, bins, srcProcs, variable, cuts, category).iteritems():
@@ -312,8 +315,8 @@ def oneTag(tag, hs, sKey, sFactor, l):
     if options.integrals:
         printIntegrals(integrals, l)
 
-    d = fakeDataset(hs, sKey, sFactor, l)
-    d.Write()
+    if not options.unblind:
+        fakeDataset(hs, sKey, sFactor, l).Write()
 
 
 def fakeDataset(hs, sKey, sFactor, l):
@@ -407,6 +410,12 @@ def opts():
                       default=False,
                       action="store_true",
                       help="skip check of uniqueness of xs for each process name")
+
+    parser.add_option("--unblind",
+                      dest="unblind",
+                      default=False,
+                      action="store_true",
+                      help="use real data for data_obs rather than floor(sum(b))")
 
     options, args = parser.parse_args()
     return options
