@@ -421,11 +421,14 @@ def opts():
     return options
 
 
+options = opts()
 if __name__ == "__main__":
-    options = opts()
-
     import ROOT as r
     r.gROOT.SetBatch(True)
     r.gErrorIgnoreLevel = 2000
 
     loop()
+else:
+    options.allowMultiXs = True
+    options.integrals = True
+    options.contents = True
