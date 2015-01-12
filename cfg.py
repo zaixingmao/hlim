@@ -1,10 +1,9 @@
 import os
 import sys
+from root_dest import root_dest
 
 if "CMSSW_BASE" not in os.environ:
     sys.exit("Set up the CMSSW environment.")
-
-root_dest = "%s/src/auxiliaries/shapes/Brown" % os.environ["CMSSW_BASE"]
 
 lumi     = 19.7   # /fb
 rescaleX = False
@@ -36,9 +35,6 @@ categories = {#"MM_LM": "tauTau_2jet2tag",
 #__stem = "root/combined_iso1.0_one1To4%s.root"
 __stem = "root/combined_iso1.0_one1To4_pt_%s__withDYEmbed_massWindow.root"
 #__stem = "root/combined_iso1.0_one1To4_pt_normal%s__withDYEmbed_massWindow_withJetPtCut.root"
-
-#__stem = "root/bdt/2/combined_H280_7_n150_mJJ_1M_test_%s.root"
-#__stem = "root/bdt/3/combined_H280%s.root"
 
 
 def files():
