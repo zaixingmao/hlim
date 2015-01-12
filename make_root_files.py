@@ -72,7 +72,7 @@ def histos(bins=None, variable="", cuts={}, category=""):
         bins, variable = rescaled_bins(bins, variable)
 
     out = {}
-    for variation, fileName in cfg.files.iteritems():
+    for variation, fileName in cfg.files().iteritems():
         f = r.TFile(fileName)
         tree = f.Get("eventTree")
         checkSamples(tree, fileName)
