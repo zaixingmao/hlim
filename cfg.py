@@ -41,12 +41,13 @@ __stem = "root/combined_iso1.0_one1To4_pt_%s__withDYEmbed_massWindow.root"
 #__stem = "root/bdt/3/combined_H280%s.root"
 
 
-files = {"":                             __stem % "",
-         "_CMS_scale_t_tautau_8TeVUp":   __stem % "tauUp",
-         "_CMS_scale_t_tautau_8TeVDown": __stem % "tauDown",
-         # "_CMS_scale_j_tautau_8TeVUp":   __stem % "jetUp",
-         # "_CMS_scale_j_tautau_8TeVDown": __stem % "jetDown",
-         }
+def files():
+    return {"":                             __stem % "",
+            "_CMS_scale_t_tautau_8TeVUp":   __stem % "tauUp",
+            "_CMS_scale_t_tautau_8TeVDown": __stem % "tauDown",
+            # "_CMS_scale_j_tautau_8TeVUp":   __stem % "jetUp",
+            # "_CMS_scale_j_tautau_8TeVDown": __stem % "jetDown",
+            }
 
 __fakeSignals = {"ggAToZhToLLTauTau": masses_spin0,
                  "ggAToZhToLLBB": [250] + masses_spin0,
@@ -55,7 +56,7 @@ __fakeSignals = {"ggAToZhToLLTauTau": masses_spin0,
                  "bbH": range(90, 150, 10) + [160, 180, 200, 250, 300, 350, 400],
                  }
 
-fakeBkgs = ["W", "ZJ", "ggH125", "qqH125", "VH125", "ZL", "ZLL"][:-2]
+fakeBkgs = ["ggH125", "qqH125", "VH125", "ZJ", "ZL", "ZLL", "W"][:-3]
 
 
 def procs():
@@ -183,7 +184,7 @@ def cutDesc(cuts):
 
 
 def complain():
-    if len(set(files.values())) <= 2:
+    if len(set(files().values())) <= 2:
         print "FIXME: include variations"
 
     if __fakeSignals:
