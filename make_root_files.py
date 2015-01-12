@@ -422,11 +422,11 @@ def opts():
 
 
 options = opts()
-if __name__ == "__main__":
-    import ROOT as r
-    r.gROOT.SetBatch(True)
-    r.gErrorIgnoreLevel = 2000
+import ROOT as r  # placed after opts so as not to steal --help
+r.gROOT.SetBatch(True)
+r.gErrorIgnoreLevel = 2000
 
+if __name__ == "__main__":
     loop()
 else:
     options.allowMultiXs = True
