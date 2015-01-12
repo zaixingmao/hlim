@@ -2,7 +2,8 @@
 
 import os
 import sys
-import cfg
+from root_dest import root_dest
+
 
 def opts():
     import optparse
@@ -114,18 +115,20 @@ if __name__ == "__main__":
 
     # remove and create file and link
     fName = "htt_tt.inputs-Hhh-8TeV.root"
-    loc = "%s/%s" % (cfg.root_dest, fName)
+    loc = "%s/%s" % (root_dest, fName)
     copy(src=os.path.abspath(options.file), dest=loc, link=False)
     copy(src=loc, dest="%s/tt/%s" % (inDir, fName), link=True)
 
     if options.cards:
         os.system("rm -rf %s" % dc)
-        os.system(" ".join(["setup-datacards.py",
-                            "--in=%s" % inDir,
-                            "--out="+dc,
-                            "--analysis=Hhh",
-                            common,
-                            ]))
+        cmd = " ".join(["setup-datacards.py",
+                        "--in=%s" % inDir,
+                        "--out="+dc,
+                        "--analysis=Hhh",
+                        common,
+                        ])
+        # print cmd
+        os.system(cmd)
 
         os.system("rm -rf %s" % lim)
         os.system("mkdir -p %s" % lim)
