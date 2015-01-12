@@ -20,15 +20,20 @@ for d in cfg.variables():
     dirName = "%s_%s" % (d["var"], cfg.cutDesc(d["cuts"]))
     os.system("rm -rf %s" % dirName)
     os.system("mkdir %s" % dirName)
+    it = "%s/src/auxiliaries/shapes/Italians/htt_tt.inputs-Hhh-8TeV_m_ttbb_kinfit_KinFitConvergedWithMassWindow.root" % os.environ["CMSSW_BASE"]
+    br = cfg.outFileName(var=d["var"], cuts=d["cuts"])
+
     cmd = " ".join(["cd %s &&" % workDir,
                     "./go.py",
-                    "--file=%s" % cfg.outFileName(var=d["var"], cuts=d["cuts"]),
+                    "--file=%s" % br,
                     "--full",
                     "--postfitonlyone",
                     #"--alsoObs",
                     "--masses='%s'" % masses,
                     "--categories='%s'" % cats,
                     ])
+
+    # print cmd
     os.system(cmd)
 
     files = ["tt_ggHTohh-limit.pdf", "tt_ggHTohh-limit.txt"]
