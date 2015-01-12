@@ -2,30 +2,31 @@
 
 import cfg
 import os
-
+import make_root_files
 
 cats = cfg.cats()
 workDir = cfg.workDir()
-inDir = "root"
+inDir = "root/bdt/3"
 redirect = False
+
 
 for mass in cfg.masses_spin0:
     for fileName in os.listdir(inDir):
-        if ("_H%3d_" % mass) not in fileName:
+        if ("_H%3d" % mass) not in fileName:
             continue
 
         dirName = fileName.replace("combined", "BDT").replace(".root", "")
-        print dirName
+        # print dirName
         os.system("rm -rf %s" % dirName)
         os.system("mkdir %s" % dirName)
-        print "  (root)"
-        cmd = "./make_root_files.py %s/%s" % (inDir, fileName)
+        print "  (making .root file)"
 
-        if redirect:
-            cmd += " > %s/yields.txt" % dirName
-        os.system(cmd)
+        # WARNING: HACK!
+        cfg.__stem = "%s/%s" % (inDir, fileName.replace(".root", "%s.root"))
 
-        print "  (limit)"
+        make_root_files.loop()
+
+        print "  (running limit)"
         args = ["cd %s &&" % workDir,
                 "./go.py",
                 "--file=%s" % cfg.outFileName(var="BDT", cuts={}),
