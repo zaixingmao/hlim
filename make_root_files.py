@@ -289,6 +289,8 @@ def printIntegrals(lst=[], l=""):
     print l, hyphens
     s = 0.0
     for tag, proc, integral in sorted(lst):
+        if proc in cfg.fakeBkgs:
+            continue
         s += integral
         print l, proc.ljust(30), "%9.3f" % integral, " (for %4.1f/fb)" % cfg.lumi
     print l, " ".ljust(25), "sum = %9.3f" % s
