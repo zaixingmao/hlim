@@ -325,9 +325,9 @@ def go(xTitle, file1, file2, band=""):
 
 
 if __name__ == "__main__":
-    ignorePrefixes = ["ggAToZh", "bbH", "W", "data_obs", "ggRadion", "ggGraviton"]
+    ignorePrefixes = ["ggAToZh", "bbH", "W", "ggRadion", "ggGraviton"]
 
-    whiteList = ["TT", "QCD", "VV", "ZTT",
+    whiteList = ["TT", "QCD", "VV", "ZTT", "data_obs", "ZLL",
                  "ggHTohhTo2Tau2B260", "ggHTohhTo2Tau2B300", "ggHTohhTo2Tau2B350",
                  ]
 
