@@ -43,7 +43,6 @@ def files():
             "_CMS_scale_t_tautau_8TeVDown": __stem % "tauDown",
             "_CMS_scale_j_tautau_8TeVUp":   __stem % "",
             "_CMS_scale_j_tautau_8TeVDown": __stem % "",
-            "_CMS_scale_j_tautau_8TeVUp":   __stem % "",
             "_CMS_scale_btag_tautau_8TeVUp": __stem % "",
             "_CMS_scale_btag_tautau_8TeVDown": __stem % "",
             }
