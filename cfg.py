@@ -36,15 +36,16 @@ categories = {#"MM_LM": "tauTau_2jet2tag",
 __stem = "root/combined_iso1.0_one1To4_pt_%s__withDYEmbed_massWindow.root"
 #__stem = "root/combined_iso1.0_one1To4_pt_normal%s__withDYEmbed_massWindow_withJetPtCut.root"
 
+bdtDir = "root/bdt/4"
 
 def files():
     return {"":                             __stem % "",
             "_CMS_scale_t_tautau_8TeVUp":   __stem % "tauUp",
             "_CMS_scale_t_tautau_8TeVDown": __stem % "tauDown",
-            "_CMS_scale_j_tautau_8TeVUp":   __stem % "",
-            "_CMS_scale_j_tautau_8TeVDown": __stem % "",
-            "_CMS_scale_btag_tautau_8TeVUp": __stem % "",
-            "_CMS_scale_btag_tautau_8TeVDown": __stem % "",
+            "_CMS_scale_j_8TeVUp":   __stem % "",
+            "_CMS_scale_j_8TeVDown": __stem % "",
+            "_CMS_scale_btag_8TeVUp": __stem % "",
+            "_CMS_scale_btag_8TeVDown": __stem % "",
             }
 
 __fakeSignals = {"ggAToZhToLLTauTau": masses_spin0,
