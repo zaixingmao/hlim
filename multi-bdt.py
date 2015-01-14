@@ -6,12 +6,11 @@ import make_root_files
 
 cats = cfg.cats()
 workDir = cfg.workDir()
-inDir = "root/bdt/3"
 redirect = False
 
 
 for mass in cfg.masses_spin0:
-    for fileName in os.listdir(inDir):
+    for fileName in os.listdir(cfg.bdtDir):
         if ("_H%3d" % mass) not in fileName:
             continue
 
@@ -22,10 +21,11 @@ for mass in cfg.masses_spin0:
         print "  (making .root file)"
 
         # WARNING: HACK!
-        cfg.__stem = "%s/%s" % (inDir, fileName.replace(".root", "%s.root"))
+        cfg.__stem = "%s/%s" % (cfg.bdtDir, fileName.replace(".root", "%s.root"))
 
         make_root_files.loop()
 
+        # continue
         print "  (running limit)"
         args = ["cd %s &&" % workDir,
                 "./go.py",
