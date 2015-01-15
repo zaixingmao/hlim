@@ -179,16 +179,11 @@ if __name__ == "__main__":
         for mass in (masses[:1] if options.postfitonlyone else masses):
             lim1 = "%s/tt/%s" % (lim, mass)
             test = "%s/test" % base
-            os.system("cd %s && python mlfit_and_copy.py --skip %s" % (test, lim1))
-            #python mlfit_and_copy.py -a mssm --skip --mA [160,350,500] --tanb [8,20,40] $CMSSW_BASE/src/LIMITS-yymmdd-mssm/bbb-mlfit/cmb/[160,350,500]
+            ugh = "-a Hhh --mA 300 --tanb 2"
+
+            os.system("cd %s && python mlfit_and_copy.py %s --skip %s" % (test, ugh, lim1))
 
             config = "%s/hlim/limits.config-sm-tt-only" % base
-            os.system("cd %s && python produce_macros.py --config %s" % (test, config))
-            #python produce_macros.py --config $CMSSW_BASE/src/HiggsAnalysis/HiggsToTauTau/data/limits.config-sm-yymmdd[-unblinded]
-            #python produce_macros.py -a mssm --mA [160,350,500] --tanb [8,20,40] --hww-signal --config $CMSSW_BASE/src/HiggsAnalysis/HiggsToTauTau/data/limits.config-mssm-yymmdd
-
-            os.system("cd %s && python run_macros.py --config %s" % (test, config))
-
-            #os.system("cd %s && python summary_plots.py --config %s" % (test, config))
-            #python summary_plots.py --config $CMSSW_BASE/src/HiggsAnalysis/HiggsToTauTau/data/limits.config-sm-yymmdd[-unblinded]
-            #python summary_plots.py -a mssm --mA [160,350,500] --tanb [8,20,40] --hww-signal
+            os.system("cd %s && python produce_macros_Hhh.py %s --config %s" % (test, ugh, config))
+            os.system("cd %s && ./fixmacros.sh" % test)
+            os.system("cd %s && python run_macros.py -a Hhh --config %s" % (test, config))
