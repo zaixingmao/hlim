@@ -176,8 +176,7 @@ if __name__ == "__main__":
         #                    ]))
 
     if options.postfit:
-        print "FIXME: repair postfit"
-        return
+        masses = []; print "FIXME: repair postfit"
         for mass in (masses[:1] if options.postfitonlyone else masses):
             lim1 = "%s/tt/%s" % (lim, mass)
             test = "%s/test" % base
