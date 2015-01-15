@@ -95,7 +95,7 @@ def histos(bins=None, variable="", cuts={}, category=""):
         applyFactor(out["QCD" + variation], f, hName="L_to_T_SF_%s" % category, unit=False)
 
         if any(["embed" in src for src in cfg.procs().get("ZTT", [])]):
-           applyFactor(out["ZTT" + variation], f, hName="MC2Embed2Cat_%s" % category, unit=True if category != '0M' else False)
+           applyFactor(out["ZTT" + variation], f, hName="MC2Embed2Cat_%s" % category, unit=(category != '0M'))
 
         merge_second_layer(out, f, category, variation)
         f.Close()
