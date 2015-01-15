@@ -42,7 +42,7 @@ def merge_second_layer(d, f, category, variation):
                 d[destProc].SetDirectory(0)
                 d[destProc].Reset()
 
-            if srcProc[0] == "*":
+            if srcProc[0] == "*" and category != '0M':
                 applyFactor(h, f, hName="%s_%s" % (srcProc[1:], category), unit=True)
                 if variation:
                     print "FIXME: check varied factors"
@@ -95,7 +95,7 @@ def histos(bins=None, variable="", cuts={}, category=""):
         applyFactor(out["QCD" + variation], f, hName="L_to_T_SF_%s" % category, unit=False)
 
         if any(["embed" in src for src in cfg.procs().get("ZTT", [])]):
-           applyFactor(out["ZTT" + variation], f, hName="MC2Embed2Cat_%s" % category, unit=True)
+           applyFactor(out["ZTT" + variation], f, hName="MC2Embed2Cat_%s" % category, unit=(category != '0M'))
 
         merge_second_layer(out, f, category, variation)
         f.Close()

@@ -17,6 +17,7 @@ masses_spin2 = [500, 700]
 categories = {#"MM_LM": "tauTau_2jet2tag",
               "2M": "tauTau_2jet2tag",
               "1M": "tauTau_2jet1tag",
+              "0M": "tauTau_2jet0tag",
               }
 
 #__stem = "root/combined_relaxed_%s.root"
@@ -33,15 +34,14 @@ categories = {#"MM_LM": "tauTau_2jet2tag",
 #__stem = "root/combined_withDYEmbed_massWindow_newMethod%s.root"
 #__stem = "root/combined_one1To4_withDYEmbed_massWindow%s.root"
 #__stem = "root/combined_iso1.0_one1To4%s.root"
-__stem = "root/combined_iso1.0_one1To4_pt_%s__withDYEmbed_massWindow.root"
+__stem = "root/combined_iso1.0_one1To4_pt_normal%s__withDYEmbed_massWindow.root"
 #__stem = "root/combined_iso1.0_one1To4_pt_normal%s__withDYEmbed_massWindow_withJetPtCut.root"
 
-bdtDir = "root/bdt/4"
 
 def files():
     return {"":                             __stem % "",
-            "_CMS_scale_t_tautau_8TeVUp":   __stem % "tauUp",
-            "_CMS_scale_t_tautau_8TeVDown": __stem % "tauDown",
+            "_CMS_scale_t_tautau_8TeVUp":   __stem % "",
+            "_CMS_scale_t_tautau_8TeVDown": __stem % "",
             "_CMS_scale_j_8TeVUp":   __stem % "",
             "_CMS_scale_j_8TeVDown": __stem % "",
             "_CMS_scale_btag_8TeVUp": __stem % "",
