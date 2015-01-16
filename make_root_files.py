@@ -320,10 +320,14 @@ def oneTag(tag, hs, sKey, sFactor, l):
     if not options.unblind:
         fakeDataset(hs, sKey, sFactor, l).Write()
 
+    if options.sumb:
+        h, keys = sumb(hs)
+        h.Write()
+        if options.unblind:
+            describe(h, l, keys)
 
-def fakeDataset(hs, sKey, sFactor, l):
-    assert type(sFactor) is int, type(sFactor)
 
+def sumb(hs, name="sum_b"):
     d = None
     keys = []
     for key, histo in hs.iteritems():
@@ -333,11 +337,18 @@ def fakeDataset(hs, sKey, sFactor, l):
             continue
 
         if d is None:
-            d = histo.Clone("data_obs")
+            d = histo.Clone(name)
+            d.SetTitle(name)
             d.Reset()
         d.Add(histo)
         keys.append(key)
+    return d, keys
 
+
+def fakeDataset(hs, sKey, sFactor, l):
+    assert type(sFactor) is int, type(sFactor)
+
+    d, keys = sumb(hs, name="data_obs")
     if options.contents:
         describe(d, l, keys)
 
@@ -419,6 +430,12 @@ def opts():
                       action="store_true",
                       help="use real data for data_obs rather than floor(sum(b))")
 
+    parser.add_option("--sum-b",
+                      dest="sumb",
+                      default=False,
+                      action="store_true",
+                      help="store sum of all backgrounds (useful for choosing binning)")
+
     options, args = parser.parse_args()
     return options
 
@@ -431,6 +448,5 @@ r.gErrorIgnoreLevel = 2000
 if __name__ == "__main__":
     loop()
 else:
-    options.allowMultiXs = True
-    options.integrals = True
-    options.contents = True
+    for item in ["allowMultiXs", "integrals", "contents", "unblind", "sumb"]:
+        setattr(options, item, True)
