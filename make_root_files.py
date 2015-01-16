@@ -323,7 +323,7 @@ def oneTag(tag, hs, sKey, sFactor, l):
     if options.sumb:
         h, keys = sumb(hs)
         h.Write()
-        if options.unblind:
+        if options.contents and options.unblind:
             describe(h, l, keys)
 
 
@@ -448,5 +448,5 @@ r.gErrorIgnoreLevel = 2000
 if __name__ == "__main__":
     loop()
 else:
-    for item in ["allowMultiXs", "integrals", "contents", "unblind", "sumb"]:
+    for item in ["allowMultiXs", "integrals", "unblind", "sumb", "shift"]:
         setattr(options, item, True)
