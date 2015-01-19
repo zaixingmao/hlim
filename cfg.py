@@ -17,19 +17,24 @@ categories = {#"MM_LM": "tauTau_2jet2tag",
               }
 
 bdtDir = "root/bdt/4"
-bdtBins = (1000, -1.0, 1.0)  # used to determine coarser binning
 
-__stem = "root/combined_iso1.0_one1To4_pt_%s__withDYEmbed_massWindow_with0tag.root"
+# used to determine coarser binning;
+# WARNING: gets modified by multi-bdt.py
+#_bdtBins = (1000, -1.0, 1.0)
+_bdtBins = (7, -0.6, 0.1)
+
+# WARNING: gets modified by multi-bdt.py
+_stem = "root/combined_iso1.0_one1To4_pt_%s__withDYEmbed_massWindow_with0tag.root"
 
 def files():
     s = ""
-    return {"":                             __stem % s,
-            # "_CMS_scale_t_tautau_8TeVUp":   __stem % "tauUp",
-            # "_CMS_scale_t_tautau_8TeVDown": __stem % "tauDown",
-            # "_CMS_scale_j_8TeVUp":   __stem % s,
-            # "_CMS_scale_j_8TeVDown": __stem % s,
-            # "_CMS_scale_btag_8TeVUp": __stem % s,
-            # "_CMS_scale_btag_8TeVDown": __stem % s,
+    return {"":                             _stem % s,
+            "_CMS_scale_t_tautau_8TeVUp":   _stem % "",
+            "_CMS_scale_t_tautau_8TeVDown": _stem % "",
+            "_CMS_scale_j_8TeVUp":   _stem % s,
+            "_CMS_scale_j_8TeVDown": _stem % s,
+            "_CMS_scale_btag_8TeVUp": _stem % s,
+            "_CMS_scale_btag_8TeVDown": _stem % s,
             }
 
 __fakeSignals = {"ggAToZhToLLTauTau": masses_spin0,
@@ -129,7 +134,7 @@ def variables():
 
     out = [#{"var": "svMass",      "bins": it_sv_bins_cat2_new, "cuts": {}},
            #{"var": "fMassKinFit", "bins": fm_bins_tt, "cuts": mass_windows},
-           {"var": "BDT", "bins": bdtBins, "cuts": preselection},
+           {"var": "BDT", "bins": _bdtBins, "cuts": preselection},
            ]
 
     return out
