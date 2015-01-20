@@ -9,7 +9,7 @@ cats = cfg.cats()
 workDir = cfg.workDir()
 redirect = False
 
-fineBins = cfg._bdtBins
+fineBins = (1000, -1.0, 1.0)
 
 for mass in cfg.masses_spin0:
     for fileName in os.listdir(cfg.bdtDir):
@@ -23,22 +23,23 @@ for mass in cfg.masses_spin0:
         print "  (making .root file)"
 
         cfg._stem = "%s/%s" % (cfg.bdtDir, fileName.replace(".root", "%s.root"))
+        cfg._bdtBins = fineBins
 
         # make histograms with very fine binning
         make_root_files.options.integrals = False
-        make_root_files.options.contents = True
+        make_root_files.options.contents = False
         make_root_files.options.unblind = False
         make_root_files.loop()
 
-        # # then choose a coarser binning
-        # cfg._bdtBins = determine_binning.bins()
+        # then choose a coarser binning
+        cfg._bdtBins = determine_binning.bins()
 
-        # # make histograms with this binning
-        # make_root_files.options.contents = True
-        # make_root_files.loop()
+        # make histograms with this binning
+        make_root_files.options.contents = True
+        make_root_files.loop()
 
-        # # replace fine bins for next mass point
-        # cfg._bdtBins = fineBins
+        # replace fine bins for next mass point
+        cfg._bdtBins = fineBins
 
         # continue
         print "  (running limit)"
