@@ -22,9 +22,8 @@ def bin_search(h, rargs=(), threshold=None):
         s += h.GetBinContent(iBinX)
         e = h.GetBinError(iBinX)
         e2 += e * e
-
-        if s and math.sqrt(e2)/s < threshold:
-            # print iBinX, s, math.sqrt(e2), math.sqrt(e2)/s
+        if 0 < s and math.sqrt(e2)/s < threshold:
+            # print iBinX, h.GetBinLowEdge(iBinX), s, math.sqrt(e2), math.sqrt(e2)/s
             break
     return iBinX
 
@@ -32,12 +31,12 @@ def bin_search(h, rargs=(), threshold=None):
 def binning(h, width, xn_l, x1_r):
     if xn_l <= x1_r:
         return (1, h.GetXaxis().GetXmin(), h.GetXaxis().GetXmax())
-    
+
     nbins = 1 + int((xn_l - x1_r) / width)
     return (1 + nbins, xn_l - nbins * width, xn_l + width)
-            
 
-def bins(width=0.1, threshold_r=0.4, threshold_l=0.2):
+
+def bins(width=0.1, threshold_r=0.2, threshold_l=0.1):
     vars = cfg.variables()
     assert len(vars) == 1
     d = vars[0]
