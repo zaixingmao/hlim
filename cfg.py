@@ -18,13 +18,10 @@ categories = {#"MM_LM": "tauTau_2jet2tag",
 
 bdtDir = "root/bdt/4"
 
-# used to determine coarser binning;
-# WARNING: gets modified by multi-bdt.py
-#_bdtBins = (1000, -1.0, 1.0)
+# WARNING: thes two variables get modified by multi-bdt.py
 _bdtBins = (7, -0.6, 0.1)
-
-# WARNING: gets modified by multi-bdt.py
 _stem = "root/combined_iso1.0_one1To4_pt_%s__withDYEmbed_massWindow_with0tag.root"
+
 
 def files():
     s = ""
@@ -44,7 +41,7 @@ __fakeSignals = {"ggAToZhToLLTauTau": masses_spin0,
                  "bbH": range(90, 150, 10) + [160, 180, 200, 250, 300, 350, 400],
                  }
 
-fakeBkgs = ["ggH125", "qqH125", "VH125", "W", "ZJ", "ZL"][:-1]
+fakeBkgs = ["ggH125", "qqH125", "VH125", "W", "ZJ", "ZLL", "ZL"][:-1]
 
 
 def procs():
