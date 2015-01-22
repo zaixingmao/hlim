@@ -13,23 +13,23 @@ masses_spin2 = [500, 700]
 categories = {#"MM_LM": "tauTau_2jet2tag",
               "2M": "tauTau_2jet2tag",
               "1M": "tauTau_2jet1tag",
-              #"0M": "tauTau_2jet0tag",
+              "0M": "tauTau_2jet0tag",
               }
 
 bdtDir = "root/bdt/4"
 
 # WARNING: thes two variables get modified by multi-bdt.py
 _bdtBins = (7, -0.6, 0.1)
-_stem = "root/combined_iso1.0_one1To4_pt_%s__withDYEmbed_massWindow_with0tag.root"
+_stem = "root/cb/2/combined_iso1.0_one1To4_pt_%s__withDYEmbed_massWindow.root"
 
 
 def files():
-    s = ""
+    s = "normal"
     return {"":                             _stem % s,
-            "_CMS_scale_t_tautau_8TeVUp":   _stem % "",
-            "_CMS_scale_t_tautau_8TeVDown": _stem % "",
-            "_CMS_scale_j_8TeVUp":   _stem % s,
-            "_CMS_scale_j_8TeVDown": _stem % s,
+            "_CMS_scale_t_tautau_8TeVUp":   _stem % "tauUp",
+            "_CMS_scale_t_tautau_8TeVDown": _stem % "tauDown",
+            "_CMS_scale_j_8TeVUp":   _stem % "jetUp",
+            "_CMS_scale_j_8TeVDown": _stem % "jetDown",
             "_CMS_scale_btag_8TeVUp": _stem % s,
             "_CMS_scale_btag_8TeVDown": _stem % s,
             }
@@ -130,8 +130,8 @@ def variables():
     ## a list of bin lower edges
 
     out = [#{"var": "svMass",      "bins": it_sv_bins_cat2_new, "cuts": {}},
-           #{"var": "fMassKinFit", "bins": fm_bins_tt, "cuts": mass_windows},
-           {"var": "BDT", "bins": _bdtBins, "cuts": preselection},
+           {"var": "fMassKinFit", "bins": fm_bins_tt, "cuts": mass_windows},
+           #{"var": "BDT", "bins": _bdtBins, "cuts": preselection},
            ]
 
     return out
