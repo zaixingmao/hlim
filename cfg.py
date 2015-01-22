@@ -45,6 +45,9 @@ fakeBkgs = ["ggH125", "qqH125", "VH125", "ZJ", "ZL"][:-1]
 
 
 def procs(variable="", category=""):
+    assert variable
+    assert category
+
     # first character '-' means subtract rather than add
     out = {"TT": ["tt", "tt_semi", "tthad"],
            "*VV": ["ZZ", "WZJetsTo2L2Q", "WW", "WZ3L", "zzTo2L2Nu", "zzTo4L"],
@@ -73,6 +76,9 @@ def procs(variable="", category=""):
 
 
 def procs2(variable="", category=""):
+    assert variable
+    assert category
+
     # first character '*' means unit normalize and then use factor
     if variable == "BDT":
         return {"VV": ["*VV"]}
