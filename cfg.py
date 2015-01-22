@@ -41,7 +41,7 @@ __fakeSignals = {"ggAToZhToLLTauTau": masses_spin0,
                  "bbH": range(90, 150, 10) + [160, 180, 200, 250, 300, 350, 400],
                  }
 
-fakeBkgs = ["ggH125", "qqH125", "VH125", "W", "ZJ", "ZLL", "ZL"][:-1]
+fakeBkgs = ["ggH125", "qqH125", "VH125", "W", "ZJ", "ZL"][:-1]
 
 
 def procs():
@@ -51,9 +51,9 @@ def procs():
            #"W": ["W2JetsToLNu", "W3JetsToLNu", "W4JetsToLNu"],  # W1 provides no events
            #"ZTT": ["DYJetsToLL"],
            #"ZTT": ["DY1JetsToLL", "DY2JetsToLL", "DY3JetsToLL", "DY4JetsToLL"],
-           #"*singleT": ["t", "tbar"],
+           "*singleT": ["t", "tbar"],
            "ZTT": ["DY_embed", "-tt_embed"],
-           #"*ZLL": ["ZLL"],
+           "*ZLL": ["ZLL"],
            "QCD": ["dataOSRelax", "-MCOSRelax"],
            "data_obs": ["dataOSTight"],
            }
@@ -69,8 +69,8 @@ def procs():
 
 def procs2():
     # first character '*' means unit normalize and then use factor
-    return {"VV": ["*VV", "*singleT"][:1],
-            # "ZLL": ["*ZLL"],
+    return {"VV": ["*VV", "*singleT"],
+            "ZLL": ["*ZLL"],
             }
 
 
