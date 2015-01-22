@@ -18,7 +18,7 @@ categories = {#"MM_LM": "tauTau_2jet2tag",
 
 bdtDir = "root/bdt/4"
 
-# WARNING: thes two variables get modified by multi-bdt.py
+# WARNING: these two variables get modified by multi-bdt.py
 _bdtBins = (7, -0.6, 0.1)
 _stem = "root/cb/2/combined_iso1.0_one1To4_pt_%s__withDYEmbed_massWindow.root"
 
