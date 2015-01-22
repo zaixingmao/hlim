@@ -197,7 +197,7 @@ def checkSamples(tree, fileName=".root file", variable="", category=""):
     for proc in sum(cfg.procs(variable, category).values(), []):
         if proc and proc[0] == "-":
             proc = proc[1:]
-        if proc in cfg.fakeSignalList() or proc in cfg.fakeBkgs:
+        if proc in cfg.fakeSignalList():
             continue  # warning is done in cfg.complain()
         if proc in xs:
             del xs[proc]
@@ -309,7 +309,7 @@ def oneTag(tag, hs, sKey, sFactor, l):
             pass
         elif proc.endswith("Down") or proc.endswith("Up"):
             pass
-        elif proc not in cfg.fakeBkgs:
+        else:
             integrals.append((tag, proc, h.Integral(0, 2 + h.GetNbinsX())))
         h.Write()
 
