@@ -107,7 +107,13 @@ def ls(h, s=""):
 
 
 def shortened(band):
-    return band.replace("_tautau_8TeV", "").replace("CMS_", "")
+    s = band
+    for old, new in [("_tautau_8TeV", ""),
+                     ("_8TeV", ""),
+                     ("CMS_", ""),
+                     ]:
+        s = s.replace(old, new)
+    return s
 
 
 def oneDir(canvas, pdf, hNames, d1, d2, subdir, xTitle, band):
@@ -346,7 +352,7 @@ if __name__ == "__main__":
     lineColor2 = r.kBlue
     bandColor2 = r.kCyan
 
-    for band in ["", "CMS_scale_t_tautau_8TeV", "CMS_scale_j_tautau_8TeV"][1:2]:
+    for band in ["", "CMS_scale_t_tautau_8TeV", "CMS_scale_j_8TeV"][1:]:
         # go("svMass (preselection)",
         #    #"Italians-old/htt_tt.inputs-Hhh-8TeV_m_sv.root",
         #    #"Italians/htt_tt.inputs-Hhh-8TeV_m_sv.root",
