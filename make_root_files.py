@@ -74,7 +74,7 @@ def histos(bins=None, variable="", cuts={}, category=""):
     procs = cfg.procs(variable, category)
 
     out = {}
-    for variation, fileName in cfg.files().iteritems():
+    for variation, fileName in cfg.files(variable).iteritems():
         f = r.TFile(fileName)
         tree = f.Get("eventTree")
         checkSamples(tree, fileName, variable, category)
@@ -213,7 +213,6 @@ def applyFactor(h=None, tfile=None, hName="", unit=False):
     if unit:
         i = h.Integral(0, 1 + h.GetNbinsX())  # fixme: under/overflows?
         if not i:
-            h.Print("all")
             sys.exit("Empty histogram '%s'." % h.GetName())
         h.Scale(1.0 / i)
 
@@ -291,8 +290,6 @@ def printIntegrals(lst=[], l=""):
     print l, hyphens
     s = 0.0
     for tag, proc, integral in sorted(lst):
-        if proc in cfg.fakeBkgs:
-            continue
         s += integral
         print l, proc.ljust(30), "%9.3f" % integral, " (for %4.1f/fb)" % cfg.lumi
     print l, " ".ljust(25), "sum = %9.3f" % s
@@ -312,7 +309,7 @@ def oneTag(tag, hs, sKey, sFactor, l):
             pass
         elif proc.endswith("Down") or proc.endswith("Up"):
             pass
-        else:
+        elif proc not in cfg.fakeBkgs:
             integrals.append((tag, proc, h.Integral(0, 2 + h.GetNbinsX())))
         h.Write()
 
