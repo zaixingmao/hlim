@@ -29,8 +29,8 @@ def shift(h):
     combineBinContentAndError(h, 1, 0)  # underflows
 
 
-def merge_second_layer(d, f, category, variation):
-    for destProc, srcProcs in cfg.procs2().iteritems():
+def merge_second_layer(d, f, variable, category, variation):
+    for destProc, srcProcs in cfg.procs2(variable, category).iteritems():
         destProc += variation
 
         for srcProc in srcProcs:
@@ -71,14 +71,16 @@ def histos(bins=None, variable="", cuts={}, category=""):
     if cfg.rescaleX:
         bins, variable = rescaled_bins(bins, variable)
 
+    procs = cfg.procs(variable, category)
+
     out = {}
     for variation, fileName in cfg.files().iteritems():
         f = r.TFile(fileName)
         tree = f.Get("eventTree")
-        checkSamples(tree, fileName)
+        checkSamples(tree, fileName, variable, category)
 
         # first layer of merging
-        for destProc, srcProcs in cfg.procs().iteritems():
+        for destProc, srcProcs in procs.iteritems():
             if destProc == "data_obs" and not options.unblind:
                 continue
 
@@ -94,10 +96,10 @@ def histos(bins=None, variable="", cuts={}, category=""):
 
         applyFactor(out["QCD" + variation], f, hName="L_to_T_SF_%s" % category, unit=False)
 
-        if any(["embed" in src for src in cfg.procs().get("ZTT", [])]):
+        if any(["embed" in src for src in procs.get("ZTT", [])]):
            applyFactor(out["ZTT" + variation], f, hName="MC2Embed2Cat_%s" % category, unit=(category != '0M'))
 
-        merge_second_layer(out, f, category, variation)
+        merge_second_layer(out, f, variable, category, variation)
         f.Close()
     return out
 
@@ -169,7 +171,7 @@ def printSampleInfo(xs, ini):
     print "-" * len(header)
 
 
-def checkSamples(tree, fileName=".root file"):
+def checkSamples(tree, fileName=".root file", variable="", category=""):
     xs = collections.defaultdict(set)
     ini = collections.defaultdict(set)
 
@@ -192,7 +194,7 @@ def checkSamples(tree, fileName=".root file"):
         printSampleInfo(xs, ini)
 
     extra = []
-    for proc in sum(cfg.procs().values(), []):
+    for proc in sum(cfg.procs(variable, category).values(), []):
         if proc and proc[0] == "-":
             proc = proc[1:]
         if proc in cfg.fakeSignalList() or proc in cfg.fakeBkgs:
