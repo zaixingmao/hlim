@@ -55,9 +55,6 @@ __fakeSignals = {"ggAToZhToLLTauTau": masses_spin0,
                  "bbH": range(90, 150, 10) + [160, 180, 200, 250, 300, 350, 400],
                  }
 
-fakeBkgs = ["ggH125", "qqH125", "VH125", "ZJ", "ZL"][:-1]
-
-
 def procs(variable="", category=""):
     assert variable
     assert category
@@ -72,12 +69,17 @@ def procs(variable="", category=""):
            "*ZLL": ["ZLL"],
            "QCD": ["dataOSRelax", "-MCOSRelax"],
            "data_obs": ["dataOSTight"],
+           ## fakes below
+           "ggH125": ["ggH125"],
+           "qqH125": ["qqH125"],
+           "VH125": ["VH125"],
+           "ZJ": ["ZJ"],
            }
 
     for m in masses_spin0:
         out["ggHTohhTo2Tau2B%3d" % m] = ["H2hh%3d" % m]
 
-    for p in fakeBkgs + fakeSignalList():
+    for p in fakeSignalList():
         out[p] = [p]
 
     if variable == "BDT":
@@ -207,19 +209,26 @@ def complain():
     if __fakeSignals:
         print "FIXME: include", sorted(__fakeSignals.keys())
 
-    if fakeBkgs:
-        print "FIXME: include", sorted(fakeBkgs)
-
+    fakeBkgs = []
     for cat in categories.keys():
         for dct in variables():
             var = dct["var"]
             lst = []
-            for v in procs(var, cat).values():
+            for k, v in procs(var, cat).iteritems():
                 if type(v) != list:
                     sys.exit("ERROR: type of '%s' is not list." % str(v))
                 else:
                     lst += v
+
+                if len(v) == 1 and v[0] == k and k not in fakeSignalList():  # FIXME: condition is imperfect
+                    fakeBkgs.append(k)
+
             if len(set(lst)) != len(lst):
                 sys.exit("ERROR: procs values has duplicates: %s." % str(sorted(lst)))
+
+    fakeBkgs = list(set(fakeBkgs))
+    if fakeBkgs:
+        print "FIXME: include", sorted(fakeBkgs)
+
 
 complain()
