@@ -23,16 +23,30 @@ _bdtBins = (7, -0.6, 0.1)
 _stem = "root/cb/2/combined_iso1.0_one1To4_pt_%s__withDYEmbed_massWindow.root"
 
 
-def files():
-    s = "normal"
-    return {"":                             _stem % s,
-            "_CMS_scale_t_tautau_8TeVUp":   _stem % "tauUp",
-            "_CMS_scale_t_tautau_8TeVDown": _stem % "tauDown",
-            "_CMS_scale_j_8TeVUp":   _stem % "jetUp",
-            "_CMS_scale_j_8TeVDown": _stem % "jetDown",
-            "_CMS_scale_btag_8TeVUp": _stem % s,
-            "_CMS_scale_btag_8TeVDown": _stem % s,
-            }
+def files(variable=""):
+    assert variable
+
+    if variable == "BDT":
+        s = ""
+        return {"":                             _stem % s,
+                "_CMS_scale_t_tautau_8TeVUp":   _stem % s,
+                "_CMS_scale_t_tautau_8TeVDown": _stem % s,
+                "_CMS_scale_j_8TeVUp":   _stem % s,
+                "_CMS_scale_j_8TeVDown": _stem % s,
+                "_CMS_scale_btag_8TeVUp": _stem % s,
+                "_CMS_scale_btag_8TeVDown": _stem % s,
+                }
+    else:
+        s = "normal"
+        return {"":                             _stem % s,
+                "_CMS_scale_t_tautau_8TeVUp":   _stem % "tauUp",
+                "_CMS_scale_t_tautau_8TeVDown": _stem % "tauDown",
+                "_CMS_scale_j_8TeVUp":   _stem % "jetUp",
+                "_CMS_scale_j_8TeVDown": _stem % "jetDown",
+                "_CMS_scale_btag_8TeVUp": _stem % s,
+                "_CMS_scale_btag_8TeVDown": _stem % s,
+                }
+
 
 __fakeSignals = {"ggAToZhToLLTauTau": masses_spin0,
                  "ggAToZhToLLBB": [250] + masses_spin0,
@@ -69,6 +83,7 @@ def procs(variable="", category=""):
     if variable == "BDT":
         del out["*singleT"]
         del out["*ZLL"]
+        out["ZLL"] = ["ZLL"]  # fake
 
     if category == "0M":
         out["W"] = ["W1JetsToLNu", "W2JetsToLNu", "W3JetsToLNu", "W4JetsToLNu"]
@@ -185,8 +200,9 @@ def cutDesc(cuts):
 
 
 def complain():
-    if len(set(files().values())) <= 2:
-        print "FIXME: include variations"
+    for dct in variables():
+        if len(set(files(dct["var"]).values())) <= 2:
+            print "FIXME: include variations"
 
     if __fakeSignals:
         print "FIXME: include", sorted(__fakeSignals.keys())
