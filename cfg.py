@@ -13,26 +13,40 @@ masses_spin2 = [500, 700]
 categories = {#"MM_LM": "tauTau_2jet2tag",
               "2M": "tauTau_2jet2tag",
               "1M": "tauTau_2jet1tag",
-              #"0M": "tauTau_2jet0tag",
+              "0M": "tauTau_2jet0tag",
               }
 
 bdtDir = "root/bdt/4"
 
-# WARNING: thes two variables get modified by multi-bdt.py
+# WARNING: these two variables get modified by multi-bdt.py
 _bdtBins = (7, -0.6, 0.1)
-_stem = "root/combined_iso1.0_one1To4_pt_%s__withDYEmbed_massWindow_with0tag.root"
+_stem = "root/cb/2/combined_iso1.0_one1To4_pt_%s__withDYEmbed_massWindow.root"
 
 
-def files():
-    s = ""
-    return {"":                             _stem % s,
-            "_CMS_scale_t_tautau_8TeVUp":   _stem % "",
-            "_CMS_scale_t_tautau_8TeVDown": _stem % "",
-            "_CMS_scale_j_8TeVUp":   _stem % s,
-            "_CMS_scale_j_8TeVDown": _stem % s,
-            "_CMS_scale_btag_8TeVUp": _stem % s,
-            "_CMS_scale_btag_8TeVDown": _stem % s,
-            }
+def files(variable=""):
+    assert variable
+
+    if variable == "BDT":
+        s = ""
+        return {"":                             _stem % s,
+                "_CMS_scale_t_tautau_8TeVUp":   _stem % s,
+                "_CMS_scale_t_tautau_8TeVDown": _stem % s,
+                "_CMS_scale_j_8TeVUp":   _stem % s,
+                "_CMS_scale_j_8TeVDown": _stem % s,
+                "_CMS_scale_btag_8TeVUp": _stem % s,
+                "_CMS_scale_btag_8TeVDown": _stem % s,
+                }
+    else:
+        s = "normal"
+        return {"":                             _stem % s,
+                "_CMS_scale_t_tautau_8TeVUp":   _stem % "tauUp",
+                "_CMS_scale_t_tautau_8TeVDown": _stem % "tauDown",
+                "_CMS_scale_j_8TeVUp":   _stem % "jetUp",
+                "_CMS_scale_j_8TeVDown": _stem % "jetDown",
+                "_CMS_scale_btag_8TeVUp": _stem % s,
+                "_CMS_scale_btag_8TeVDown": _stem % s,
+                }
+
 
 __fakeSignals = {"ggAToZhToLLTauTau": masses_spin0,
                  "ggAToZhToLLBB": [250] + masses_spin0,
@@ -41,37 +55,54 @@ __fakeSignals = {"ggAToZhToLLTauTau": masses_spin0,
                  "bbH": range(90, 150, 10) + [160, 180, 200, 250, 300, 350, 400],
                  }
 
-fakeBkgs = ["ggH125", "qqH125", "VH125", "W", "ZJ", "ZL"][:-1]
+def procs(variable="", category=""):
+    assert variable
+    assert category
 
-
-def procs():
     # first character '-' means subtract rather than add
     out = {"TT": ["tt", "tt_semi", "tthad"],
            "*VV": ["ZZ", "WZJetsTo2L2Q", "WW", "WZ3L", "zzTo2L2Nu", "zzTo4L"],
-           #"W": ["W2JetsToLNu", "W3JetsToLNu", "W4JetsToLNu"],  # W1 provides no events
            #"ZTT": ["DYJetsToLL"],
            #"ZTT": ["DY1JetsToLL", "DY2JetsToLL", "DY3JetsToLL", "DY4JetsToLL"],
-           "*singleT": ["t", "tbar"],
            "ZTT": ["DY_embed", "-tt_embed"],
+           "*singleT": ["t", "tbar"],
            "*ZLL": ["ZLL"],
            "QCD": ["dataOSRelax", "-MCOSRelax"],
            "data_obs": ["dataOSTight"],
+           ## fakes below
+           "ggH125": ["ggH125"],
+           "qqH125": ["qqH125"],
+           "VH125": ["VH125"],
+           "ZJ": ["ZJ"],
            }
 
     for m in masses_spin0:
         out["ggHTohhTo2Tau2B%3d" % m] = ["H2hh%3d" % m]
 
-    for p in fakeBkgs + fakeSignalList():
+    for p in fakeSignalList():
         out[p] = [p]
 
+    if variable == "BDT":
+        del out["*singleT"]
+        del out["*ZLL"]
+        out["ZLL"] = ["ZLL"]  # fake
+
+    if category == "0M":
+        out["W"] = ["W1JetsToLNu", "W2JetsToLNu", "W3JetsToLNu", "W4JetsToLNu"]
     return out
 
 
-def procs2():
+def procs2(variable="", category=""):
+    assert variable
+    assert category
+
     # first character '*' means unit normalize and then use factor
-    return {"VV": ["*VV", "*singleT"],
-            "ZLL": ["*ZLL"],
-            }
+    if variable == "BDT":
+        return {"VV": ["*VV"]}
+    else:
+        return {"VV": ["*VV", "*singleT"],
+                "ZLL": ["*ZLL"],
+                }
 
 
 def fakeSignalList():
@@ -130,8 +161,8 @@ def variables():
     ## a list of bin lower edges
 
     out = [#{"var": "svMass",      "bins": it_sv_bins_cat2_new, "cuts": {}},
-           #{"var": "fMassKinFit", "bins": fm_bins_tt, "cuts": mass_windows},
-           {"var": "BDT", "bins": _bdtBins, "cuts": preselection},
+           {"var": "fMassKinFit", "bins": fm_bins_tt, "cuts": mass_windows},
+           #{"var": "BDT", "bins": _bdtBins, "cuts": preselection},
            ]
 
     return out
@@ -171,23 +202,33 @@ def cutDesc(cuts):
 
 
 def complain():
-    if len(set(files().values())) <= 2:
-        print "FIXME: include variations"
+    for dct in variables():
+        if len(set(files(dct["var"]).values())) <= 2:
+            print "FIXME: include variations"
 
     if __fakeSignals:
         print "FIXME: include", sorted(__fakeSignals.keys())
 
+    fakeBkgs = []
+    for cat in categories.keys():
+        for dct in variables():
+            var = dct["var"]
+            lst = []
+            for k, v in procs(var, cat).iteritems():
+                if type(v) != list:
+                    sys.exit("ERROR: type of '%s' is not list." % str(v))
+                else:
+                    lst += v
+
+                if len(v) == 1 and v[0] == k and k not in fakeSignalList():  # FIXME: condition is imperfect
+                    fakeBkgs.append(k)
+
+            if len(set(lst)) != len(lst):
+                sys.exit("ERROR: procs values has duplicates: %s." % str(sorted(lst)))
+
+    fakeBkgs = list(set(fakeBkgs))
     if fakeBkgs:
         print "FIXME: include", sorted(fakeBkgs)
-
-    lst = []
-    for v in procs().values():
-        if type(v) != list:
-            sys.exit("ERROR: type of '%s' is not list." % str(v))
-        else:
-            lst += v
-    if len(set(lst)) != len(lst):
-        sys.exit("ERROR: procs values has duplicates: %s." % str(sorted(lst)))
 
 
 complain()

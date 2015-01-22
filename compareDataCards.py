@@ -107,7 +107,13 @@ def ls(h, s=""):
 
 
 def shortened(band):
-    return band.replace("_tautau_8TeV", "").replace("CMS_", "")
+    s = band
+    for old, new in [("_tautau_8TeV", ""),
+                     ("_8TeV", ""),
+                     ("CMS_", ""),
+                     ]:
+        s = s.replace(old, new)
+    return s
 
 
 def oneDir(canvas, pdf, hNames, d1, d2, subdir, xTitle, band):
@@ -127,7 +133,11 @@ def oneDir(canvas, pdf, hNames, d1, d2, subdir, xTitle, band):
         else:
             print "ERROR: %s not found" % hName
 
-        h1 = d1[subdir][hName]
+        h1 = d1[subdir].get(hName)
+        if not h1:
+            print "ERROR: %s/%s not found" % (subdir, hName)
+            continue
+
         h1b = None
         if band:
             h1u = d1[subdir].get("%s_%sUp" % (hName, band))
@@ -327,7 +337,7 @@ def go(xTitle, file1, file2, band=""):
 if __name__ == "__main__":
     ignorePrefixes = ["ggAToZh", "bbH", "W", "ggRadion", "ggGraviton"]
 
-    whiteList = ["TT", "QCD", "VV", "ZTT", "data_obs", "ZLL",
+    whiteList = ["TT", "QCD", "VV", "ZTT", "data_obs", "ZLL", "W",
                  "ggHTohhTo2Tau2B260", "ggHTohhTo2Tau2B300", "ggHTohhTo2Tau2B350",
                  ]
 
@@ -342,7 +352,7 @@ if __name__ == "__main__":
     lineColor2 = r.kBlue
     bandColor2 = r.kCyan
 
-    for band in ["", "CMS_scale_t_tautau_8TeV", "CMS_scale_j_tautau_8TeV"][1:2]:
+    for band in ["", "CMS_scale_t_tautau_8TeV", "CMS_scale_j_8TeV"][1:]:
         # go("svMass (preselection)",
         #    #"Italians-old/htt_tt.inputs-Hhh-8TeV_m_sv.root",
         #    #"Italians/htt_tt.inputs-Hhh-8TeV_m_sv.root",
