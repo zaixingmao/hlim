@@ -41,18 +41,17 @@ __fakeSignals = {"ggAToZhToLLTauTau": masses_spin0,
                  "bbH": range(90, 150, 10) + [160, 180, 200, 250, 300, 350, 400],
                  }
 
-fakeBkgs = ["ggH125", "qqH125", "VH125", "W", "ZJ", "ZL"][:-1]
+fakeBkgs = ["ggH125", "qqH125", "VH125", "ZJ", "ZL"][:-1]
 
 
-def procs():
+def procs(variable="", category=""):
     # first character '-' means subtract rather than add
     out = {"TT": ["tt", "tt_semi", "tthad"],
            "*VV": ["ZZ", "WZJetsTo2L2Q", "WW", "WZ3L", "zzTo2L2Nu", "zzTo4L"],
-           #"W": ["W2JetsToLNu", "W3JetsToLNu", "W4JetsToLNu"],  # W1 provides no events
            #"ZTT": ["DYJetsToLL"],
            #"ZTT": ["DY1JetsToLL", "DY2JetsToLL", "DY3JetsToLL", "DY4JetsToLL"],
-           "*singleT": ["t", "tbar"],
            "ZTT": ["DY_embed", "-tt_embed"],
+           "*singleT": ["t", "tbar"],
            "*ZLL": ["ZLL"],
            "QCD": ["dataOSRelax", "-MCOSRelax"],
            "data_obs": ["dataOSTight"],
@@ -64,14 +63,23 @@ def procs():
     for p in fakeBkgs + fakeSignalList():
         out[p] = [p]
 
+    if variable == "BDT":
+        del out["*singleT"]
+        del out["*ZLL"]
+
+    if category == "0M":
+        out["W"] = ["W1JetsToLNu", "W2JetsToLNu", "W3JetsToLNu", "W4JetsToLNu"]
     return out
 
 
-def procs2():
+def procs2(variable="", category=""):
     # first character '*' means unit normalize and then use factor
-    return {"VV": ["*VV", "*singleT"],
-            "ZLL": ["*ZLL"],
-            }
+    if variable == "BDT":
+        return {"VV": ["*VV"]}
+    else:
+        return {"VV": ["*VV", "*singleT"],
+                "ZLL": ["*ZLL"],
+                }
 
 
 def fakeSignalList():
@@ -180,14 +188,16 @@ def complain():
     if fakeBkgs:
         print "FIXME: include", sorted(fakeBkgs)
 
-    lst = []
-    for v in procs().values():
-        if type(v) != list:
-            sys.exit("ERROR: type of '%s' is not list." % str(v))
-        else:
-            lst += v
-    if len(set(lst)) != len(lst):
-        sys.exit("ERROR: procs values has duplicates: %s." % str(sorted(lst)))
-
+    for cat in categories.keys():
+        for dct in variables():
+            var = dct["var"]
+            lst = []
+            for v in procs(var, cat).values():
+                if type(v) != list:
+                    sys.exit("ERROR: type of '%s' is not list." % str(v))
+                else:
+                    lst += v
+            if len(set(lst)) != len(lst):
+                sys.exit("ERROR: procs values has duplicates: %s." % str(sorted(lst)))
 
 complain()
