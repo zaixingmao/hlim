@@ -2,50 +2,36 @@ import os
 import sys
 from root_dest import root_dest
 
-if "CMSSW_BASE" not in os.environ:
-    sys.exit("Set up the CMSSW environment.")
-
 lumi     = 19.7   # /fb
 rescaleX = False
 
 substring_signal_example = "2B350"
 
-#masses_spin0 = [260, 300, 350]
 masses_spin0 = range(260, 360, 10) #+ [500, 700]
 masses_spin2 = [500, 700]
 
 categories = {#"MM_LM": "tauTau_2jet2tag",
               "2M": "tauTau_2jet2tag",
               "1M": "tauTau_2jet1tag",
-              "0M": "tauTau_2jet0tag",
+              #"0M": "tauTau_2jet0tag",
               }
 
-#__stem = "root/combined_relaxed_%s.root"
-#__stem = "root/combined_1.0_relaxed_%s.root"
-#__stem = "root/combined_1.0_relaxed__newCat%s.root"
-#__stem = "root/combined_1.0_INFN_relaxed_%s_newCat.root"
+bdtDir = "root/bdt/4"
 
-#__stem = "root/combined_1.0_INFN_relaxed_withDYEmbed_norm%s.root"
-#__stem = "root/combined_1.0_INFN_relaxed_withDYEmbed_massWindowCut%s.root"
-#__stem = "root/combined_1.0_INFN_relaxed_withDYEmbed_massWindow%s.root"
-
-#__stem = "root/combined_withDYEmbed_newMC%s.root"
-#__stem = "root/combined_withDYEmbed_massWindow_newMC%s.root"
-#__stem = "root/combined_withDYEmbed_massWindow_newMethod%s.root"
-#__stem = "root/combined_one1To4_withDYEmbed_massWindow%s.root"
-#__stem = "root/combined_iso1.0_one1To4%s.root"
-__stem = "root/combined_iso1.0_one1To4_pt_%s__withDYEmbed_massWindow_with0tag.root"
+# WARNING: thes two variables get modified by multi-bdt.py
+_bdtBins = (7, -0.6, 0.1)
+_stem = "root/combined_iso1.0_one1To4_pt_%s__withDYEmbed_massWindow_with0tag.root"
 
 
 def files():
-    s = "normal"
-    return {"":                             __stem % s,
-            "_CMS_scale_t_tautau_8TeVUp":   __stem % "tauUp",
-            "_CMS_scale_t_tautau_8TeVDown": __stem % "tauDown",
-            "_CMS_scale_j_8TeVUp":   __stem % s,
-            "_CMS_scale_j_8TeVDown": __stem % s,
-            "_CMS_scale_btag_8TeVUp": __stem % s,
-            "_CMS_scale_btag_8TeVDown": __stem % s,
+    s = ""
+    return {"":                             _stem % s,
+            "_CMS_scale_t_tautau_8TeVUp":   _stem % "",
+            "_CMS_scale_t_tautau_8TeVDown": _stem % "",
+            "_CMS_scale_j_8TeVUp":   _stem % s,
+            "_CMS_scale_j_8TeVDown": _stem % s,
+            "_CMS_scale_btag_8TeVUp": _stem % s,
+            "_CMS_scale_btag_8TeVDown": _stem % s,
             }
 
 __fakeSignals = {"ggAToZhToLLTauTau": masses_spin0,
@@ -84,7 +70,8 @@ def procs():
 def procs2():
     # first character '*' means unit normalize and then use factor
     return {"VV": ["*VV", "*singleT"],
-            "ZLL": ["*ZLL"]}
+            "ZLL": ["*ZLL"],
+            }
 
 
 def fakeSignalList():
@@ -143,9 +130,8 @@ def variables():
     ## a list of bin lower edges
 
     out = [#{"var": "svMass",      "bins": it_sv_bins_cat2_new, "cuts": {}},
-           {"var": "fMassKinFit", "bins": fm_bins_tt, "cuts": mass_windows},
-           #{"var": "BDT", "bins": (8, -0.6, 0.2), "cuts": preselection},
-           #{"var": "BDT", "bins": (9, -0.6, 0.3), "cuts": preselection},
+           #{"var": "fMassKinFit", "bins": fm_bins_tt, "cuts": mass_windows},
+           {"var": "BDT", "bins": _bdtBins, "cuts": preselection},
            ]
 
     return out
