@@ -369,12 +369,12 @@ if __name__ == "__main__":
            #"Italians-afs/htt_tt.inputs-Hhh-8TeV_m_ttbb_kinfit_KinFitConvergedWithMassWindow.root",
            #"Italians/htt_tt.inputs-Hhh-8TeV_m_ttbb_kinfit_only_massCut.root",
            "Italians/htt_tt.inputs-Hhh-8TeV_m_ttbb_kinfit_KinFitConvergedWithMassWindow.root",
+           #"Brown/BDT.root",
 
            #"Brown/cutbased/fMassKinFit_0.0.fMassKinFit_70.0.mJJ.150.0_90.0.svMass.150.0.root",
            #"Brown/before_windows/fMassKinFit_0.0.fMassKinFit_70.0.mJJ.150.0_90.0.svMass.150.0.root",
            #"Brown/after_windows/fMassKinFit_0.0.fMassKinFit_70.0.mJJ.150.0_90.0.svMass.150.0.root",
            "Brown/fMassKinFit_0.0.fMassKinFit_70.0.mJJ.150.0_90.0.svMass.150.0.root",
-           #"Brown/QCD_norm_from_SS_L_to_M.root",
-           #"Brown/QCD_norm_from_OS_L_to_M.root",
+           #"Brown/BDT.root",
            band
            )
