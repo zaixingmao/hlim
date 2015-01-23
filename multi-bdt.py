@@ -7,7 +7,7 @@ import make_root_files
 import determine_binning
 
 
-def make_root_file(fileName, dirName):
+def make_root_file(dirName):
     fineBins = (1000, -1.0, 1.0)
 
     # print dirName
@@ -15,7 +15,6 @@ def make_root_file(fileName, dirName):
     os.system("mkdir %s" % dirName)
     print "  (making .root file)"
 
-    cfg._stem = "%s/%s" % (cfg.bdtDir, fileName.replace(".root", "%s.root"))
     cfg._bdtBins = fineBins
 
     # make histograms with very fine binning
@@ -57,13 +56,15 @@ def compute_limit(mass, dirName):
         os.system("cp -p %s/%s %s/" % (workDir, f, dirName))
 
 
-def go():
+def go(suffix="normal.root"):
     for mass in cfg.masses_spin0:
         for fileName in os.listdir(cfg.bdtDir):
-            if ("_H%3d" % mass) not in fileName:
+            if ("_H%3d_%s" % (mass, suffix)) not in fileName:
                 continue
-            dirName = fileName.replace("combined", bdt).replace(".root", "")
-            make_root_file(fileName, dirName)
+
+            cfg._stem = "%s/%s" % (cfg.bdtDir, fileName.replace(suffix, "%s.root"))
+            dirName = fileName.replace("combined", bdt).replace("_%s" % suffix, "")
+            make_root_file(dirName)
             compute_limit(mass, dirName)
 
 
