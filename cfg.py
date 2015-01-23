@@ -16,36 +16,24 @@ categories = {#"MM_LM": "tauTau_2jet2tag",
               "0M": "tauTau_2jet0tag",
               }
 
-bdtDir = "root/bdt/4"
+bdtDir = "root/bdt/6"
 
 # WARNING: these two variables get modified by multi-bdt.py
 _bdtBins = (7, -0.6, 0.1)
-_stem = "root/cb/2/combined_iso1.0_one1To4_pt_%s__withDYEmbed_massWindow.root"
+_stem = "root/cb/3/combined_iso1.0_one1To4_pt_%s__withDYEmbed_massWindow.root"
 
 
 def files(variable=""):
     assert variable
-
-    if variable == "BDT":
-        s = ""
-        return {"":                             _stem % s,
-                "_CMS_scale_t_tautau_8TeVUp":   _stem % s,
-                "_CMS_scale_t_tautau_8TeVDown": _stem % s,
-                "_CMS_scale_j_8TeVUp":   _stem % s,
-                "_CMS_scale_j_8TeVDown": _stem % s,
-                "_CMS_scale_btag_8TeVUp": _stem % s,
-                "_CMS_scale_btag_8TeVDown": _stem % s,
-                }
-    else:
-        s = "normal"
-        return {"":                             _stem % s,
-                "_CMS_scale_t_tautau_8TeVUp":   _stem % "tauUp",
-                "_CMS_scale_t_tautau_8TeVDown": _stem % "tauDown",
-                "_CMS_scale_j_8TeVUp":   _stem % "jetUp",
-                "_CMS_scale_j_8TeVDown": _stem % "jetDown",
-                "_CMS_scale_btag_8TeVUp": _stem % s,
-                "_CMS_scale_btag_8TeVDown": _stem % s,
-                }
+    s = "normal"
+    return {"":                             _stem % s,
+            "_CMS_scale_t_tautau_8TeVUp":   _stem % "tauUp",
+            "_CMS_scale_t_tautau_8TeVDown": _stem % "tauDown",
+            "_CMS_scale_j_8TeVUp":   _stem % "jetUp",
+            "_CMS_scale_j_8TeVDown": _stem % "jetDown",
+            "_CMS_scale_btag_8TeVUp": _stem % "bSysUp",
+            "_CMS_scale_btag_8TeVDown": _stem % "bSysDown",
+            }
 
 
 __fakeSignals = {"ggAToZhToLLTauTau": masses_spin0,

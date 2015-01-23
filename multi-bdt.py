@@ -7,7 +7,7 @@ import make_root_files
 import determine_binning
 
 
-def make_root_file(fileName, dirName):
+def make_root_file(dirName):
     fineBins = (1000, -1.0, 1.0)
 
     # print dirName
@@ -15,7 +15,6 @@ def make_root_file(fileName, dirName):
     os.system("mkdir %s" % dirName)
     print "  (making .root file)"
 
-    cfg._stem = "%s/%s" % (cfg.bdtDir, fileName.replace(".root", "%s.root"))
     cfg._bdtBins = fineBins
 
     # make histograms with very fine binning
@@ -33,6 +32,18 @@ def make_root_file(fileName, dirName):
 
     # replace fine bins for next mass point
     cfg._bdtBins = fineBins
+
+
+def plot(dirName, mass):
+    print "  (plotting histograms)"
+    cmd = " ".join(["cd %s && " % dirName,
+                    "../compareDataCards.py",
+                    "--xtitle=BDT%3d" % mass,
+                    "--file1=Brown/BDT.root",
+                    "--file2=Brown/BDT.root",
+                    "--masses=%3d" % mass,
+                    ])
+    os.system(cmd)
 
 
 def compute_limit(mass, dirName):
@@ -57,13 +68,16 @@ def compute_limit(mass, dirName):
         os.system("cp -p %s/%s %s/" % (workDir, f, dirName))
 
 
-def go():
+def go(suffix="normal.root"):
     for mass in cfg.masses_spin0:
         for fileName in os.listdir(cfg.bdtDir):
-            if ("_H%3d" % mass) not in fileName:
+            if ("_H%3d_%s" % (mass, suffix)) not in fileName:
                 continue
-            dirName = fileName.replace("combined", bdt).replace(".root", "")
-            make_root_file(fileName, dirName)
+
+            cfg._stem = "%s/%s" % (cfg.bdtDir, fileName.replace(suffix, "%s.root"))
+            dirName = fileName.replace("combined", bdt).replace("_%s" % suffix, "")
+            make_root_file(dirName)
+            plot(dirName, mass)
             compute_limit(mass, dirName)
 
 
