@@ -334,6 +334,29 @@ def go(xTitle, file1, file2, band=""):
     canvas.Print(pdf + "]")
 
 
+def opts():
+    import optparse
+    parser = optparse.OptionParser()
+
+    parser.add_option("--file1",
+                      dest="file1",
+                      default="Italians/htt_tt.inputs-Hhh-8TeV_m_ttbb_kinfit_KinFitConvergedWithMassWindow.root",
+                      )
+
+    parser.add_option("--file2",
+                      dest="file2",
+                      default="Brown/fMassKinFit_0.0.fMassKinFit_70.0.mJJ.150.0_90.0.svMass.150.0.root",
+                      )
+
+    parser.add_option("--xtitle",
+                      dest="xtitle",
+                      default="fMassKinFit (after cuts)",
+                      )
+
+    options, args = parser.parse_args()
+    return options
+
+
 if __name__ == "__main__":
     ignorePrefixes = ["ggAToZh", "bbH", "W", "ggRadion", "ggGraviton"]
 
@@ -341,6 +364,7 @@ if __name__ == "__main__":
                  "ggHTohhTo2Tau2B260", "ggHTohhTo2Tau2B300", "ggHTohhTo2Tau2B350",
                  ]
 
+    bands = ["", "CMS_scale_t_tautau_8TeV", "CMS_scale_j_8TeV", "CMS_scale_btag_8TeV"][1:]
 
     r.gErrorIgnoreLevel = 2000
     r.gStyle.SetOptStat("rme")
@@ -352,29 +376,11 @@ if __name__ == "__main__":
     lineColor2 = r.kBlue
     bandColor2 = r.kCyan
 
-    for band in ["", "CMS_scale_t_tautau_8TeV", "CMS_scale_j_8TeV", "CMS_scale_btag_8TeV"][1:]:
-        # go("svMass (preselection)",
-        #    #"Italians-old/htt_tt.inputs-Hhh-8TeV_m_sv.root",
-        #    #"Italians/htt_tt.inputs-Hhh-8TeV_m_sv.root",
-        #    "Italians-afs/htt_tt.inputs-Hhh-8TeV_m_sv.root",
-        #    #"Brown-1.5/svMass.root",
-        #    "Brown/svMass.root",
-        #    #"Brown/cutbased/svMass.root",
-        #    #"Brown/350/svMass.root",
-        #    band
-        # )
+    options = opts()
 
-        go("fMassKinFit (after cuts)",
-           #"Italians-old/htt_tt.inputs-Hhh-8TeV_m_ttbb_kinfit_only_massCut.root",
-           #"Italians-afs/htt_tt.inputs-Hhh-8TeV_m_ttbb_kinfit_KinFitConvergedWithMassWindow.root",
-           #"Italians/htt_tt.inputs-Hhh-8TeV_m_ttbb_kinfit_only_massCut.root",
-           "Italians/htt_tt.inputs-Hhh-8TeV_m_ttbb_kinfit_KinFitConvergedWithMassWindow.root",
-           #"Brown/BDT.root",
+    # options.xtitle = "svMass (preselection)"
+    # options.file1 = "Italians-afs/htt_tt.inputs-Hhh-8TeV_m_sv.root"
+    # options.file2 = "Brown/svMass.root"
 
-           #"Brown/cutbased/fMassKinFit_0.0.fMassKinFit_70.0.mJJ.150.0_90.0.svMass.150.0.root",
-           #"Brown/before_windows/fMassKinFit_0.0.fMassKinFit_70.0.mJJ.150.0_90.0.svMass.150.0.root",
-           #"Brown/after_windows/fMassKinFit_0.0.fMassKinFit_70.0.mJJ.150.0_90.0.svMass.150.0.root",
-           "Brown/fMassKinFit_0.0.fMassKinFit_70.0.mJJ.150.0_90.0.svMass.150.0.root",
-           #"Brown/BDT.root",
-           band
-           )
+    for band in bands:
+        go(options.xtitle, options.file1, options.file2, band)
