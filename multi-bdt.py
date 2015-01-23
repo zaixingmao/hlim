@@ -38,7 +38,7 @@ def plot(dirName, mass):
     print "  (plotting histograms)"
     cmd = " ".join(["cd %s && " % dirName,
                     "../compareDataCards.py",
-                    "--xtitle=BDT",
+                    "--xtitle=BDT%3d" % mass,
                     "--file1=Brown/BDT.root",
                     "--file2=Brown/BDT.root",
                     "--masses=%3d" % mass,
