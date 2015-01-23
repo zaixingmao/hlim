@@ -34,13 +34,14 @@ def make_root_file(dirName):
     cfg._bdtBins = fineBins
 
 
-def plot(dirName):
+def plot(dirName, mass):
     print "  (plotting histograms)"
     cmd = " ".join(["cd %s && " % dirName,
                     "../compareDataCards.py",
                     "--xtitle=BDT",
                     "--file1=Brown/BDT.root",
                     "--file2=Brown/BDT.root",
+                    "--masses=%3d" % mass,
                     ])
     os.system(cmd)
 
@@ -76,7 +77,7 @@ def go(suffix="normal.root"):
             cfg._stem = "%s/%s" % (cfg.bdtDir, fileName.replace(suffix, "%s.root"))
             dirName = fileName.replace("combined", bdt).replace("_%s" % suffix, "")
             make_root_file(dirName)
-            plot(dirName)
+            plot(dirName, mass)
             compute_limit(mass, dirName)
 
 
