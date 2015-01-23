@@ -353,16 +353,17 @@ def opts():
                       default="fMassKinFit (after cuts)",
                       )
 
+    parser.add_option("--masses",
+                      dest="masses",
+                      default="260 300 350",
+                      )
+
     options, args = parser.parse_args()
     return options
 
 
 if __name__ == "__main__":
     ignorePrefixes = ["ggAToZh", "bbH", "W", "ggRadion", "ggGraviton"]
-
-    whiteList = ["TT", "QCD", "VV", "ZTT", "data_obs", "ZLL", "W",
-                 "ggHTohhTo2Tau2B260", "ggHTohhTo2Tau2B300", "ggHTohhTo2Tau2B350",
-                 ]
 
     bands = ["", "CMS_scale_t_tautau_8TeV", "CMS_scale_j_8TeV", "CMS_scale_btag_8TeV"][1:]
 
@@ -381,6 +382,9 @@ if __name__ == "__main__":
     # options.xtitle = "svMass (preselection)"
     # options.file1 = "Italians-afs/htt_tt.inputs-Hhh-8TeV_m_sv.root"
     # options.file2 = "Brown/svMass.root"
+
+    whiteList = ["TT", "QCD", "VV", "ZTT", "data_obs", "ZLL", "W"] + \
+        ["ggHTohhTo2Tau2B%s" % m for m in options.masses.split()]
 
     for band in bands:
         go(options.xtitle, options.file1, options.file2, band)
