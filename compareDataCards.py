@@ -352,7 +352,7 @@ if __name__ == "__main__":
     lineColor2 = r.kBlue
     bandColor2 = r.kCyan
 
-    for band in ["", "CMS_scale_t_tautau_8TeV", "CMS_scale_j_8TeV"][1:]:
+    for band in ["", "CMS_scale_t_tautau_8TeV", "CMS_scale_j_8TeV", "CMS_scale_btag_8TeV"][1:]:
         # go("svMass (preselection)",
         #    #"Italians-old/htt_tt.inputs-Hhh-8TeV_m_sv.root",
         #    #"Italians/htt_tt.inputs-Hhh-8TeV_m_sv.root",
