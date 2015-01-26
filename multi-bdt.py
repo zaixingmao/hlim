@@ -57,6 +57,7 @@ def compute_limit(mass, dirName):
             "--postfitonlyone",
             "--masses='%s'" % mass,
             "--categories='%s'" % cats,
+            "--BDT",
             ]
     os.system(" ".join(args))
 

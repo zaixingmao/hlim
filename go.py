@@ -69,6 +69,12 @@ def opts():
                       metavar="x.root",
                       help=" required!!")
 
+    parser.add_option("--BDT",
+                      dest="BDT",
+                      default=False,
+                      action="store_true",
+                      help="move limit results to LIMITS-tmp")
+
     options, args = parser.parse_args()
     if not options.file:
         print "--file is required."
@@ -129,7 +135,9 @@ if __name__ == "__main__":
                         ])
         # print cmd
         os.system(cmd)
-
+        if options.BDT:
+            os.system("mkdir -p %s/LIMITS-tmp/tt/" %base)
+            os.system("cp -rf %s/tt/* %s/LIMITS-tmp/tt/" %(lim, base))
         os.system("rm -rf %s" % lim)
         os.system("mkdir -p %s" % lim)
         os.system(" ".join(["setup-Hhh.py",
@@ -150,6 +158,9 @@ if __name__ == "__main__":
     if options.plots:
         layouts = "%s/python/layouts" % base
         plotcommon = "%s/tt/ masspoints='%s'" % (lim, " ".join(masses))
+        if options.BDT and masses == ['350']:
+            plotcommon = "%s/LIMITS-tmp/tt/ masspoints='%s'" % (base, "260 270 280 290 300 310 320 330 340 350")
+
         os.system(" ".join(["plot",
                             "--max-likelihood",
                             "%s/max-likelihood_sm.py" % layouts,
