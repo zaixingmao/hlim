@@ -13,14 +13,16 @@ masses_spin2 = [500, 700]
 categories = {#"MM_LM": "tauTau_2jet2tag",
               "2M": "tauTau_2jet2tag",
               "1M": "tauTau_2jet1tag",
-              "0M": "tauTau_2jet0tag",
+#               "0M": "tauTau_2jet0tag",
               }
 
 bdtDir = "root/bdt/6"
+bdtDir = "/nfs_scratch/zmao/samples_new/forDataCard/BDT"
 
 # WARNING: these two variables get modified by multi-bdt.py
 _bdtBins = (7, -0.6, 0.1)
-_stem = "root/cb/4/combined_iso1.0_one1To4_pt_%s__withDYEmbed_massWindow.root"
+# _stem = "root/cb/3/combined_iso1.0_one1To4_pt_%s__withDYEmbed_massWindow.root"
+_stem = "/nfs_scratch/zmao/samples_new/forDataCard/combined_iso1.0_one1To4_pt_%s__withDYEmbed.root"
 
 
 def files(variable=""):
@@ -149,8 +151,11 @@ def variables():
     ## a list of bin lower edges
 
     out = [#{"var": "svMass",      "bins": it_sv_bins_cat2_new, "cuts": {}},
-           {"var": "fMassKinFit", "bins": fm_bins_tt, "cuts": mass_windows},
-           #{"var": "BDT", "bins": _bdtBins, "cuts": preselection},
+#            {"var": "fMassKinFit", "bins": fm_bins_tt, "cuts": preselection}, #mass_windows},
+#            {"var": "CSVJ1Pt", "bins": it_sv_bins_cat1_new, "cuts": preselection}, #mass_windows},
+#            {"var": "CSVJ1Pt", "bins": it_sv_bins_cat1_new, "cuts": preselection}, #mass_windows},
+
+           {"var": "BDT", "bins": _bdtBins, "cuts": preselection},
            ]
 
     return out
