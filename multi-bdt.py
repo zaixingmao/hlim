@@ -57,6 +57,7 @@ def compute_limit(mass, dirName):
             "--postfitonlyone",
             "--masses='%s'" % mass,
             "--categories='%s'" % cats,
+            "--BDT",
             ]
     os.system(" ".join(args))
 
@@ -83,7 +84,7 @@ def go(suffix="normal.root"):
 
 if __name__ == "__main__":
     bdt = "BDT"
-    unblind = False
+    unblind = True
     lst = cfg.variables()
     if len(lst) != 1 or lst[0]["var"] != bdt:
         sys.exit("FATAL: please edit cfg.variables() to use 'BDT'.")
