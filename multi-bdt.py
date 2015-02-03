@@ -24,7 +24,8 @@ def make_root_file(dirName):
     make_root_files.loop()
 
     # then choose a coarser binning
-    cfg._bdtBins = determine_binning.bins()
+    # cfg._bdtBins = determine_binning.fixed_width()
+    cfg._bdtBins = determine_binning.variable_width()
 
     # make histograms with this binning
     make_root_files.options.contents = True
