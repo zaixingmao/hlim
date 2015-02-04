@@ -24,7 +24,8 @@ def make_root_file(dirName):
     make_root_files.loop()
 
     # then choose a coarser binning
-    cfg._bdtBins = determine_binning.bins()
+    # cfg._bdtBins = determine_binning.fixed_width()
+    cfg._bdtBins = determine_binning.variable_width()
 
     # make histograms with this binning
     make_root_files.options.contents = True
@@ -84,7 +85,7 @@ def go(suffix="normal.root"):
 
 if __name__ == "__main__":
     bdt = "BDT"
-    unblind = True
+    unblind = False
     lst = cfg.variables()
     if len(lst) != 1 or lst[0]["var"] != bdt:
         sys.exit("FATAL: please edit cfg.variables() to use 'BDT'.")
