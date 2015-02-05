@@ -122,9 +122,11 @@ def histosOneFile(f, tree, bins, procs, variable, cuts, category):
         if cfg.isData(proc):
             w = "(1.0)"
         elif cfg.isDataEmbedded(proc):
-            w = "(triggerEff)"
+            w = "(triggerEff*embeddedWeight*decayModeWeight)"
         elif cfg.isMcEmbedded(proc):
-            w = "(%g*triggerEff*xs/initEvents)" % cfg.lumi
+            w = "(%g*triggerEff*PUWeight*embeddedWeight*xs/initEvents)" % cfg.lumi
+        elif cfg.isSignal(proc):
+            w = "(%g*triggerEff*xs*PUWeight*decayModeWeight/initEvents)" % cfg.lumi
         else:
             w = "(%g*triggerEff*xs*PUWeight/initEvents)" % cfg.lumi
 
