@@ -21,6 +21,12 @@ def opts():
                       help="list of categories",
                       )
 
+    parser.add_option("--cards0",
+                      dest="cards0",
+                      default=False,
+                      action="store_true",
+                      help="remove and recreate data cards (old method)")
+
     parser.add_option("--cards",
                       dest="cards",
                       default=False,
@@ -114,17 +120,18 @@ if __name__ == "__main__":
 
     cmssw_src = "%s/src" % os.environ["CMSSW_BASE"]
     base = "%s/HiggsAnalysis/HiggsToTauTau" % cmssw_src
-    dc = "%s/dc" % cmssw_src
-    lim = "%s/LIMITS/" % cmssw_src
+    label = "v1"
+    lim = "%s/LIMITS%s/bbb/" % (cmssw_src, label)
     inDir = "%s/setup-Hhh" % base
 
-    # remove and create file and link
-    fName = "htt_tt.inputs-Hhh-8TeV.root"
-    loc = "%s/%s" % (root_dest, fName)
-    copy(src=os.path.abspath(options.file), dest=loc, link=False)
-    copy(src=loc, dest="%s/tt/%s" % (inDir, fName), link=True)
+    if options.cards0:
+        # # remove and create file and link
+        # fName = "htt_tt.inputs-Hhh-8TeV.root"
+        # loc = "%s/%s" % (root_dest, fName)
+        # copy(src=os.path.abspath(options.file), dest=loc, link=False)
+        # copy(src=loc, dest="%s/tt/%s" % (inDir, fName), link=True)
 
-    if options.cards:
+        dc = "%s/dc" % cmssw_src
         common = "--channels=tt --Hhh-categories-tt='%s' --periods=8TeV %s" % (options.categories, options.masses)
 
         os.system("rm -rf %s" % dc)
@@ -148,10 +155,25 @@ if __name__ == "__main__":
                             common,
                             ]))
 
+    if options.cards:
+        old = "%s/data/limits.config-Hhh" % base
+        new = old + "2"
+        s1 = "sed s@'tt = Italians'@'tt = Brown'@"
+        s2 = "sed s@'channels = et mt tt'@'channels = tt'@"
+        os.system("cat %s | %s | %s > %s" % (old, s1, s2, new))
+
+        args = "--update-all --config=%s" % new
+        #args += " -a plain"
+        args += " -a bbb --new-merging --new-merging-threshold 0.5"
+        cmd = "python %s/scripts/doHTohh.py --label='%s' %s" % (base, label, args)
+        os.system("cd %s && %s" % (cmssw_src, cmd))
+
+
     if options.fits:
         for mass in masses:
             lim1 = "%s/tt/%s" % (lim, mass)
-            os.system("limit.py --max-likelihood --stable --rMin -5 --rMax 5 %s" % lim1)
+            lopts = ["", " --stable --rMin -5 --rMax 5"][0]
+            os.system("limit.py --max-likelihood %s %s" % (lopts, lim1))
             os.system("cat %s/out/mlfit.txt" % lim1)
             #os.system("limit.py --significance-frequentist %s" % lim1)
             #os.system("limit.py --pvalue-frequentist %s" % lim1)
