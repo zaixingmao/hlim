@@ -13,7 +13,7 @@ masses_spin2 = [500, 700]
 categories = {#"MM_LM": "tauTau_2jet2tag",
               "2M": "tauTau_2jet2tag",
               "1M": "tauTau_2jet1tag",
-              # "0M": "tauTau_2jet0tag",
+              "0M": "tauTau_2jet0tag",
               }
 
 bdtDir = "root/bdt/7"
@@ -152,10 +152,10 @@ def variables():
 
     out = [
         # {"var": "svMass",      "bins": it_sv_bins_cat2_new, "cuts": {}},
-        # {"var": "fMassKinFit", "bins": fm_bins_tt, "cuts": preselection}, #mass_windows},
+        {"var": "fMassKinFit", "bins": fm_bins_tt, "cuts": mass_windows},
         # {"var": "CSVJ1Pt", "bins": it_sv_bins_cat1_new, "cuts": preselection}, #mass_windows},
         # {"var": "CSVJ1Pt", "bins": it_sv_bins_cat1_new, "cuts": preselection}, #mass_windows},
-        {"var": "BDT", "bins": _bdtBins, "cuts": preselection},
+        # {"var": "BDT", "bins": _bdtBins, "cuts": preselection},
         ]
 
     return out
