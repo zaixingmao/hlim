@@ -17,12 +17,11 @@ categories = {#"MM_LM": "tauTau_2jet2tag",
               }
 
 bdtDir = "root/bdt/7"
-# bdtDir = "/nfs_scratch/zmao/samples_new/forDataCard/BDT"
 
 # WARNING: these two variables get modified by multi-bdt.py
 _bdtBins = (7, -0.6, 0.1)
-_stem = "root/cb/4/combined_iso1.0_one1To4_pt_%s__withDYEmbed_massWindow.root"
-# _stem = "/nfs_scratch/zmao/samples_new/forDataCard/combined_iso1.0_one1To4_pt_%s__withDYEmbed.root"
+_stem = "root/cb/5/combined_iso1.0_one1To4_iso_%s__withDYEmbed_massWindow.root"
+
 
 
 def files(variable=""):
