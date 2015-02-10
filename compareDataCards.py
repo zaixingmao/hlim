@@ -146,7 +146,11 @@ def oneDir(canvas, pdf, hNames, d1, d2, subdir, xTitle, band):
                 h1b = bandHisto(h1u, h1d)
                 keep.append(h1b)
 
-        h2 = d2[subdir][hName]
+        h2 = d2[subdir].get(hName)
+        if not h2:
+            print "ERROR: %s/%s not found" % (subdir, hName)
+            continue
+
         h2b = None
         if band:
             h2u = d2[subdir].get("%s_%sUp" % (hName, band))
@@ -365,7 +369,7 @@ def opts():
 if __name__ == "__main__":
     ignorePrefixes = ["ggAToZh", "bbH", "W", "ggRadion", "ggGraviton"]
 
-    bands = ["", "CMS_scale_t_tautau_8TeV", "CMS_scale_j_8TeV", "CMS_scale_btag_8TeV"][1:]
+    bands = ["CMS_scale_%s_8TeV" % s for s in ["t_tautau", "j", "btag", "btagEff", "btagFake"]]
 
     r.gErrorIgnoreLevel = 2000
     r.gStyle.SetOptStat("rme")
