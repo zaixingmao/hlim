@@ -11,6 +11,15 @@ import cfg
 from compareDataCards import report
 
 
+def error(msg="", die=True):
+    s = "\033[%s%s\033[0m" % ("91m" if die else "35m", "ERROR: ")
+    s += msg
+    if die:
+        sys.exit(s)
+    else:
+        print s
+
+
 def combineBinContentAndError(h, binToContainCombo, binToBeKilled):
     c = h.GetBinContent(binToContainCombo) + h.GetBinContent(binToBeKilled)
     e = h.GetBinError(binToContainCombo)**2 + h.GetBinError(binToBeKilled)**2
@@ -53,7 +62,7 @@ def merge_second_layer(d, f, variable, category, variation):
 
 def rescaled_bins(bins, variable):
     if type(bins) is not tuple:
-        sys.exit("ERROR: cannot rescale X for non-uniform binning (%s)." % variable)
+        error("cannot rescale X for non-uniform binning (%s)." % variable)
 
     assert bins[0]
     binWidth = (bins[2] - bins[1]) / bins[0]
@@ -188,9 +197,9 @@ def checkSamples(tree, fileName=".root file", variable="", category=""):
             continue
 
         if len(xs[sn]) != 1:
-            sys.exit("ERROR: sample %s (file %s) has multiple values of xs: %s" % (sn, fileName, xs[sn]))
+            error("sample %s (file %s) has multiple values of xs: %s" % (sn, fileName, xs[sn]))
         if len(ini[sn]) != 1:
-            sys.exit("ERROR: sample %s (file %s) has multiple values of ini: %s" % (sn, fileName, ini[sn]))
+            error("sample %s (file %s) has multiple values of ini: %s" % (sn, fileName, ini[sn]))
 
     if options.xs:
         printSampleInfo(xs, ini)
@@ -215,12 +224,13 @@ def applyFactor(h=None, tfile=None, hName="", unit=False):
     if unit:
         i = h.Integral(0, 1 + h.GetNbinsX())  # fixme: under/overflows?
         if not i:
-            sys.exit("Empty histogram '%s'." % h.GetName())
-        h.Scale(1.0 / i)
+            error("Empty histogram '%s'." % h.GetName(), die=False)
+        else:
+            h.Scale(1.0 / i)
 
     hFactor = tfile.Get(hName)
     if not hFactor:
-        sys.exit("Could not find histogram '%s' in file '%s'." % (hName, tfile.GetName()))
+        error("Could not find histogram '%s' in file '%s'." % (hName, tfile.GetName()))
     factor = hFactor.GetBinContent(1)
     if options.factors:
         print "%s: %8.6f" % (hName, factor)
