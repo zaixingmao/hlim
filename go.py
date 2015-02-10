@@ -122,14 +122,15 @@ if __name__ == "__main__":
     base = "%s/HiggsAnalysis/HiggsToTauTau" % cmssw_src
     label = "v1"
     lim = "%s/LIMITS%s/bbb/" % (cmssw_src, label)
-    inDir = "%s/setup-Hhh" % base
+
+    # remove and create file and link
+    fName = "htt_tt.inputs-Hhh-8TeV.root"
+    src = os.path.abspath(options.file).replace(root_dest + "/", "")
+    copy(src=src, dest="%s/%s" % (root_dest, fName), link=True)
 
     if options.cards0:
-        # # remove and create file and link
-        # fName = "htt_tt.inputs-Hhh-8TeV.root"
-        # loc = "%s/%s" % (root_dest, fName)
-        # copy(src=os.path.abspath(options.file), dest=loc, link=False)
-        # copy(src=loc, dest="%s/tt/%s" % (inDir, fName), link=True)
+        inDir = "%s/setup-Hhh" % base
+        copy(src=os.path.abspath(options.file), dest="%s/tt/%s" % (inDir, fName), link=True)
 
         dc = "%s/dc" % cmssw_src
         common = "--channels=tt --Hhh-categories-tt='%s' --periods=8TeV %s" % (options.categories, options.masses)
