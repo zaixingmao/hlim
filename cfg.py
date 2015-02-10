@@ -32,8 +32,10 @@ def files(variable=""):
             "_CMS_scale_t_tautau_8TeVDown": _stem % "tauDown",
             "_CMS_scale_j_8TeVUp":   _stem % "jetUp",
             "_CMS_scale_j_8TeVDown": _stem % "jetDown",
-            "_CMS_scale_btagEff_8TeVUp": _stem % "bSysUp",
-            "_CMS_scale_btagEff_8TeVDown": _stem % "bSysDown",
+            "_CMS_scale_btag_8TeVUp": _stem % "bSysUp",
+            "_CMS_scale_btag_8TeVDown": _stem % "bSysDown",
+            "_CMS_scale_btagEff_8TeVUp": _stem % "bSysUp",     # duplicate of btag
+            "_CMS_scale_btagEff_8TeVDown": _stem % "bSysDown", # duplicate of btag
             "_CMS_scale_btagFake_8TeVUp": _stem % "bMisUp",
             "_CMS_scale_btagFake_8TeVDown": _stem % "bMisDown",
             }
