@@ -21,6 +21,12 @@ def opts():
                       help="list of categories",
                       )
 
+    parser.add_option("--cards0",
+                      dest="cards0",
+                      default=False,
+                      action="store_true",
+                      help="remove and recreate data cards (old method)")
+
     parser.add_option("--cards",
                       dest="cards",
                       default=False,
@@ -109,23 +115,26 @@ if __name__ == "__main__":
     # rl.txt
     # https://twiki.cern.ch/twiki/bin/viewauth/CMS/SWGuideHiggs2TauLimits
     options = opts()
-    common = "--channels=tt --Hhh-categories-tt='%s' --periods=8TeV %s" % (options.categories, options.masses)
 
     masses = options.masses.split()
 
     cmssw_src = "%s/src" % os.environ["CMSSW_BASE"]
     base = "%s/HiggsAnalysis/HiggsToTauTau" % cmssw_src
-    dc = "%s/dc" % base
-    lim = "%s/LIMITS/" % base
-    inDir = "%s/setup-Hhh" % base
+    label = "v1"
+    lim = "%s/LIMITS%s/bbb/" % (cmssw_src, label)
 
     # remove and create file and link
     fName = "htt_tt.inputs-Hhh-8TeV.root"
-    loc = "%s/%s" % (root_dest, fName)
-    copy(src=os.path.abspath(options.file), dest=loc, link=False)
-    copy(src=loc, dest="%s/tt/%s" % (inDir, fName), link=True)
+    src = os.path.abspath(options.file).replace(root_dest + "/", "")
+    copy(src=src, dest="%s/%s" % (root_dest, fName), link=True)
 
-    if options.cards:
+    if options.cards0:
+        inDir = "%s/setup-Hhh" % base
+        copy(src=os.path.abspath(options.file), dest="%s/tt/%s" % (inDir, fName), link=True)
+
+        dc = "%s/dc" % cmssw_src
+        common = "--channels=tt --Hhh-categories-tt='%s' --periods=8TeV %s" % (options.categories, options.masses)
+
         os.system("rm -rf %s" % dc)
         cmd = " ".join(["setup-datacards.py",
                         "--in=%s" % inDir,
@@ -136,8 +145,9 @@ if __name__ == "__main__":
         # print cmd
         os.system(cmd)
         if options.BDT:
-            os.system("mkdir -p %s/LIMITS-tmp/tt/" %base)
-            os.system("cp -rf %s/tt/* %s/LIMITS-tmp/tt/" %(lim, base))
+            tmp = "%s/LIMITS-tmp/tt" % cmssw_src
+            os.system("mkdir -p %s/" % tmp)
+            os.system("cp -rf %s/tt/* %s/" % (lim, tmp))
         os.system("rm -rf %s" % lim)
         os.system("mkdir -p %s" % lim)
         os.system(" ".join(["setup-Hhh.py",
@@ -146,10 +156,28 @@ if __name__ == "__main__":
                             common,
                             ]))
 
+    if options.cards:
+        old = "%s/data/limits.config-Hhh" % base
+        new = old + "2"
+        seds = ["sed s@'tt = Italians'@'tt = Brown'@",
+                "sed s@'channels = et mt tt'@'channels = tt'@",
+                ]
+        if options.BDT:
+            seds.append("sed s@'tt_categories_8TeV = 0 1 2'@'tt_categories_8TeV = 1 2'@")
+        os.system("cat %s | %s > %s" % (old, " | ".join(seds), new))
+
+        args = "--update-all --config=%s" % new
+        #args += " -a plain"
+        args += " -a bbb --new-merging --new-merging-threshold 0.5"
+        cmd = "python %s/scripts/doHTohh.py --label='%s' %s" % (base, label, args)
+        os.system("cd %s && %s" % (cmssw_src, cmd))
+
+
     if options.fits:
         for mass in masses:
             lim1 = "%s/tt/%s" % (lim, mass)
-            os.system("limit.py --max-likelihood --stable --rMin -5 --rMax 5 %s" % lim1)
+            lopts = ["", " --stable --rMin -5 --rMax 5"][0]
+            os.system("limit.py --max-likelihood %s %s" % (lopts, lim1))
             os.system("cat %s/out/mlfit.txt" % lim1)
             #os.system("limit.py --significance-frequentist %s" % lim1)
             #os.system("limit.py --pvalue-frequentist %s" % lim1)
@@ -159,7 +187,7 @@ if __name__ == "__main__":
         layouts = "%s/python/layouts" % base
         plotcommon = "%s/tt/ masspoints='%s'" % (lim, " ".join(masses))
         if options.BDT and masses == ['350']:
-            plotcommon = "%s/LIMITS-tmp/tt/ masspoints='%s'" % (base, "260 270 280 290 300 310 320 330 340 350")
+            plotcommon = "%s/ masspoints='%s'" % (tmp, "260 270 280 290 300 310 320 330 340 350")
 
         os.system(" ".join(["plot",
                             "--max-likelihood",
