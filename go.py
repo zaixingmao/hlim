@@ -159,9 +159,12 @@ if __name__ == "__main__":
     if options.cards:
         old = "%s/data/limits.config-Hhh" % base
         new = old + "2"
-        s1 = "sed s@'tt = Italians'@'tt = Brown'@"
-        s2 = "sed s@'channels = et mt tt'@'channels = tt'@"
-        os.system("cat %s | %s | %s > %s" % (old, s1, s2, new))
+        seds = ["sed s@'tt = Italians'@'tt = Brown'@",
+                "sed s@'channels = et mt tt'@'channels = tt'@",
+                ]
+        if options.BDT:
+            seds.append("sed s@'tt_categories_8TeV = 0 1 2'@'tt_categories_8TeV = 1 2'@")
+        os.system("cat %s | %s > %s" % (old, " | ".join(seds), new))
 
         args = "--update-all --config=%s" % new
         #args += " -a plain"
