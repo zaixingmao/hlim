@@ -17,11 +17,8 @@ categories = {#"MM_LM": "tauTau_2jet2tag",
               }
 
 bdtDir = "root/bdt/7"
-
-# WARNING: these two variables get modified by multi-bdt.py
-_bdtBins = (7, -0.6, 0.1)
+# WARNING: this variable gets modified by multi-bdt.py
 _stem = "root/cb/5/combined_iso1.0_one1To4_iso_%s__withDYEmbed_massWindow.root"
-
 
 
 def files(variable=""):
@@ -147,7 +144,7 @@ def variable():
     ## a list of bin lower edges
 
     out = {"var": "fMassKinFit", "bins": fm_bins_tt, "cuts": mass_windows}
-    # out = {"var": "BDT", "bins": _bdtBins, "cuts": preselection}
+    #out = {"var": "BDT", "bins": (7, -0.6, 0.1), "cuts": preselection}
     return out
 
 
@@ -159,7 +156,7 @@ def mkdir(path):
             raise e
 
 
-def outFileName(sFactor=0, sKey="", var="", cuts={}, **_):
+def outFileName(sFactor=0, sKey="", var="", cuts={}, tag="", **_):
     stem = root_dest + "/"
     mkdir(stem)
 
@@ -169,7 +166,8 @@ def outFileName(sFactor=0, sKey="", var="", cuts={}, **_):
     stem += var
     if cutDesc(cuts):
         stem += "_%s" % cutDesc(cuts)
-    return "%s.root" % stem
+
+    return "%s%s.root" % (stem, tag)
 
 
 def cutDesc(cuts):
