@@ -21,7 +21,7 @@ def make_root_file(dirName):
     make_root_files.options.integrals = False
     make_root_files.options.contents = False
     make_root_files.options.unblind = unblind
-    make_root_files.loop()
+    make_root_files.go(cfg.variable())
 
     # then choose a coarser binning
     # cfg._bdtBins = determine_binning.fixed_width()
@@ -29,7 +29,7 @@ def make_root_file(dirName):
 
     # make histograms with this binning
     make_root_files.options.contents = True
-    make_root_files.loop()
+    make_root_files.go(cfg.variable())
 
     # replace fine bins for next mass point
     cfg._bdtBins = fineBins
@@ -86,9 +86,8 @@ def go(suffix="normal.root"):
 if __name__ == "__main__":
     bdt = "BDT"
     unblind = False
-    lst = cfg.variables()
-    if len(lst) != 1 or lst[0]["var"] != bdt:
-        sys.exit("FATAL: please edit cfg.variables() to use 'BDT'.")
+    if cfg.variable()["var"] != bdt:
+        sys.exit("FATAL: please edit cfg.variable() to use 'BDT'.")
 
     if not unblind:
         print "BLIND!"
