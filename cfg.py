@@ -38,12 +38,13 @@ def files(variable=""):
             }
 
 
-__fakeSignals = {"ggAToZhToLLTauTau": masses_spin0,
-                 "ggAToZhToLLBB": [250] + masses_spin0,
-                 "ggGravitonTohhTo2Tau2B": [270, 300, 500, 700, 1000],
-                 "ggRadionTohhTo2Tau2B":   [     300, 500, 700, 1000],
-                 "bbH": range(90, 150, 10) + [160, 180, 200, 250, 300, 350, 400],
-                 }
+# __fakeSignals = {"ggAToZhToLLTauTau": masses_spin0,
+#                  "ggAToZhToLLBB": [250] + masses_spin0,
+#                  "ggGravitonTohhTo2Tau2B": [270, 300, 500, 700, 1000],
+#                  "ggRadionTohhTo2Tau2B":   [     300, 500, 700, 1000],
+#                  "bbH": range(90, 150, 10) + [160, 180, 200, 250, 300, 350, 400],
+#                  }
+__fakeSignals = {}
 
 def procs(variable="", category=""):
     assert variable
@@ -56,14 +57,13 @@ def procs(variable="", category=""):
            #"ZTT": ["DY1JetsToLL", "DY2JetsToLL", "DY3JetsToLL", "DY4JetsToLL"],
            "ZTT": ["DY_embed", "-tt_embed"],
            "*singleT": ["t", "tbar"],
-           "*ZLL": ["ZLL"],
            "QCD": ["dataOSRelax", "-MCOSRelax"],
            "data_obs": ["dataOSTight"],
            ## fakes below
-           "ggH125": ["ggH125"],
-           "qqH125": ["qqH125"],
-           "VH125": ["VH125"],
-           "ZJ": ["ZJ"],
+           # "ggH125": ["ggH125"],
+           # "qqH125": ["qqH125"],
+           # "VH125": ["VH125"],
+           # "ZJ": ["ZJ"],
            }
 
     for m in masses_spin0:
@@ -73,9 +73,9 @@ def procs(variable="", category=""):
         out[p] = [p]
 
     if variable == "BDT":
-        del out["*singleT"]
-        del out["*ZLL"]
-        out["ZLL"] = ["ZLL"]  # fake
+        out["ZLL"] = ["ZLL"]
+    else:
+        out["*ZLL"] = ["ZLL"]
 
     if category == "0M":
         out["W"] = ["W1JetsToLNu", "W2JetsToLNu", "W3JetsToLNu", "W4JetsToLNu"]
@@ -83,16 +83,13 @@ def procs(variable="", category=""):
 
 
 def procs2(variable="", category=""):
+    """first character '*' means unit normalize and then use factor"""
     assert variable
     assert category
-
-    # first character '*' means unit normalize and then use factor
-    if variable == "BDT":
-        return {"VV": ["*VV"]}
-    else:
-        return {"VV": ["*VV", "*singleT"],
-                "ZLL": ["*ZLL"],
-                }
+    out = {"VV": ["*VV", "*singleT"]}
+    if variable != "BDT":
+        out["ZLL"] = ["*ZLL"]
+    return out
 
 
 def fakeSignalList():
@@ -117,6 +114,15 @@ def isMcEmbedded(proc):
 
 def isSignal(proc):
     return any([proc.startswith(p) for p in ["ggHTo", "ggATo", "ggGraviton", "ggRadion", "bbH"]])
+
+
+def reportExtra(proc):
+    # don't report about MC DY and W, which are typically not used
+    if proc.startswith("DY") and proc.endswith("JetsToLL"):
+        return False
+    if proc.startswith("W") and proc.endswith("JetsToLNu"):
+        return False
+    return True
 
 
 def cats():
