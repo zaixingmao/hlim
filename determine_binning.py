@@ -40,9 +40,7 @@ def binning(h, width, xn_l, x1_r):
 
 
 def fine_histo():
-    vs = cfg.variables()
-    assert len(vs) == 1
-    d = vs[0]
+    d = cfg.variable()
     fileName = cfg.outFileName(var=d["var"], cuts=d["cuts"])
     return histo(fileName, subdir="tauTau_2jet2tag", name="sum_b")
 
