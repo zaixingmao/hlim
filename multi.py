@@ -6,7 +6,8 @@ import os
 cats = cfg.cats()
 workDir = cfg.workDir()
 
-for d in cfg.variables():
+if __name__ == "__main__":
+    d = cfg.variable()
     masses = cfg.masses_spin0
 
     dirName = "%s_%s" % (d["var"], cfg.cutDesc(d["cuts"]))

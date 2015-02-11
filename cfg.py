@@ -17,11 +17,8 @@ categories = {#"MM_LM": "tauTau_2jet2tag",
               }
 
 bdtDir = "root/bdt/7"
-
-# WARNING: these two variables get modified by multi-bdt.py
-_bdtBins = (7, -0.6, 0.1)
+# WARNING: this variable gets modified by multi-bdt.py
 _stem = "root/cb/5/combined_iso1.0_one1To4_iso_%s__withDYEmbed_massWindow.root"
-
 
 
 def files(variable=""):
@@ -131,17 +128,10 @@ def workDir():
 
 
 
-def variables():
+def variable():
     fm_bins_old= (4, 250.0, 410.0)
     fm_bins_lt = [200, 250, 270, 290, 310, 330, 350, 370, 390, 410, 430, 450, 500, 550, 600, 650, 700]
-    fm_bins_tt = [200, 250, 280, 310, 340, 370, 400, 500, 600, 700]#[:-2]
-
-    it_sv_bins_cat1_old = range(0, 200, 10) + range(200, 375, 25)
-    it_sv_bins_cat2_old = range(0, 210, 20) + [250, 300, 350]
-    it_sv_bins_cat1_new = range(0, 200, 10) + range(200, 375, 25)
-    it_sv_bins_cat2_new = range(0, 200, 20) + range(200, 400, 50)
-    it_fm_bins_cats = range(0, 510, 20) + range(550, 1050, 50)
-
+    fm_bins_tt = [200, 250, 280, 310, 340, 370, 400, 500, 600, 700]
 
     preselection = {}
     fMass = {"fMassKinFit": (0.0, None)}
@@ -153,14 +143,8 @@ def variables():
     ##  or
     ## a list of bin lower edges
 
-    out = [
-        # {"var": "svMass",      "bins": it_sv_bins_cat2_new, "cuts": {}},
-        {"var": "fMassKinFit", "bins": fm_bins_tt, "cuts": mass_windows},
-        # {"var": "CSVJ1Pt", "bins": it_sv_bins_cat1_new, "cuts": preselection}, #mass_windows},
-        # {"var": "CSVJ1Pt", "bins": it_sv_bins_cat1_new, "cuts": preselection}, #mass_windows},
-        # {"var": "BDT", "bins": _bdtBins, "cuts": preselection},
-        ]
-
+    out = {"var": "fMassKinFit", "bins": fm_bins_tt, "cuts": mass_windows}
+    #out = {"var": "BDT", "bins": (7, -0.6, 0.1), "cuts": preselection}
     return out
 
 
@@ -172,7 +156,7 @@ def mkdir(path):
             raise e
 
 
-def outFileName(sFactor=0, sKey="", var="", cuts={}):
+def outFileName(sFactor=0, sKey="", var="", cuts={}, tag="", **_):
     stem = root_dest + "/"
     mkdir(stem)
 
@@ -182,7 +166,8 @@ def outFileName(sFactor=0, sKey="", var="", cuts={}):
     stem += var
     if cutDesc(cuts):
         stem += "_%s" % cutDesc(cuts)
-    return "%s.root" % stem
+
+    return "%s%s.root" % (stem, tag)
 
 
 def cutDesc(cuts):
@@ -198,29 +183,24 @@ def cutDesc(cuts):
 
 
 def complain():
-    for dct in variables():
-        if len(set(files(dct["var"]).values())) <= 2:
-            print "FIXME: include variations"
-
     if __fakeSignals:
         print "FIXME: include", sorted(__fakeSignals.keys())
 
     fakeBkgs = []
     for cat in categories.keys():
-        for dct in variables():
-            var = dct["var"]
-            lst = []
-            for k, v in procs(var, cat).iteritems():
-                if type(v) != list:
-                    sys.exit("ERROR: type of '%s' is not list." % str(v))
-                else:
-                    lst += v
+        var = variable()["var"]
+        lst = []
+        for k, v in procs(var, cat).iteritems():
+            if type(v) != list:
+                sys.exit("ERROR: type of '%s' is not list." % str(v))
+            else:
+                lst += v
 
-                if len(v) == 1 and v[0] == k and k not in fakeSignalList():  # FIXME: condition is imperfect
-                    fakeBkgs.append(k)
+            if len(v) == 1 and v[0] == k and k not in fakeSignalList():  # FIXME: condition is imperfect
+                fakeBkgs.append(k)
 
-            if len(set(lst)) != len(lst):
-                sys.exit("ERROR: procs values has duplicates: %s." % str(sorted(lst)))
+        if len(set(lst)) != len(lst):
+            sys.exit("ERROR: procs values has duplicates: %s." % str(sorted(lst)))
 
     fakeBkgs = list(set(fakeBkgs))
     if fakeBkgs:

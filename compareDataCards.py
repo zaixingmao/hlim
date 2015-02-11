@@ -18,7 +18,11 @@ def fetchOneDir(f, subdir):
 
 
 def histograms(fileName=""):
-    f = r.TFile("%s/src/auxiliaries/shapes/%s" % (os.environ["CMSSW_BASE"], fileName))
+    b = "%s/src/auxiliaries/shapes" % os.environ["CMSSW_BASE"]
+    if b not in fileName:
+        fileName = "%s/%s" % (b, fileName)
+
+    f = r.TFile(fileName)
     if f.IsZombie():
         sys.exit("'%s' is a zombie." % fileName)
 
