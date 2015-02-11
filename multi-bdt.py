@@ -33,7 +33,8 @@ def make_root_file(dirName, tag=""):
     make_root_files.go(variable)
 
     # then choose a coarser binning
-    fine_histo = histo(fileName=cfg.outFileName(**variable),
+    fileName = cfg.outFileName(**variable)
+    fine_histo = histo(fileName=fileName,
                        subdir="tauTau_2jet2tag",
                        name="sum_b")
 
@@ -44,14 +45,16 @@ def make_root_file(dirName, tag=""):
     make_root_files.options.contents = True
     make_root_files.go(variable)
 
+    return fileName
 
-def plot(dirName, mass):
+
+def plot(dirName, fileName, xtitle, mass):
     print "  (plotting histograms)"
     cmd = " ".join(["cd %s && " % dirName,
                     "../compareDataCards.py",
-                    "--xtitle=BDT%3d" % mass,
-                    "--file1=Brown/BDT.root",
-                    "--file2=Brown/BDT.root",
+                    "--xtitle=%s" % xtitle,
+                    "--file1=%s" % fileName,
+                    "--file2=%s" % fileName,
                     "--masses=%3d" % mass,
                     ])
     os.system(cmd)
@@ -87,10 +90,12 @@ def go(suffix="normal.root"):
                 continue
 
             cfg._stem = "%s/%s" % (cfg.bdtDir, fileName.replace(suffix, "%s.root"))
-            dirName = fileName.replace("combined", bdt).replace("_%s" % suffix, "")
-            make_root_file(dirName, tag="%3d" % mass)
-            plot(dirName, mass)
-            compute_limit(mass, dirName)
+
+            tag = "%3d" % mass
+            dirOut = fileName.replace("combined", bdt).replace("_%s" % suffix, "")
+            fileName = make_root_file(dirOut, tag=tag)
+            plot(dirOut, fileName, xtitle=bdt+tag, mass=mass)
+            compute_limit(mass, dirOut)
 
 
 if __name__ == "__main__":
