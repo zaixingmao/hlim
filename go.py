@@ -169,7 +169,7 @@ if __name__ == "__main__":
         args = "--update-all --config=%s" % new
         #args += " -a plain"
         args += " -a bbb --new-merging --new-merging-threshold 0.5"
-        cmd = "python %s/scripts/doHTohh.py --label='%s' %s" % (base, label, args)
+        cmd = "python %s/scripts/doHTohh.py --label='%s' %s %s" % (base, label, args, options.masses)
         os.system("cd %s && %s" % (cmssw_src, cmd))
 
 
