@@ -254,7 +254,9 @@ def describe(h, l, keys):
     print
 
 
-def printHeader(var="", cuts=[], **_):
+def printHeader(var="", cuts=[], tag="", **_):
+    if tag:
+        var += " (%s)" % tag
     desc = "| %s;   %s |" % (var, str(cuts))
     h = "-" * len(desc)
     print h
@@ -271,7 +273,7 @@ def printTag(tag, l):
     print l, a
 
 
-def go(var={}, sFactor=None, sKey=""):
+def go(var={}, sFactor=0, sKey=""):
     assert var
     printHeader(**var)
 
