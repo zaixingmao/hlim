@@ -16,14 +16,11 @@ def histo(fileName, subdir="", name=""):
     return h
 
 
-def make_root_file(dirName, tag=""):
+def make_root_file(dirName, fileName, variable):
     # print dirName
     os.system("rm -rf %s" % dirName)
     os.system("mkdir %s" % dirName)
     print "  (making .root file)"
-
-    variable = cfg.variable()
-    variable["tag"] = tag  # used in filename
 
     # make histograms with very fine binning
     make_root_files.options.integrals = False
@@ -33,7 +30,6 @@ def make_root_file(dirName, tag=""):
     make_root_files.go(variable)
 
     # then choose a coarser binning
-    fileName = cfg.outFileName(**variable)
     fine_histo = histo(fileName=fileName,
                        subdir="tauTau_2jet2tag",
                        name="sum_b")
@@ -44,8 +40,6 @@ def make_root_file(dirName, tag=""):
     # make histograms with this binning
     make_root_files.options.contents = True
     make_root_files.go(variable)
-
-    return fileName
 
 
 def plot(dirName, fileName, xtitle, mass):
@@ -60,13 +54,13 @@ def plot(dirName, fileName, xtitle, mass):
     os.system(cmd)
 
 
-def compute_limit(mass, dirName):
+def compute_limit(dirName, fileName, mass):
     cats = cfg.cats()
     workDir = cfg.workDir()
     print "  (running limit)"
     args = ["cd %s &&" % workDir,
             "./go.py",
-            "--file=%s" % cfg.outFileName(var=bdt, cuts={}),
+            "--file=%s" % fileName,
             "--full",
             "--postfitonlyone",
             "--masses='%s'" % mass,
@@ -85,17 +79,20 @@ def compute_limit(mass, dirName):
 
 def go(suffix="normal.root"):
     for mass in cfg.masses_spin0:
-        for fileName in os.listdir(cfg.bdtDir):
-            if ("_H%3d_%s" % (mass, suffix)) not in fileName:
+        for fileIn in os.listdir(cfg.bdtDir):
+            if ("_H%3d_%s" % (mass, suffix)) not in fileIn:
                 continue
 
-            cfg._stem = "%s/%s" % (cfg.bdtDir, fileName.replace(suffix, "%s.root"))
+            cfg._stem = "%s/%s" % (cfg.bdtDir, fileIn.replace(suffix, "%s.root"))
 
-            tag = "%3d" % mass
-            dirOut = fileName.replace("combined", bdt).replace("_%s" % suffix, "")
-            fileName = make_root_file(dirOut, tag=tag)
-            plot(dirOut, fileName, xtitle=bdt+tag, mass=mass)
-            compute_limit(mass, dirOut)
+            variable = cfg.variable()
+            variable["tag"] = "%3d" % mass
+            fileOut = cfg.outFileName(**variable)
+
+            dirOut = fileIn.replace("combined", bdt).replace("_%s" % suffix, "")
+            make_root_file(dirOut, fileOut, variable)
+            plot(dirOut, fileOut, xtitle=bdt+variable["tag"], mass=mass)
+            compute_limit(dirOut, fileOut, mass)
 
 
 if __name__ == "__main__":
