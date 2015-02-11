@@ -5,34 +5,44 @@ import os
 import sys
 import make_root_files
 import determine_binning
+import ROOT as r
 
 
-def make_root_file(dirName):
-    fineBins = (1000, -1.0, 1.0)
+def histo(fileName, subdir="", name=""):
+    f = r.TFile(fileName)
+    h = f.Get("%s/%s" % (subdir, name)).Clone()
+    h.SetDirectory(0)
+    f.Close()
+    return h
 
+
+def make_root_file(dirName, tag=""):
     # print dirName
     os.system("rm -rf %s" % dirName)
     os.system("mkdir %s" % dirName)
     print "  (making .root file)"
 
-    cfg._bdtBins = fineBins
+    variable = cfg.variable()
+    variable["tag"] = tag  # used in filename
 
     # make histograms with very fine binning
     make_root_files.options.integrals = False
     make_root_files.options.contents = False
     make_root_files.options.unblind = unblind
-    make_root_files.go(cfg.variable())
+    variable["bins"] = (1000, -1.0, 1.0)
+    make_root_files.go(variable)
 
     # then choose a coarser binning
-    # cfg._bdtBins = determine_binning.fixed_width()
-    cfg._bdtBins = determine_binning.variable_width()
+    fine_histo = histo(fileName=cfg.outFileName(**variable),
+                       subdir="tauTau_2jet2tag",
+                       name="sum_b")
+
+    # variable["bins"] = determine_binning.fixed_width(fine_histo)
+    variable["bins"] = determine_binning.variable_width(fine_histo)
 
     # make histograms with this binning
     make_root_files.options.contents = True
-    make_root_files.go(cfg.variable())
-
-    # replace fine bins for next mass point
-    cfg._bdtBins = fineBins
+    make_root_files.go(variable)
 
 
 def plot(dirName, mass):
@@ -78,7 +88,7 @@ def go(suffix="normal.root"):
 
             cfg._stem = "%s/%s" % (cfg.bdtDir, fileName.replace(suffix, "%s.root"))
             dirName = fileName.replace("combined", bdt).replace("_%s" % suffix, "")
-            make_root_file(dirName)
+            make_root_file(dirName, tag="%3d" % mass)
             plot(dirName, mass)
             compute_limit(mass, dirName)
 
