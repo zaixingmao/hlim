@@ -215,6 +215,10 @@ def checkSamples(tree, fileName=".root file", variable="", category=""):
         else:
             extra.append(proc)
 
+    for key in xs.keys():
+        if not cfg.reportExtra(key):
+            del xs[key]
+
     report([(xs.keys(), "Samples in %s but not procs():" % fileName),
             (extra, "Samples in procs() but not %s:" % fileName),
             ])
