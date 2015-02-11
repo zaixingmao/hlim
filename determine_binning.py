@@ -1,16 +1,6 @@
 #!/usr/bin/env python
 
 import math
-import cfg
-import ROOT as r
-
-
-def histo(fileName, subdir="", name=""):
-    f = r.TFile(fileName)
-    h = f.Get("%s/%s" % (subdir, name)).Clone()
-    h.SetDirectory(0)
-    f.Close()
-    return h
 
 
 def bin_search(h, rargs=(), threshold=None, iBinMax=None):
@@ -39,14 +29,7 @@ def binning(h, width, xn_l, x1_r):
     return (1 + nbins, xn_l - nbins * width, xn_l + width)
 
 
-def fine_histo():
-    d = cfg.variable()
-    fileName = cfg.outFileName(var=d["var"], cuts=d["cuts"])
-    return histo(fileName, subdir="tauTau_2jet2tag", name="sum_b")
-
-
-def fixed_width(width=0.1, threshold_r=0.2, threshold_l=0.1):
-    h = fine_histo()
+def fixed_width(h=None, width=0.1, threshold_r=0.2, threshold_l=0.1):
     iBin = bin_search(h, rargs=(1 + h.GetNbinsX(), 0, -1), threshold=threshold_r)
     xn_l = h.GetBinLowEdge(iBin)
 
@@ -56,13 +39,12 @@ def fixed_width(width=0.1, threshold_r=0.2, threshold_l=0.1):
     return binning(h, width, xn_l, x1_r)
 
 
-def variable_width(minWidth=0.1, threshold=0.2, debug=False):
+def variable_width(h=None, minWidth=0.1, threshold=0.2, debug=False):
     if debug:
         header = "   ".join(["iBin", "%6s" % "x", "delta", "low_edges"])
         print header
         print "-" * len(header)
 
-    h = fine_histo()
     iBin = 1 + h.GetNbinsX()
     low_edges = []
 
