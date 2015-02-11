@@ -121,6 +121,7 @@ def isSignal(proc):
 
 
 def reportExtra(proc):
+    # don't report about MC DY and W, which are typically not used
     if proc.startswith("DY") and proc.endswith("JetsToLL"):
         return False
     if proc.startswith("W") and proc.endswith("JetsToLNu"):
