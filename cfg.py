@@ -159,7 +159,7 @@ def mkdir(path):
             raise e
 
 
-def outFileName(sFactor=0, sKey="", var="", cuts={}):
+def outFileName(sFactor=0, sKey="", var="", cuts={}, **_):
     stem = root_dest + "/"
     mkdir(stem)
 
