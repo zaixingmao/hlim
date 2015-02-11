@@ -5,8 +5,7 @@ import os
 import ROOT as r
 
 
-d = cfg.variable()
-br = cfg.outFileName(var=d["var"], cuts=d["cuts"])
+br = cfg.outFileName(**cfg.variable())
 it = "%s/src/auxiliaries/shapes/Italians/htt_tt.inputs-Hhh-8TeV_m_ttbb_kinfit_KinFitConvergedWithMassWindow.root" % os.environ["CMSSW_BASE"]
 
 print br
