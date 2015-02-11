@@ -271,14 +271,9 @@ def printTag(tag, l):
     print l, a
 
 
-def go(sFactor=None, sKey="", bins=None, var="", cuts=None, masses=[]):
+def go(sFactor=None, sKey="", bins=None, var="", cuts=None):
     assert var
     printHeader(var, cuts)
-
-    hArgs = {"bins": bins,
-             "variable": var,
-             "cuts": cuts,
-             }
 
     l = " " * 4
 
@@ -289,7 +284,7 @@ def go(sFactor=None, sKey="", bins=None, var="", cuts=None, masses=[]):
              }
     f = r.TFile(cfg.outFileName(**oArgs), "RECREATE")
     for category, tag in cfg.categories.iteritems():
-        hs = histos(category=category, **hArgs)
+        hs = histos(category=category, bins=bins, variable=var, cuts=cuts)
         if options.integrals or options.xs or options.contents:
             printTag(tag, l)
         f.mkdir(tag).cd()
@@ -385,17 +380,6 @@ def fakeDataset(hs, sKey, sFactor, l):
     return d
 
 
-def loop():
-    masses = cfg.masses_spin0
-    for spec in cfg.variables():
-        for mInj in masses[:1]:
-            for sFactor in [0, 1, 2, 4][:1]:
-                go(sFactor=sFactor,
-                   sKey="H2hh%3d" % mInj,
-                   masses=masses,
-                   **spec)
-
-
 def opts():
     parser = optparse.OptionParser()
 
@@ -457,7 +441,7 @@ r.gROOT.SetBatch(True)
 r.gErrorIgnoreLevel = 2000
 
 if __name__ == "__main__":
-    loop()
+    go(**cfg.variable())
 else:
     for item in ["allowMultiXs", "integrals", "unblind", "sumb", "shift"]:
         setattr(options, item, True)
