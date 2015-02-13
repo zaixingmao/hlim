@@ -13,10 +13,10 @@ masses_spin2 = [500, 700]
 categories = {#"MM_LM": "tauTau_2jet2tag",
               "2M": "tauTau_2jet2tag",
               "1M": "tauTau_2jet1tag",
-              "0M": "tauTau_2jet0tag",
+              # "0M": "tauTau_2jet0tag",
               }
 
-bdtDir = "root/bdt/7"
+bdtDir = "root/bdt/8"
 # WARNING: this variable gets modified by multi-bdt.py
 _stem = "root/cb/5/combined_iso1.0_one1To4_iso_%s__withDYEmbed_massWindow.root"
 
@@ -57,6 +57,7 @@ def procs(variable="", category=""):
            #"ZTT": ["DY1JetsToLL", "DY2JetsToLL", "DY3JetsToLL", "DY4JetsToLL"],
            "ZTT": ["DY_embed", "-tt_embed"],
            "*singleT": ["t", "tbar"],
+           "*ZLL": ["ZLL"],
            "QCD": ["dataOSRelax", "-MCOSRelax"],
            "data_obs": ["dataOSTight"],
            ## fakes below
@@ -72,11 +73,6 @@ def procs(variable="", category=""):
     for p in fakeSignalList():
         out[p] = [p]
 
-    if variable == "BDT":
-        out["ZLL"] = ["ZLL"]
-    else:
-        out["*ZLL"] = ["ZLL"]
-
     if category == "0M":
         out["W"] = ["W1JetsToLNu", "W2JetsToLNu", "W3JetsToLNu", "W4JetsToLNu"]
     return out
@@ -86,10 +82,9 @@ def procs2(variable="", category=""):
     """first character '*' means unit normalize and then use factor"""
     assert variable
     assert category
-    out = {"VV": ["*VV", "*singleT"]}
-    if variable != "BDT":
-        out["ZLL"] = ["*ZLL"]
-    return out
+    return {"VV": ["*VV", "*singleT"],
+            "ZLL": ["*ZLL"],
+            }
 
 
 def fakeSignalList():
@@ -149,8 +144,8 @@ def variable():
     ##  or
     ## a list of bin lower edges
 
-    out = {"var": "fMassKinFit", "bins": fm_bins_tt, "cuts": mass_windows}
-    #out = {"var": "BDT", "bins": (7, -0.6, 0.1), "cuts": preselection}
+    #out = {"var": "fMassKinFit", "bins": fm_bins_tt, "cuts": mass_windows}
+    out = {"var": "BDT", "bins": (7, -0.6, 0.1), "cuts": preselection}
     return out
 
 
