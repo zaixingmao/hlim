@@ -144,10 +144,10 @@ if __name__ == "__main__":
                         ])
         # print cmd
         os.system(cmd)
-        if options.BDT:
-            tmp = "%s/LIMITS-tmp/tt" % cmssw_src
-            os.system("mkdir -p %s/" % tmp)
-            os.system("cp -rf %s/tt/* %s/" % (lim, tmp))
+        # if options.BDT:
+        #     tmp = "%s/LIMITS-tmp/tt" % cmssw_src
+        #     os.system("mkdir -p %s/" % tmp)
+        #     os.system("cp -rf %s/tt/* %s/" % (lim, tmp))
         os.system("rm -rf %s" % lim)
         os.system("mkdir -p %s" % lim)
         os.system(" ".join(["setup-Hhh.py",
@@ -186,8 +186,9 @@ if __name__ == "__main__":
     if options.plots:
         layouts = "%s/python/layouts" % base
         plotcommon = "%s/tt/ masspoints='%s'" % (lim, " ".join(masses))
-        if options.BDT and masses == ['350']:
-            plotcommon = "%s/ masspoints='%s'" % (tmp, "260 270 280 290 300 310 320 330 340 350")
+        # if options.BDT and masses == ['350']:
+        #     mm = "260 270 280 290 300 310 320 330 340 350"
+        #     plotcommon = "%s/ masspoints='%s'" % (tmp, mm)
 
         os.system(" ".join(["plot",
                             "--max-likelihood",
