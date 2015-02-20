@@ -13,7 +13,7 @@ masses_spin2 = [500, 700]
 categories = {#"MM_LM": "tauTau_2jet2tag",
               "2M": "tauTau_2jet2tag",
               "1M": "tauTau_2jet1tag",
-              # "0M": "tauTau_2jet0tag",
+              "0M": "tauTau_2jet0tag",
               }
 
 bdtDir = "root/bdt/8"
@@ -75,6 +75,8 @@ def procs(variable="", category=""):
 
     if category == "0M":
         out["W"] = ["W1JetsToLNu", "W2JetsToLNu", "W3JetsToLNu", "W4JetsToLNu"]
+
+    checkProcs(out)
     return out
 
 
@@ -144,8 +146,7 @@ def variable():
     ##  or
     ## a list of bin lower edges
 
-    #out = {"var": "fMassKinFit", "bins": fm_bins_tt, "cuts": mass_windows}
-    out = {"var": "BDT", "bins": (7, -0.6, 0.1), "cuts": preselection}
+    out = {"var": "fMassKinFit", "bins": fm_bins_tt, "cuts": mass_windows}
     return out
 
 
@@ -183,29 +184,29 @@ def cutDesc(cuts):
     return "_".join(descs)
 
 
-def complain():
-    if __fakeSignals:
-        print "FIXME: include", sorted(__fakeSignals.keys())
-
+def checkProcs(d):
     fakeBkgs = []
-    for cat in categories.keys():
-        var = variable()["var"]
-        lst = []
-        for k, v in procs(var, cat).iteritems():
-            if type(v) != list:
-                sys.exit("ERROR: type of '%s' is not list." % str(v))
-            else:
-                lst += v
+    lst = []
+    for k, v in d.iteritems():
+        if type(v) != list:
+            sys.exit("ERROR: type of '%s' is not list." % str(v))
+        else:
+            lst += v
 
-            if len(v) == 1 and v[0] == k and k not in fakeSignalList():  # FIXME: condition is imperfect
-                fakeBkgs.append(k)
+        if len(v) == 1 and v[0] == k and k not in fakeSignalList():  # FIXME: condition is imperfect
+            fakeBkgs.append(k)
 
-        if len(set(lst)) != len(lst):
-            sys.exit("ERROR: procs values has duplicates: %s." % str(sorted(lst)))
+    if len(set(lst)) != len(lst):
+        sys.exit("ERROR: procs values has duplicates: %s." % str(sorted(lst)))
 
     fakeBkgs = list(set(fakeBkgs))
     if fakeBkgs:
         print "FIXME: include", sorted(fakeBkgs)
 
+
+
+def complain():
+    if __fakeSignals:
+        print "FIXME: include", sorted(__fakeSignals.keys())
 
 complain()
