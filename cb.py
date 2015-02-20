@@ -1,11 +1,15 @@
 #!/usr/bin/env python
 
 import cfg
+import root_dest
 import os
 
 if __name__ == "__main__":
     cats = cfg.cats()
     workDir = cfg.workDir()
+    d = cfg.variable()
+
+    root_dest.copy(src=cfg.outFileName(var=d["var"], cuts=d["cuts"]), link=True)
 
     cmd = " ".join(["cd %s &&" % workDir,
                     "./go.py",
@@ -22,7 +26,6 @@ if __name__ == "__main__":
     # for cat in cats.split():
     #     files.append("../test/tauTau_2jet%stag_prefit_8TeV_LIN.pdf" % cat)
 
-    d = cfg.variable()
     dirName = "%s_%s" % (d["var"], cfg.cutDesc(d["cuts"]))
     os.system("rm -rf %s" % dirName)
     os.system("mkdir %s" % dirName)
