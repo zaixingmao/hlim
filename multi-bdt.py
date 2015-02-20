@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 import cfg
-from root_dest import root_dest
+import root_dest
 import os
 import sys
 import make_root_files
@@ -77,19 +77,6 @@ def compute_limit(dirName, fileName, mass):
         os.system("cp -p %s/%s %s/" % (workDir, f, dirName))
 
 
-def copy(src="", dest="", link=False):
-    try:
-        os.remove(dest)
-    except OSError as e:
-        if e.errno != 2:
-            print e
-            sys.exit(1)
-    if link:
-        os.system("ln -s %s %s" % (src, dest))
-    else:
-        os.system("cp -p %s %s" % (src, dest))
-
-
 def go(suffix="normal.root"):
     variable = {"var": "BDT",
                 #"bins": (7, -0.6, 0.1),
@@ -108,12 +95,7 @@ def go(suffix="normal.root"):
 
             dirOut = fileIn.replace("combined", variable["var"]).replace("_%s" % suffix, "")
             make_root_file(dirOut, fileOut, variable)
-
-            # remove and link root file
-            copy(src=os.path.abspath(fileOut).replace(root_dest + "/", ""),
-                 dest="%s/%s" % (root_dest, "htt_tt.inputs-Hhh-8TeV.root"),
-                 link=True)
-
+            root_dest.copy(src=fileOut, link=True)
             plot(dirOut, fileOut, xtitle=variable["var"]+variable["tag"], mass=mass)
             compute_limit(dirOut, fileOut, mass)
 
