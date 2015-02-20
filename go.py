@@ -102,6 +102,8 @@ if __name__ == "__main__":
                 ]
         if options.BDT:
             seds.append("sed s@'tt_categories_8TeV = 0 1 2'@'tt_categories_8TeV = 1 2'@")
+        # if options.alsoObs:
+        #     seds.append("sed s@'^blind'@'unblind'@")
         os.system("cat %s | %s > %s" % (old, " | ".join(seds), new))
 
         args = "--update-all --config=%s" % new
