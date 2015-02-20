@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 import cfg
+import root_dest
 import os
 import sys
 import make_root_files
@@ -60,7 +61,6 @@ def compute_limit(dirName, fileName, mass):
     print "  (running limit)"
     args = ["cd %s &&" % workDir,
             "./go.py",
-            "--file=%s" % fileName,
             "--full",
             "--postfitonlyone",
             "--masses='%s'" % mass,
@@ -78,6 +78,11 @@ def compute_limit(dirName, fileName, mass):
 
 
 def go(suffix="normal.root"):
+    variable = {"var": "BDT",
+                #"bins": (7, -0.6, 0.1),
+                "cuts": {},
+                }
+
     for mass in cfg.masses_spin0:
         for fileIn in os.listdir(cfg.bdtDir):
             if ("_H%3d_%s" % (mass, suffix)) not in fileIn:
@@ -85,23 +90,18 @@ def go(suffix="normal.root"):
 
             cfg._stem = "%s/%s" % (cfg.bdtDir, fileIn.replace(suffix, "%s.root"))
 
-            variable = cfg.variable()
             variable["tag"] = "%3d" % mass
             fileOut = cfg.outFileName(**variable)
 
-            dirOut = fileIn.replace("combined", bdt).replace("_%s" % suffix, "")
+            dirOut = fileIn.replace("combined", variable["var"]).replace("_%s" % suffix, "")
             make_root_file(dirOut, fileOut, variable)
-            plot(dirOut, fileOut, xtitle=bdt+variable["tag"], mass=mass)
+            root_dest.copy(src=fileOut, link=True)
+            plot(dirOut, fileOut, xtitle=variable["var"]+variable["tag"], mass=mass)
             compute_limit(dirOut, fileOut, mass)
 
 
 if __name__ == "__main__":
-    bdt = "BDT"
     unblind = False
-    if cfg.variable()["var"] != bdt:
-        sys.exit("FATAL: please edit cfg.variable() to use 'BDT'.")
-
     if not unblind:
         print "BLIND!"
-
     go()
