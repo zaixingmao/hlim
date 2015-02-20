@@ -16,7 +16,7 @@ categories = {#"MM_LM": "tauTau_2jet2tag",
               # "0M": "tauTau_2jet0tag",
               }
 
-bdtDir = "root/bdt/8"
+bdtDir = "/nfs_scratch/zmao/samples_Iso/datacard/bdt_new/"
 # WARNING: this variable gets modified by multi-bdt.py
 _stem = "root/cb/5/combined_iso1.0_one1To4_iso_%s__withDYEmbed_massWindow.root"
 
