@@ -21,12 +21,6 @@ def opts():
                       help="list of categories",
                       )
 
-    parser.add_option("--cards0",
-                      dest="cards0",
-                      default=False,
-                      action="store_true",
-                      help="remove and recreate data cards (old method)")
-
     parser.add_option("--cards",
                       dest="cards",
                       default=False,
@@ -69,12 +63,6 @@ def opts():
                       action="store_true",
                       help="--cards --fits --plots --postfit")
 
-    parser.add_option("--file",
-                      dest="file",
-                      default="",
-                      metavar="x.root",
-                      help=" required!!")
-
     parser.add_option("--BDT",
                       dest="BDT",
                       default=False,
@@ -82,33 +70,11 @@ def opts():
                       help="move limit results to LIMITS-tmp")
 
     options, args = parser.parse_args()
-    if not options.file:
-        print "--file is required."
-        sys.exit(1)
-
-    file2 = os.path.expanduser(options.file)
-    if not os.path.exists(file2):
-        print "--file is required to exist (%s does not)." % file2
-        sys.exit(1)
-
     if options.full:
         for item in ["cards", "fits", "plots", "postfit"]:
             setattr(options, item, True)
 
     return options 
-
-
-def copy(src="", dest="", link=False):
-    try:
-        os.remove(dest)
-    except OSError as e:
-        if e.errno != 2:
-            print e
-            sys.exit(1)
-    if link:
-        os.system("ln -s %s %s" % (src, dest))
-    else:
-        os.system("cp -p %s %s" % (src, dest))
 
 
 if __name__ == "__main__":
@@ -123,38 +89,10 @@ if __name__ == "__main__":
     label = "v1"
     lim = "%s/LIMITS%s/bbb/" % (cmssw_src, label)
 
-    # remove and create file and link
-    fName = "htt_tt.inputs-Hhh-8TeV.root"
-    src = os.path.abspath(options.file).replace(root_dest + "/", "")
-    copy(src=src, dest="%s/%s" % (root_dest, fName), link=True)
-
-    if options.cards0:
-        inDir = "%s/setup-Hhh" % base
-        copy(src=os.path.abspath(options.file), dest="%s/tt/%s" % (inDir, fName), link=True)
-
-        dc = "%s/dc" % cmssw_src
-        common = "--channels=tt --Hhh-categories-tt='%s' --periods=8TeV %s" % (options.categories, options.masses)
-
-        os.system("rm -rf %s" % dc)
-        cmd = " ".join(["setup-datacards.py",
-                        "--in=%s" % inDir,
-                        "--out="+dc,
-                        "--analysis=Hhh",
-                        common,
-                        ])
-        # print cmd
-        os.system(cmd)
-        # if options.BDT:
-        #     tmp = "%s/LIMITS-tmp/tt" % cmssw_src
-        #     os.system("mkdir -p %s/" % tmp)
-        #     os.system("cp -rf %s/tt/* %s/" % (lim, tmp))
-        os.system("rm -rf %s" % lim)
-        os.system("mkdir -p %s" % lim)
-        os.system(" ".join(["setup-Hhh.py",
-                            "--in=%s" % dc,
-                            "--out=%s" % lim,
-                            common,
-                            ]))
+    if options.BDT:
+        tmp = "%s/LIMITS-tmp/tt" % cmssw_src
+        os.system("mkdir -p %s/" % tmp)
+        os.system("cp -rf %s/tt/* %s/" % (lim, tmp))
 
     if options.cards:
         old = "%s/data/limits.config-Hhh" % base
@@ -186,9 +124,9 @@ if __name__ == "__main__":
     if options.plots:
         layouts = "%s/python/layouts" % base
         plotcommon = "%s/tt/ masspoints='%s'" % (lim, " ".join(masses))
-        # if options.BDT and masses == ['350']:
-        #     mm = "260 270 280 290 300 310 320 330 340 350"
-        #     plotcommon = "%s/ masspoints='%s'" % (tmp, mm)
+        if options.BDT and masses == ['350']:
+            mm = "260 270 280 290 300 310 320 330 340 350"
+            plotcommon = "%s/ masspoints='%s'" % (tmp, mm)
 
         os.system(" ".join(["plot",
                             "--max-likelihood",
@@ -200,7 +138,7 @@ if __name__ == "__main__":
                             "--asymptotic",
                             "%s/limit-mssm-ggHTohh.py" % layouts,
                             plotcommon,
-                            "" if options.alsoObs else "expectedOnly=True",
+                            #"" if options.alsoObs else "expectedOnly=True",
                             ]))
 
         #os.system(" ".join(["plot",
