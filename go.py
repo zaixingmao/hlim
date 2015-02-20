@@ -134,12 +134,16 @@ if __name__ == "__main__":
                             plotcommon,
                             ]))
 
-        os.system(" ".join(["plot",
-                            "--asymptotic",
-                            "%s/limit-mssm-ggHTohh.py" % layouts,
-                            plotcommon,
-                            #"" if options.alsoObs else "expectedOnly=True",
-                            ]))
+        old = "%s/limit-mssm-ggHTohh.py" % layouts
+        new = old.replace(".py", "2.py")
+
+        if options.alsoObs:
+            seds = ["sed s@'expectedOnly = cms.bool(True),'@'expectedOnly = cms.bool(False),'@"]
+        else:
+            seds = ["sed s@'expectedOnly = cms.bool(False),'@'expectedOnly = cms.bool(True),'@"]
+
+        os.system("cat %s | %s > %s" % (old, " | ".join(seds), new))
+        os.system(" ".join(["plot", "--asymptotic", new, plotcommon]))
 
         #os.system(" ".join(["plot",
         #                    "--significance-frequentist",
