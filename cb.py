@@ -14,8 +14,7 @@ if __name__ == "__main__":
     cmd = " ".join(["cd %s &&" % workDir,
                     "./go.py",
                     "--full",
-                    "--postfitonlyone",
-                    #"--alsoObs",
+                    "--alsoObs",
                     "--masses='%s'" % " ".join(["%s" % x for x in cfg.masses_spin0]),
                     "--categories='%s'" % cats,
                     ])
