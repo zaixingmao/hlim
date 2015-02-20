@@ -166,12 +166,16 @@ if __name__ == "__main__":
             seds.append("sed s@'tt_categories_8TeV = 0 1 2'@'tt_categories_8TeV = 1 2'@")
         os.system("cat %s | %s > %s" % (old, " | ".join(seds), new))
 
+        if options.BDT:
+            tmp = "%s/LIMITS-tmp/tt" % cmssw_src
+            os.system("mkdir -p %s/" % tmp)
+            os.system("cp -rf %s/tt/* %s/" % (lim, tmp))
+
         args = "--update-all --config=%s" % new
         #args += " -a plain"
         args += " -a bbb --new-merging --new-merging-threshold 0.5"
         cmd = "python %s/scripts/doHTohh.py --label='%s' %s %s" % (base, label, args, options.masses)
         os.system("cd %s && %s" % (cmssw_src, cmd))
-
 
     if options.fits:
         for mass in masses:
