@@ -2,7 +2,7 @@
 
 import os
 import sys
-from root_dest import root_dest
+import root_dest
 
 
 def opts():
@@ -90,9 +90,8 @@ if __name__ == "__main__":
     lim = "%s/LIMITS%s/bbb/" % (cmssw_src, label)
 
     if options.BDT:
-        tmp = "%s/LIMITS-tmp/tt" % cmssw_src
-        os.system("mkdir -p %s/" % tmp)
-        os.system("cp -rf %s/tt/* %s/" % (lim, tmp))
+        os.system("mkdir -p %s/" % root_dest.bdt_tmp)
+        os.system("cp -rf %s/tt/* %s/" % (lim, root_dest.bdt_tmp))
 
     if options.cards:
         old = "%s/data/limits.config-Hhh" % base
@@ -128,7 +127,7 @@ if __name__ == "__main__":
         plotcommon = "%s/tt/ masspoints='%s'" % (lim, " ".join(masses))
         if options.BDT and masses == ['350']:
             mm = "260 270 280 290 300 310 320 330 340 350"
-            plotcommon = "%s/ masspoints='%s'" % (tmp, mm)
+            plotcommon = "%s/ masspoints='%s'" % (root_dest.bdt_tmp, mm)
 
         os.system(" ".join(["plot",
                             "--max-likelihood",
