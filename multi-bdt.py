@@ -24,9 +24,13 @@ def make_root_file(dirName, fileName, variable):
     print "  (making .root file)"
 
     # make histograms with very fine binning
+    make_root_files.ugly_setup()
     make_root_files.options.integrals = False
     make_root_files.options.contents = False
-    make_root_files.options.unblind = unblind
+    make_root_files.options.unblind = options.unblind
+    if not options.unblind:
+        print "BLIND!"
+
     variable["bins"] = (1000, -1.0, 1.0)
     make_root_files.go(variable)
 
@@ -94,14 +98,33 @@ def go(suffix="normal.root"):
             fileOut = cfg.outFileName(**variable)
 
             dirOut = fileIn.replace("combined", variable["var"]).replace("_%s" % suffix, "")
-            make_root_file(dirOut, fileOut, variable)
+            if not options.reuse:
+                make_root_file(dirOut, fileOut, variable)
             root_dest.copy(src=fileOut, link=True)
             plot(dirOut, fileOut, xtitle=variable["var"]+variable["tag"], mass=mass)
             compute_limit(dirOut, fileOut, mass)
 
 
+def opts():
+    import optparse
+    parser = optparse.OptionParser()
+
+    parser.add_option("--unblind",
+                      dest="unblind",
+                      default=False,
+                      action="store_true",
+                      help="use obs when computing expected limits")
+
+    parser.add_option("--reuse-existing-files",
+                      dest="reuse",
+                      default=False,
+                      action="store_true",
+                      help="do not call make_root_files")
+
+    options, args = parser.parse_args()
+    return options
+
+
 if __name__ == "__main__":
-    unblind = False
-    if not unblind:
-        print "BLIND!"
+    options = opts()
     go()
