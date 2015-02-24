@@ -87,6 +87,9 @@ def go(suffix="normal.root"):
                 "cuts": {},
                 }
 
+    # clean up previous results
+    os.system("rm -rf %s" % root_dest.bdt_tmp)
+
     for mass in cfg.masses_spin0:
         for fileIn in os.listdir(cfg.bdtDir):
             if ("_H%3d_%s" % (mass, suffix)) not in fileIn:
