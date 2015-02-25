@@ -189,7 +189,8 @@ def checkSamples(tree, fileName=".root file", variable="", category=""):
     for iEntry in range(tree.GetEntries()):
         tree.GetEntry(iEntry)
         sn = tree.sampleName
-        sn = sn[:sn.find("\x00")]
+        if sn.find("\x00") != -1:
+            sn = sn[:sn.find("\x00")]
         xs[sn].add(tree.xs)
         ini[sn].add(tree.initEvents)
 
@@ -432,16 +433,24 @@ def opts():
                       help="store sum of all backgrounds (useful for choosing binning)")
 
     options, args = parser.parse_args()
+
+    # done after opts so as not to steal --help
+    global r
+    import ROOT as r
+    r.gROOT.SetBatch(True)
+    r.gErrorIgnoreLevel = 2000
+
     return options
 
 
-options = opts()
-import ROOT as r  # placed after opts so as not to steal --help
-r.gROOT.SetBatch(True)
-r.gErrorIgnoreLevel = 2000
-
-if __name__ == "__main__":
-    go(cfg.variable())
-else:
+def ugly_setup():
+    # ugh- redesign
+    global options
+    options = opts()
     for item in ["allowMultiXs", "integrals", "unblind", "sumb", "shift"]:
         setattr(options, item, True)
+
+
+if __name__ == "__main__":
+    options = opts()
+    go(cfg.variable())

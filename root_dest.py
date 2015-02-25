@@ -7,6 +7,7 @@ if "CMSSW_BASE" not in os.environ:
 
 root_dest = "%s/src/auxiliaries/shapes/Brown" % os.environ["CMSSW_BASE"]
 
+bdt_tmp = "%s/src/LIMITS-tmp/tt" % os.environ["CMSSW_BASE"]
 
 def copy(src="", link=False):
     src = os.path.abspath(src).replace(root_dest + "/", "")
