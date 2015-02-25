@@ -89,10 +89,6 @@ if __name__ == "__main__":
     label = "v1"
     lim = "%s/LIMITS%s/bbb/" % (cmssw_src, label)
 
-    if options.BDT:
-        os.system("mkdir -p %s/" % root_dest.bdt_tmp)
-        os.system("cp -rf %s/tt/* %s/" % (lim, root_dest.bdt_tmp))
-
     if options.cards:
         old = "%s/data/limits.config-Hhh" % base
         new = old + "2"
@@ -121,6 +117,10 @@ if __name__ == "__main__":
             #os.system("limit.py --significance-frequentist %s" % lim1)
             #os.system("limit.py --pvalue-frequentist %s" % lim1)
             os.system("limit.py --asymptotic %s" % lim1)
+
+    if options.BDT:
+        os.system("mkdir -p %s/" % root_dest.bdt_tmp)
+        os.system("cp -rf %s/tt/* %s/" % (lim, root_dest.bdt_tmp))
 
     if options.plots:
         layouts = "%s/python/layouts" % base
