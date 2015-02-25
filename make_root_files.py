@@ -189,7 +189,8 @@ def checkSamples(tree, fileName=".root file", variable="", category=""):
     for iEntry in range(tree.GetEntries()):
         tree.GetEntry(iEntry)
         sn = tree.sampleName
-        sn = sn[:sn.find("\x00")]
+        if sn.find("\x00") != -1:
+            sn = sn[:sn.find("\x00")]
         xs[sn].add(tree.xs)
         ini[sn].add(tree.initEvents)
 
