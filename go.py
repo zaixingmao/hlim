@@ -94,9 +94,9 @@ if __name__ == "__main__":
         new = old + "2"
         seds = ["sed s@'tt = Italians'@'tt = Brown'@",
                 "sed s@'channels = et mt tt'@'channels = tt'@",
+                "sed s@'tt_categories_8TeV = 0 1 2'@'tt_categories_8TeV = %s'@" % options.categories,
                 ]
-        if options.BDT:
-            seds.append("sed s@'tt_categories_8TeV = 0 1 2'@'tt_categories_8TeV = 1 2'@")
+
         # if options.alsoObs:
         #     seds.append("sed s@'^blind'@'unblind'@")
         os.system("cat %s | %s > %s" % (old, " | ".join(seds), new))
