@@ -115,7 +115,7 @@ def go_cb(suffix="normal.root"):
     mass = "'%s'" % " ".join(["%s" % x for x in cfg.masses_spin0])
 
     fileOut = cfg.outFileName(**variable)
-    dirOut = "foo"
+    dirOut = "%s_%s" % (variable["var"], cfg.cutDesc(variable["cuts"]))
     if not options.reuse:
         make_root_file(dirOut, fileOut, variable, ini_bins=(1000, 250.0, 1000.0))
     root_dest.copy(src=fileOut, link=True)
