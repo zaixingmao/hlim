@@ -40,7 +40,7 @@ def make_root_file(dirName, fileName, variable, ini_bins=None):
                        name="sum_b")
 
     # variable["bins"] = determine_binning.fixed_width(fine_histo)
-    variable["bins"] = determine_binning.variable_width(h=fine_histo, minWidth=0.1, threshold=0.30)
+    variable["bins"] = determine_binning.variable_width(h=fine_histo, minWidth=0.1, threshold=0.12)
 
     # make histograms with this binning
     make_root_files.options.contents = True
@@ -122,16 +122,15 @@ def go_bdt(suffix="normal.root"):
 
 def go_cb(suffix="normal.root"):
     variable = {"var": "fMassKinFit",
-                "cuts": {"mJJ": (70.0, 150.0), "svMass": (90.0, 150.0)},
+                "cuts": {"fMassKinFit": (0.0, None), "mJJ": (70.0, 150.0), "svMass": (90.0, 150.0)},
                 }
     mass = "%s" % " ".join(["%s" % x for x in cfg.masses_spin0])
 
     fileOut = cfg.outFileName(**variable)
     dirOut = "%s_%s" % (variable["var"], cfg.cutDesc(variable["cuts"]))
     if not options.reuse:
-        make_root_file(dirOut, fileOut, cfg.variable(), ini_bins=(1000, 250.0, 1000.0))
+        make_root_file(dirOut, fileOut, variable, ini_bins=(1000, 250.0, 1000.0))
     d = cfg.variable()
-    print cfg.outFileName(var=d["var"], cuts=d["cuts"])
     root_dest.copy(src=cfg.outFileName(var=d["var"], cuts=d["cuts"]), link=True)
 #     plot(dirOut, fileOut, xtitle=variable["var"], mass=cfg.masses_spin0[0])
     compute_limit(dirOut, fileOut, mass, False)
