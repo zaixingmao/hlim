@@ -40,7 +40,7 @@ def make_root_file(dirName, fileName, variable, ini_bins=None):
                        name="sum_b")
 
     # variable["bins"] = determine_binning.fixed_width(fine_histo)
-    variable["bins"] = determine_binning.variable_width(fine_histo)
+    variable["bins"] = determine_binning.variable_width(h=fine_histo, minWidth=0.1, threshold=0.30)
 
     # make histograms with this binning
     make_root_files.options.contents = True
@@ -59,18 +59,30 @@ def plot(dirName, fileName, xtitle, mass):
     os.system(cmd)
 
 
-def compute_limit(dirName, fileName, mass):
+def compute_limit(dirName, fileName, mass, BDT=True):
     cats = cfg.cats()
     workDir = cfg.workDir()
     print "  (running limit)"
-    args = ["cd %s &&" % workDir,
-            "./go.py",
-            "--full",
-            "--postfitonlyone",
-            "--masses='%s'" % mass,
-            "--categories='%s'" % cats,
-            "--BDT",
-            ]
+
+    if BDT:
+        args = ["cd %s &&" % workDir,
+                "./go.py",
+                "--full",
+                "--postfitonlyone",
+                "--masses='%s'" % mass,
+                "--categories='%s'" % cats,
+                "--BDT",
+                ]
+    else:
+
+        args = ["cd %s &&" % workDir,
+                "./go.py",
+                "--full",
+                "--alsoObs",
+                "--masses='%s'" % mass,
+                "--categories='%s'" % cats,
+                ]
+
     os.system(" ".join(args))
 
     files = ["tt_ggHTohh-limit.pdf", "tt_ggHTohh-limit.txt"]
@@ -112,15 +124,17 @@ def go_cb(suffix="normal.root"):
     variable = {"var": "fMassKinFit",
                 "cuts": {"mJJ": (70.0, 150.0), "svMass": (90.0, 150.0)},
                 }
-    mass = "'%s'" % " ".join(["%s" % x for x in cfg.masses_spin0])
+    mass = "%s" % " ".join(["%s" % x for x in cfg.masses_spin0])
 
     fileOut = cfg.outFileName(**variable)
     dirOut = "%s_%s" % (variable["var"], cfg.cutDesc(variable["cuts"]))
     if not options.reuse:
-        make_root_file(dirOut, fileOut, variable, ini_bins=(1000, 250.0, 1000.0))
-    root_dest.copy(src=fileOut, link=True)
-    plot(dirOut, fileOut, xtitle=variable["var"], mass=cfg.masses_spin0[0])
-    compute_limit(dirOut, fileOut, mass)
+        make_root_file(dirOut, fileOut, cfg.variable(), ini_bins=(1000, 250.0, 1000.0))
+    d = cfg.variable()
+    print cfg.outFileName(var=d["var"], cuts=d["cuts"])
+    root_dest.copy(src=cfg.outFileName(var=d["var"], cuts=d["cuts"]), link=True)
+#     plot(dirOut, fileOut, xtitle=variable["var"], mass=cfg.masses_spin0[0])
+    compute_limit(dirOut, fileOut, mass, False)
 
 
 def opts():
