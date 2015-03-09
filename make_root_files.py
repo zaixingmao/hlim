@@ -340,7 +340,7 @@ def sumb(hs, name="sum_b"):
     for key, histo in hs.iteritems():
         if cfg.isSignal(key):
             continue
-        if cfg.isObserved(key):
+        if cfg.isData(key):
             continue
         if key.endswith("8TeVUp") or key.endswith("8TeVDown"):
             continue
