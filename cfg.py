@@ -19,22 +19,23 @@ categories = {#"MM_LM": "tauTau_2jet2tag",
 bdtDir = "root/bdt/10"
 # WARNING: this variable gets modified by multi-bdt.py
 _stem = "root/cb/5/combined_iso1.0_one1To4_iso_%s__withDYEmbed_massWindow.root"
+_stem = "/nfs_scratch/zmao/samples_Iso/datacard_new/combined_iso1.0_one1To4_iso_%s__withDYEmbed_massWindow.root"
 
 
 def files(variable=""):
     assert variable
     s = "normal"
     return {"":                             _stem % s,
-            "_CMS_scale_t_tautau_8TeVUp":   _stem % "tauUp",
-            "_CMS_scale_t_tautau_8TeVDown": _stem % "tauDown",
-            "_CMS_scale_j_8TeVUp":   _stem % "jetUp",
-            "_CMS_scale_j_8TeVDown": _stem % "jetDown",
-            "_CMS_scale_btag_8TeVUp": _stem % "bSysUp",
-            "_CMS_scale_btag_8TeVDown": _stem % "bSysDown",
-            "_CMS_scale_btagEff_8TeVUp": _stem % "bSysUp",     # duplicate of btag
-            "_CMS_scale_btagEff_8TeVDown": _stem % "bSysDown", # duplicate of btag
-            "_CMS_scale_btagFake_8TeVUp": _stem % "bMisUp",
-            "_CMS_scale_btagFake_8TeVDown": _stem % "bMisDown",
+#             "_CMS_scale_t_tautau_8TeVUp":   _stem % "tauUp",
+#             "_CMS_scale_t_tautau_8TeVDown": _stem % "tauDown",
+#             "_CMS_scale_j_8TeVUp":   _stem % "jetUp",
+#             "_CMS_scale_j_8TeVDown": _stem % "jetDown",
+#             "_CMS_scale_btag_8TeVUp": _stem % "bSysUp",
+#             "_CMS_scale_btag_8TeVDown": _stem % "bSysDown",
+#             "_CMS_scale_btagEff_8TeVUp": _stem % "bSysUp",     # duplicate of btag
+#             "_CMS_scale_btagEff_8TeVDown": _stem % "bSysDown", # duplicate of btag
+#             "_CMS_scale_btagFake_8TeVUp": _stem % "bMisUp",
+#             "_CMS_scale_btagFake_8TeVDown": _stem % "bMisDown",
             }
 
 
@@ -100,6 +101,8 @@ def fakeSignalList():
 def isData(proc):
     return proc.startswith("data")
 
+def isObserved(proc):
+    return proc.startswith("data_obs")
 
 def isDataEmbedded(proc):
     return proc.startswith("DY_embed")  # fixme: dimuon
