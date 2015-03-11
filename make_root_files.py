@@ -244,14 +244,15 @@ def applyFactor(h=None, tfile=None, hName="", unit=False):
 
 def describe(h, l, keys):
     print l, h.GetXaxis().GetTitle(), "(sum of %s)" % str(keys)
-    headers = "bin       x         cont  +-   err    (   rel)"
+    headers = "bin    x_lo       width    cont  +-   err    (   rel)"
     print l, headers
     print l, "-" * len(headers)
     for iBinX in range(1, 1 + h.GetNbinsX()):
-        x = h.GetBinCenter(iBinX)
+        x = h.GetBinLowEdge(iBinX)
         c = h.GetBinContent(iBinX)
         e = h.GetBinError(iBinX)
-        s = " %2d   %9.2e   %7.1e +- %7.1e" % (iBinX, x, c, e)
+        w = h.GetBinWidth(iBinX)
+        s = " %2d   %9.2e   %4.2f   %7.1e +- %7.1e" % (iBinX, x, w, c, e)
         if c:
             s += "  (%5.1f%s)" % (100.*e/c, "%")
         print l, s
