@@ -40,8 +40,9 @@ def make_root_file(dirName, fileName, variable, ini_bins=None):
                        name="sum_b")
 
     # variable["bins"] = determine_binning.fixed_width(fine_histo)
-    variable["bins"] = determine_binning.variable_width(h=fine_histo, minWidth=0.1, threshold=0.12)
-
+    variable["bins"] = determine_binning.variable_width(h=fine_histo, minWidth=0.1, threshold=0.25)
+    print "binning_____"
+    print variable["bins"]
     # make histograms with this binning
     make_root_files.options.contents = True
     make_root_files.go(variable)
@@ -60,7 +61,7 @@ def plot(dirName, fileName, xtitle, mass):
 
 
 def compute_limit(dirName, fileName, mass, BDT=True):
-    cats = cfg.cats()
+    cats = '0 1'#cfg.cats()
     workDir = cfg.workDir()
     print "  (running limit)"
 
@@ -68,7 +69,8 @@ def compute_limit(dirName, fileName, mass, BDT=True):
         args = ["cd %s &&" % workDir,
                 "./go.py",
                 "--full",
-                "--postfitonlyone",
+                "--alsoObs",
+#                 "--postfitonlyone",
                 "--masses='%s'" % mass,
                 "--categories='%s'" % cats,
                 "--BDT",
@@ -132,7 +134,7 @@ def go_cb(suffix="normal.root"):
         make_root_file(dirOut, fileOut, variable, ini_bins=(1000, 250.0, 1000.0))
     d = cfg.variable()
     root_dest.copy(src=cfg.outFileName(var=d["var"], cuts=d["cuts"]), link=True)
-#     plot(dirOut, fileOut, xtitle=variable["var"], mass=cfg.masses_spin0[0])
+#    plot(dirOut, fileOut, xtitle=variable["var"], mass=cfg.masses_spin0[0])
     compute_limit(dirOut, fileOut, mass, False)
 
 
@@ -158,5 +160,5 @@ def opts():
 
 if __name__ == "__main__":
     options = opts()
-    #go_bdt()
-    go_cb()
+    go_bdt()
+    #go_cb()
