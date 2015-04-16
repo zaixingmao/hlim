@@ -61,7 +61,7 @@ def plot(dirName, fileName, xtitle, mass):
 
 
 def compute_limit(dirName, fileName, mass, BDT=True):
-    cats = '0 1'#cfg.cats()
+    cats = cfg.cats()
     workDir = cfg.workDir()
     print "  (running limit)"
 
