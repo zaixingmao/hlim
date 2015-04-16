@@ -7,7 +7,7 @@ rescaleX = False
 
 substring_signal_example = "2B350"
 
-masses_spin0 = [280]#range(260, 360, 10) #+ [500, 700]
+masses_spin0 = range(260, 360, 10) #+ [500, 700]
 masses_spin2 = [500, 700]
 
 categories = {#"MM_LM": "tauTau_2jet2tag",

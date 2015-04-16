@@ -113,15 +113,17 @@ if __name__ == "__main__":
             lim1 = "%s/tt/%s" % (lim, mass)
             lopts = ["", " --stable --rMin -5 --rMax 5"][0]
             os.system("limit.py --max-likelihood %s %s" % (lopts, lim1))
-            os.system("limit.py --likelihood-scan %s" % (lim1))
-
             os.system("cat %s/out/mlfit.txt" % lim1)
+            os.system("limit.py --likelihood-scan %s" % (lim1))
+            os.system("mv %s/higgsCombineTest.MultiDimFit*.root %s/hlim/" %(lim1, base))
+
+
             #os.system("limit.py --significance-frequentist %s" % lim1)
-            os.system("limit.py --toys 50 --expectedOnly --goodness-of-fit %s" % lim1)
-            os.system("mv %s/higgsCombineTest.GoodnessOfFit.mH%s.*.root %s/higgsCombineTest.GoodnessOfFit.mH%s.[0-9]*.root" %(lim1, mass, lim1, mass))
-            os.system("limit.py --collect --goodness-of-fit %s" % lim1)
-            os.system("limit.py --goodness-of-fit %s" % lim1)
-            os.system("limit.py --pvalue-frequentist %s" % lim1)
+#             os.system("limit.py --toys 500 --expectedOnly --goodness-of-fit %s" % lim1)
+#             os.system("mv %s/higgsCombineTest.GoodnessOfFit.mH%s.*.root %s/higgsCombineTest.GoodnessOfFit.mH%s.[0-9]*.root" %(lim1, mass, lim1, mass))
+#             os.system("limit.py --collect --goodness-of-fit %s" % lim1)
+#             os.system("limit.py --goodness-of-fit %s" % lim1)
+#             os.system("limit.py --pvalue-frequentist %s" % lim1)
             os.system("limit.py --asymptotic %s" % lim1)
 
     if options.BDT:
@@ -135,21 +137,22 @@ if __name__ == "__main__":
             mm = "260 270 280 290 300 310 320 330 340 350"
             plotcommon = "%s/ masspoints='%s'" % (root_dest.bdt_tmp, mm)
 
-        os.system(" ".join(["plot",
-                            "--max-likelihood",
-                            "%s/max-likelihood_sm.py" % layouts,
-                            plotcommon,
-                            ]))
-        os.system(" ".join(["plot",
-                            "--pvalue-frequentist",
-                            "%s/pvalue-sm.py" % layouts,
-                            plotcommon,
-                            ]))
-        os.system(" ".join(["plot",
-                            "--goodness-of-fit",
-                            "%s/goodness-of-fit.py" % layouts,
-                            plotcommon,
-                            ]))
+#         os.system(" ".join(["plot",
+#                             "--max-likelihood",
+#                             "%s/max-likelihood_sm.py" % layouts,
+#                             plotcommon,
+#                             ]))
+#         os.system(" ".join(["plot",
+#                             "--pvalue-frequentist",
+#                             "%s/pvalue-sm.py" % layouts,
+#                             plotcommon,
+#                             ]))
+# 
+#         os.system(" ".join(["plot",
+#                             "--goodness-of-fit",
+#                             "%s/goodness-of-fit.py" % layouts,
+#                             plotcommon,
+#                             ]))
 
         old = "%s/limit-mssm-ggHTohh.py" % layouts
         new = old.replace(".py", "2.py")
