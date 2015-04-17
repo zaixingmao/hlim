@@ -655,12 +655,12 @@ for directory in args :
         wsp = 'tmp' if len(model) == 0 else model[0]
 #         print "combine -M MultiDimFit -m {mass} --algo=grid {points} --rMin {min} --rMax {max} {user} {wdir}/{wsp}.root".format(
 #             mass=mass, points=gridpointsOpts, user=options.userOpt, min=options.rMin, max=options.rMax, wdir=options.workingdir, wsp=wsp)
-        print "combine -M MultiDimFit -m {mass} --algo=grid {user} --redefineSignalPOIs CMS_scale_t_tautau_8TeV {wdir}/{wsp}.root".format(
+        print "combine -M MultiDimFit -m {mass} --algo=grid {user} --redefineSignalPOIs CMS_htt_ttbarNorm_8TeV {wdir}/{wsp}.root".format(
             mass=mass, user=options.userOpt, wdir=options.workingdir, wsp=wsp)
 
 #         os.system("combine -M MultiDimFit -m {mass} --algo=grid {points} --rMin {min} --rMax {max} {user} {wdir}/{wsp}.root".format(
 #             mass=mass, points=gridpointsOpts, user=options.userOpt, min=options.rMin, max=options.rMax, wdir=options.workingdir, wsp=wsp))
-        os.system("combine -M MultiDimFit -m {mass} --algo=grid {user} --points 1000 --redefineSignalPOIs CMS_scale_t_tautau_8TeV --floatOtherPOIs 1 {wdir}/{wsp}.root".format(
+        os.system("combine -M MultiDimFit -m {mass} --algo=grid {user} --points 1000 --redefineSignalPOIs CMS_htt_ttbarNorm_8TeV --floatOtherPOIs 1 {wdir}/{wsp}.root".format(
             mass=mass, user=options.userOpt, wdir=options.workingdir, wsp=wsp))
 
     ##
