@@ -19,6 +19,7 @@ categories = {#"MM_LM": "tauTau_2jet2tag",
 bdtDir = "root/bdt/10"
 # WARNING: this variable gets modified by multi-bdt.py
 _stem = "root/cb/5/combined_iso1.0_one1To4_iso_%s__withDYEmbed_massWindow.root"
+_stem = "/nfs_scratch/zmao/samples_Iso/datacard_new/combined_iso1.0_one1To4_iso_%s__withDYEmbed_massWindow.root"
 
 
 def files(variable=""):
@@ -99,7 +100,6 @@ def fakeSignalList():
 
 def isData(proc):
     return proc.startswith("data")
-
 
 def isDataEmbedded(proc):
     return proc.startswith("DY_embed")  # fixme: dimuon

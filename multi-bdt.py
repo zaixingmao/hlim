@@ -17,7 +17,7 @@ def histo(fileName, subdir="", name=""):
     return h
 
 
-def make_root_file(dirName, fileName, variable):
+def make_root_file(dirName, fileName, variable, ini_bins=None):
     # print dirName
     os.system("rm -rf %s" % dirName)
     os.system("mkdir %s" % dirName)
@@ -31,7 +31,7 @@ def make_root_file(dirName, fileName, variable):
     if not options.unblind:
         print "BLIND!"
 
-    variable["bins"] = (1000, -1.0, 1.0)
+    variable["bins"] = ini_bins
     make_root_files.go(variable)
 
     # then choose a coarser binning
@@ -40,7 +40,7 @@ def make_root_file(dirName, fileName, variable):
                        name="sum_b")
 
     # variable["bins"] = determine_binning.fixed_width(fine_histo)
-    variable["bins"] = determine_binning.variable_width(fine_histo)
+    variable["bins"] = determine_binning.variable_width(h=fine_histo, minWidth=0.1, threshold=0.12)
 
     # make histograms with this binning
     make_root_files.options.contents = True
@@ -59,18 +59,30 @@ def plot(dirName, fileName, xtitle, mass):
     os.system(cmd)
 
 
-def compute_limit(dirName, fileName, mass):
+def compute_limit(dirName, fileName, mass, BDT=True):
     cats = cfg.cats()
     workDir = cfg.workDir()
     print "  (running limit)"
-    args = ["cd %s &&" % workDir,
-            "./go.py",
-            "--full",
-            "--postfitonlyone",
-            "--masses='%s'" % mass,
-            "--categories='%s'" % cats,
-            "--BDT",
-            ]
+
+    if BDT:
+        args = ["cd %s &&" % workDir,
+                "./go.py",
+                "--full",
+                "--postfitonlyone",
+                "--masses='%s'" % mass,
+                "--categories='%s'" % cats,
+                "--BDT",
+                ]
+    else:
+
+        args = ["cd %s &&" % workDir,
+                "./go.py",
+                "--full",
+                "--alsoObs",
+                "--masses='%s'" % mass,
+                "--categories='%s'" % cats,
+                ]
+
     os.system(" ".join(args))
 
     files = ["tt_ggHTohh-limit.pdf", "tt_ggHTohh-limit.txt"]
@@ -81,7 +93,7 @@ def compute_limit(dirName, fileName, mass):
         os.system("cp -p %s/%s %s/" % (workDir, f, dirName))
 
 
-def go(suffix="normal.root"):
+def go_bdt(suffix="normal.root"):
     variable = {"var": "BDT",
                 #"bins": (7, -0.6, 0.1),
                 "cuts": {},
@@ -102,10 +114,26 @@ def go(suffix="normal.root"):
 
             dirOut = fileIn.replace("combined", variable["var"]).replace("_%s" % suffix, "")
             if not options.reuse:
-                make_root_file(dirOut, fileOut, variable)
+                make_root_file(dirOut, fileOut, variable, ini_bins=(1000, -1.0, 1.0))
             root_dest.copy(src=fileOut, link=True)
             plot(dirOut, fileOut, xtitle=variable["var"]+variable["tag"], mass=mass)
             compute_limit(dirOut, fileOut, mass)
+
+
+def go_cb(suffix="normal.root"):
+    variable = {"var": "fMassKinFit",
+                "cuts": {"fMassKinFit": (0.0, None), "mJJ": (70.0, 150.0), "svMass": (90.0, 150.0)},
+                }
+    mass = "%s" % " ".join(["%s" % x for x in cfg.masses_spin0])
+
+    fileOut = cfg.outFileName(**variable)
+    dirOut = "%s_%s" % (variable["var"], cfg.cutDesc(variable["cuts"]))
+    if not options.reuse:
+        make_root_file(dirOut, fileOut, variable, ini_bins=(1000, 250.0, 1000.0))
+    d = cfg.variable()
+    root_dest.copy(src=cfg.outFileName(var=d["var"], cuts=d["cuts"]), link=True)
+#     plot(dirOut, fileOut, xtitle=variable["var"], mass=cfg.masses_spin0[0])
+    compute_limit(dirOut, fileOut, mass, False)
 
 
 def opts():
@@ -130,4 +158,5 @@ def opts():
 
 if __name__ == "__main__":
     options = opts()
-    go()
+    #go_bdt()
+    go_cb()
