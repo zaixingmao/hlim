@@ -103,7 +103,7 @@ def histos(bins=None, variable="", cuts={}, category=""):
                 factor = -1.0 if srcProc[0] == "-" else 1.0
                 out[destProc].Add(h, factor)
 
-        applyFactor(out["QCD" + variation], f, hName="L_to_T_SF_%s" % category, unit=False)
+        applyFactor(out["QCD" + variation], f, hName=cfg.qcd_sf_name(category), unit=False)
 
         if any(["embed" in src for src in procs.get("ZTT", [])]):
            applyFactor(out["ZTT" + variation], f, hName="MC2Embed2Cat_%s" % category, unit=(category != '0M'))
@@ -209,8 +209,6 @@ def checkSamples(tree, fileName=".root file", variable="", category=""):
     for proc in sum(cfg.procs(variable, category).values(), []):
         if proc and proc[0] == "-":
             proc = proc[1:]
-        if proc in cfg.fakeSignalList():
-            continue  # warning is done in cfg.complain()
         if proc in xs:
             del xs[proc]
         else:
