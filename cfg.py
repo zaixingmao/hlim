@@ -2,7 +2,7 @@ import os
 import sys
 from root_dest import root_dest
 
-lumi     = 19.7   # /fb
+lumi     = 40.0e-3   # /fb
 rescaleX = False
 
 substring_signal_example = "2B350"
@@ -10,72 +10,54 @@ substring_signal_example = "2B350"
 masses_spin0 = [260,270,280]#range(260, 360, 10) #+ [500, 700]
 masses_spin2 = [500, 700]
 
-categories = {#"MM_LM": "tauTau_2jet2tag",
-              "2M": "tauTau_2jet2tag",
-              "1M": "tauTau_2jet1tag",
-              "0M": "tauTau_2jet0tag",
+categories = {"tt": "tauTau_inclusive",
+              "et": "eleTau_inclusive",
+              "mt": "muTau_inclusive",
+              "em": "emu_inclusive",
               }
 
-bdtDir = "/nfs_scratch/zmao/samples_Iso/datacard_new/bdt_new/"
+#bdtDir = "/nfs_scratch/zmao/samples_Iso/datacard_new/bdt_new/"
+bdtDir = "root/bdt/11/"
 # WARNING: this variable gets modified by multi-bdt.py
-_stem = "root/cb/5/combined_iso1.0_one1To4_iso_%s__withDYEmbed_massWindow.root"
-_stem = "/nfs_scratch/zmao/samples_Iso/datacard_new/combined_iso1.0_one1To4_iso_%s__withDYEmbed_massWindow.root"
+_stem = "13TeV_samples_25ns/combined%s.root"
 
 
 def files(variable=""):
     assert variable
-    s = "normal"
+    s = ""
     return {"":                             _stem % s,
-            "_CMS_scale_t_tautau_8TeVUp":   _stem % "tauUp",
-            "_CMS_scale_t_tautau_8TeVDown": _stem % "tauDown",
-            "_CMS_scale_j_8TeVUp":   _stem % "jetUp",
-            "_CMS_scale_j_8TeVDown": _stem % "jetDown",
-            "_CMS_scale_btag_8TeVUp": _stem % "bSysUp",
-            "_CMS_scale_btag_8TeVDown": _stem % "bSysDown",
-            "_CMS_scale_btagEff_8TeVUp": _stem % "bSysUp",     # duplicate of btag
-            "_CMS_scale_btagEff_8TeVDown": _stem % "bSysDown", # duplicate of btag
-            "_CMS_scale_btagFake_8TeVUp": _stem % "bMisUp",
-            "_CMS_scale_btagFake_8TeVDown": _stem % "bMisDown",
+            # "_CMS_scale_t_tautau_8TeVUp":   _stem % "tauUp",
+            # "_CMS_scale_t_tautau_8TeVDown": _stem % "tauDown",
+            # "_CMS_scale_j_8TeVUp":   _stem % "jetUp",
+            # "_CMS_scale_j_8TeVDown": _stem % "jetDown",
+            # "_CMS_scale_btag_8TeVUp": _stem % "bSysUp",
+            # "_CMS_scale_btag_8TeVDown": _stem % "bSysDown",
+            # "_CMS_scale_btagEff_8TeVUp": _stem % "bSysUp",     # duplicate of btag
+            # "_CMS_scale_btagEff_8TeVDown": _stem % "bSysDown", # duplicate of btag
+            # "_CMS_scale_btagFake_8TeVUp": _stem % "bMisUp",
+            # "_CMS_scale_btagFake_8TeVDown": _stem % "bMisDown",
             }
 
 
-# __fakeSignals = {"ggAToZhToLLTauTau": masses_spin0,
-#                  "ggAToZhToLLBB": [250] + masses_spin0,
-#                  "ggGravitonTohhTo2Tau2B": [270, 300, 500, 700, 1000],
-#                  "ggRadionTohhTo2Tau2B":   [     300, 500, 700, 1000],
-#                  "bbH": range(90, 150, 10) + [160, 180, 200, 250, 300, 350, 400],
-#                  }
-__fakeSignals = {}
+def qcd_sf_name(category):
+    # return "L_to_T_SF_%s" % category
+    return "SS_to_OS_%s" % category
+
 
 def procs(variable="", category=""):
     assert variable
     assert category
 
     # first character '-' means subtract rather than add
-    out = {"TT": ["tt", "tt_semi", "tthad"],
-           "*VV": ["ZZ", "WZJetsTo2L2Q", "WW", "WZ3L", "zzTo2L2Nu", "zzTo4L"],
-           #"ZTT": ["DYJetsToLL"],
-           #"ZTT": ["DY1JetsToLL", "DY2JetsToLL", "DY3JetsToLL", "DY4JetsToLL"],
-           "ZTT": ["DY_embed", "-tt_embed"],
-           "*singleT": ["t", "tbar"],
-           "*ZLL": ["ZLL"],
-           "QCD": ["dataOSRelax", "-MCOSRelax"],
-           "data_obs": ["dataOSTight"],
-           ## fakes below
-           # "ggH125": ["ggH125"],
-           # "qqH125": ["qqH125"],
-           # "VH125": ["VH125"],
-           # "ZJ": ["ZJ"],
+    # first character '*' (see procs2)
+    out = {"TT": ["TTJets"],
+           "VV": ["WZ", "WW", "ZZ"],
+           "W": ["WJets"],
+           "ZTT": ["DY-50"],
+           "singleT": ['ST_antiTop_tW', 'ST_top_tW'],
+           "QCD": ["dataSS", "-MCSS"],
+           "data_obs": ["dataOS"],
            }
-
-    for m in masses_spin0:
-        out["ggHTohhTo2Tau2B%3d" % m] = ["H2hh%3d" % m]
-
-    for p in fakeSignalList():
-        out[p] = [p]
-
-    if category == "0M":
-        out["W"] = ["W1JetsToLNu", "W2JetsToLNu", "W3JetsToLNu", "W4JetsToLNu"]
 
     checkProcs(out)
     return out
@@ -85,17 +67,10 @@ def procs2(variable="", category=""):
     """first character '*' means unit normalize and then use factor"""
     assert variable
     assert category
-    return {"VV": ["*VV", "*singleT"],
-            "ZLL": ["*ZLL"],
-            }
-
-
-def fakeSignalList():
-    out = []
-    for stem, masses in __fakeSignals.iteritems():
-        for m in masses:
-            out.append("%s%d" % (stem, m))
-    return out
+    # out = {"VV": ["*VV", "*singleT"],
+    #        "ZLL": ["*ZLL"],
+    #        }
+    return {}
 
 
 def isData(proc):
@@ -145,8 +120,7 @@ def variable():
     ## bins are either a tuple: (n, xMin, xMax)
     ##  or
     ## a list of bin lower edges
-
-    out = {"var": "fMassKinFit", "bins": fm_bins_tt, "cuts": mass_windows}
+    out = {"var": "m_vis", "bins": range(0, 200, 10) + range(200, 325, 25), "cuts": {}}
     return out
 
 
@@ -193,7 +167,7 @@ def checkProcs(d):
         else:
             lst += v
 
-        if len(v) == 1 and v[0] == k and k not in fakeSignalList():  # FIXME: condition is imperfect
+        if len(v) == 1 and v[0] == k:  # FIXME: condition is imperfect
             fakeBkgs.append(k)
 
     if len(set(lst)) != len(lst):
@@ -202,11 +176,3 @@ def checkProcs(d):
     fakeBkgs = list(set(fakeBkgs))
     if fakeBkgs:
         print "FIXME: include", sorted(fakeBkgs)
-
-
-
-def complain():
-    if __fakeSignals:
-        print "FIXME: include", sorted(__fakeSignals.keys())
-
-complain()
