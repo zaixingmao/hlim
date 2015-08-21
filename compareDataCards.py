@@ -135,7 +135,7 @@ def oneDir(canvas, pdf, hNames, d1, d2, subdir, xTitle, band):
         if hName in hNames:
             hNames.remove(hName)
         else:
-            print "ERROR: %s not found" % hName
+            print "ERROR: '%s' not in %s" % (hName, str(hNames))
 
         h1 = d1[subdir].get(hName)
         if not h1:
@@ -334,8 +334,6 @@ def go(xTitle, file1, file2, band=""):
                 (h2, 'histograms missing from %s/%s:' % (file2, subdir)),
                 ])
 
-        #if subdir == "tauTau_2jet2tag":
-        #    continue
         hNames = filter(lambda hName: not any([hName.startswith(x) for x in ignorePrefixes]), hNames)
         oneDir(canvas, pdf, hNames, d1, d2, subdir, xTitle, band)
 
@@ -348,22 +346,22 @@ def opts():
 
     parser.add_option("--file1",
                       dest="file1",
-                      default="Italians/htt_tt.inputs-Hhh-8TeV_m_ttbb_kinfit_KinFitConvergedWithMassWindow.root",
+                      default="Brown/htt_data50ns_mc50ns_noPUWeight_noNegWeight-13TeV-mvis.root",
                       )
 
     parser.add_option("--file2",
                       dest="file2",
-                      default="Brown/fMassKinFit_0.0.fMassKinFit_70.0.mJJ.150.0_90.0.svMass.150.0.root",
+                      default="Brown/htt_data50ns_mc25ns_noPUWeight_noNegWeight-13TeV-mvis.root",
                       )
 
     parser.add_option("--xtitle",
                       dest="xtitle",
-                      default="fMassKinFit (after cuts)",
+                      default="m_vis (GeV)",
                       )
 
     parser.add_option("--masses",
                       dest="masses",
-                      default="260 300 350",
+                      default="",
                       )
 
     options, args = parser.parse_args()
@@ -371,9 +369,10 @@ def opts():
 
 
 if __name__ == "__main__":
-    ignorePrefixes = ["ggAToZh", "bbH", "W", "ggRadion", "ggGraviton"]
+    ignorePrefixes = ["ggAToZh", "bbH", "ggRadion", "ggGraviton"]
 
-    bands = ["CMS_scale_%s_8TeV" % s for s in ["t_tautau", "j", "btag", "btagEff", "btagFake"]]
+    # bands = ["CMS_scale_%s_8TeV" % s for s in ["t_tautau", "j", "btag", "btagEff", "btagFake"]]
+    bands = [""]
 
     r.gErrorIgnoreLevel = 2000
     r.gStyle.SetOptStat("rme")
@@ -387,11 +386,7 @@ if __name__ == "__main__":
 
     options = opts()
 
-    # options.xtitle = "svMass (preselection)"
-    # options.file1 = "Italians-afs/htt_tt.inputs-Hhh-8TeV_m_sv.root"
-    # options.file2 = "Brown/svMass.root"
-
-    whiteList = ["TT", "QCD", "VV", "ZTT", "data_obs", "ZLL", "W"] + \
+    whiteList = ["TT", "QCD", "VV", "ZTT", "data_obs", "singleT", "W"] + \
         ["ggHTohhTo2Tau2B%s" % m for m in options.masses.split()]
 
     for band in bands:
