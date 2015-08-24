@@ -128,8 +128,8 @@ def histosOneFile(f, tree, bins, procs, variable, cuts, category):
         h = r.TH1D(proc, proc+";%s;events / bin" % variable, *bins)
         h.Sumw2()
 
-        # mc = "%g*triggerEff*xs*PUWeight*genEventWeight/initSumWeight" % cfg.lumi
-        mc = "%g*triggerEff*xs*PUWeight/initEvents" % cfg.lumi
+        mc = "%g*triggerEff*xs*PUWeight*genEventWeight/initSumWeights" % cfg.lumi
+        # mc = "%g*triggerEff*xs*PUWeight/initEvents" % cfg.lumi
         if cfg.isData(proc):
             w = "(1.0)"
         elif cfg.isDataEmbedded(proc):
