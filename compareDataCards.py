@@ -346,12 +346,12 @@ def opts():
 
     parser.add_option("--file1",
                       dest="file1",
-                      default="Brown/htt_data50ns_mc50ns_noPUWeight_noNegWeight-13TeV-mvis.root",
+                      default="Brown/htt_data50ns_mc25ns_noPUWeight_noNegWeight-13TeV-mvis.root",
                       )
 
     parser.add_option("--file2",
                       dest="file2",
-                      default="Brown/htt_data50ns_mc25ns_noPUWeight_noNegWeight-13TeV-mvis.root",
+                      default="Brown/m_vis.root",
                       )
 
     parser.add_option("--xtitle",
