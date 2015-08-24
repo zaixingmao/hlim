@@ -19,7 +19,7 @@ categories = {"tt": "tauTau_inclusive",
 #bdtDir = "/nfs_scratch/zmao/samples_Iso/datacard_new/bdt_new/"
 bdtDir = "root/bdt/11/"
 # WARNING: this variable gets modified by multi-bdt.py
-_stem = "13TeV_samples_25ns/combined%s.root"
+_stem = "13TeV_datacards/combined%s.root"
 
 
 def files(variable=""):
