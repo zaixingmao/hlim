@@ -51,10 +51,10 @@ def procs(variable="", category=""):
     # first character '-' means subtract rather than add
     # first character '*' (see procs2)
     out = {"TT": ["TTJets"],
-           "VV": ["WZ", "WW", "ZZ"],
+           "VV": ["WZ", "WW", "ZZ", 'ST_antiTop_tW', 'ST_top_tW'],
            "W": ["WJets"],
            "ZTT": ["DY-50"],
-           "singleT": ['ST_antiTop_tW', 'ST_top_tW'],
+           # "singleT": ['ST_antiTop_tW', 'ST_top_tW'],
            "QCD": ["dataSS", "-MCSS"],
            "data_obs": ["dataOS"],
            }
