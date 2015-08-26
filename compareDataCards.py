@@ -122,6 +122,8 @@ def shortened(band):
 
 def oneDir(canvas, pdf, hNames, d1, d2, subdir, xTitle, band):
     keep = []
+
+    iEnd = len(whiteList) - 1
     for i, hName in enumerate(whiteList):
         if not hName:
             continue
@@ -135,11 +137,14 @@ def oneDir(canvas, pdf, hNames, d1, d2, subdir, xTitle, band):
         if hName in hNames:
             hNames.remove(hName)
         else:
-            print "ERROR: '%s' not in %s" % (hName, str(hNames))
+            print "ERROR: '%s' not in list of available names: %s" % (hName, str(hNames))
 
         h1 = d1[subdir].get(hName)
         if not h1:
             print "ERROR: %s/%s not found" % (subdir, hName)
+            if j == 3 or i == iEnd:
+                canvas.cd(0)
+                canvas.Print(pdf)
             continue
 
         h1b = None
@@ -153,6 +158,9 @@ def oneDir(canvas, pdf, hNames, d1, d2, subdir, xTitle, band):
         h2 = d2[subdir].get(hName)
         if not h2:
             print "ERROR: %s/%s not found" % (subdir, hName)
+            if j == 3 or i == iEnd:
+                canvas.cd(0)
+                canvas.Print(pdf)
             continue
 
         h2b = None
@@ -240,7 +248,7 @@ def oneDir(canvas, pdf, hNames, d1, d2, subdir, xTitle, band):
         #leg.SetHeader("(#color[1]{%.2f},  #color[4]{%.2f})" % (integral(h1), integral(h2)))
         leg.Draw()
         keep.append(leg)
-        if j == 3 or i == (len(whiteList) - 1):
+        if j == 3 or i == iEnd:
             canvas.cd(0)
             canvas.Print(pdf)
 
@@ -346,12 +354,13 @@ def opts():
 
     parser.add_option("--file1",
                       dest="file1",
-                      default="Brown/htt_data50ns_mc25ns_noPUWeight_noNegWeight-13TeV-mvis.root",
+                      # default="Brown/htt_data50ns_mc25ns_noPUWeight-13TeV-mvis.root",
+                      default="Brown/m_vis.root",
                       )
 
     parser.add_option("--file2",
                       dest="file2",
-                      default="Brown/m_vis.root",
+                      default="Imperial/ic.root",
                       )
 
     parser.add_option("--xtitle",
@@ -386,7 +395,7 @@ if __name__ == "__main__":
 
     options = opts()
 
-    whiteList = ["TT", "QCD", "VV", "ZTT", "data_obs", "singleT", "W"] + \
+    whiteList = ["TT", "QCD", "VV", "ZTT", "data_obs", "W"] + \
         ["ggHTohhTo2Tau2B%s" % m for m in options.masses.split()]
 
     for band in bands:
