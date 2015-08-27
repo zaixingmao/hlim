@@ -360,7 +360,7 @@ def opts():
 
     parser.add_option("--file2",
                       dest="file2",
-                      default="Imperial/ic.root",
+                      default="Imperial/ic3.root",
                       )
 
     parser.add_option("--xtitle",
@@ -370,7 +370,7 @@ def opts():
 
     parser.add_option("--masses",
                       dest="masses",
-                      default="",
+                      default="160",
                       )
 
     options, args = parser.parse_args()
@@ -395,8 +395,8 @@ if __name__ == "__main__":
 
     options = opts()
 
-    whiteList = ["TT", "QCD", "VV", "ZTT", "data_obs", "W"] + \
-        ["ggHTohhTo2Tau2B%s" % m for m in options.masses.split()]
+    whiteList = ["TT", "QCD", "VV", "ZTT", "ZLL", "ZJ", "data_obs", "W"] + \
+        ["ggH%s" % m for m in options.masses.split()]
 
     for band in bands:
         go(options.xtitle, options.file1, options.file2, band)
