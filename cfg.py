@@ -5,7 +5,7 @@ from root_dest import root_dest
 lumi     = 40.0e-3   # /fb
 rescaleX = False
 
-substring_signal_example = "2B350"
+substring_signal_example = "ggH160"
 
 masses_spin0 = [260,270,280]#range(260, 360, 10) #+ [500, 700]
 masses_spin2 = [500, 700]
@@ -53,10 +53,13 @@ def procs(variable="", category=""):
     out = {"TT": ["TTJets"],
            "VV": ["WZ", "WW", "ZZ", 'ST_antiTop_tW', 'ST_top_tW'],
            "W": ["WJets"],
-           "ZTT": ["DY-50"],
+           "ZTT": ["ZTT"],
+           "ZLL": ["ZLL"],
+           "ZJ": ["ZJ"],
            # "singleT": ['ST_antiTop_tW', 'ST_top_tW'],
            "QCD": ["dataSS", "-MCSS"],
            "data_obs": ["dataOS"],
+           "ggH160": ["H-160"],
            }
 
     checkProcs(out)
@@ -85,7 +88,7 @@ def isMcEmbedded(proc):
 
 
 def isSignal(proc):
-    return any([proc.startswith(p) for p in ["ggHTo", "ggATo", "ggGraviton", "ggRadion", "bbH"]])
+    return any([proc.startswith(p) for p in ["ggH", "ggA", "ggGraviton", "ggRadion", "bbH"]])
 
 
 def reportExtra(proc):
