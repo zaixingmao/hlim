@@ -137,7 +137,8 @@ def histosOneFile(f, tree, bins, procs, variable, cuts, category):
         elif cfg.isMcEmbedded(proc):
             w = "(embeddedWeight*%s)" % mc
         elif cfg.isSignal(proc):
-            w = "(decayModeWeight*%s)" % mc
+            # w = "(decayModeWeight*%s)" % mc
+            w = "(%s)" % mc
         else:
             w = "(%s)" % mc
 
