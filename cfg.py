@@ -59,7 +59,7 @@ def procs(variable="", category=""):
            # "singleT": ['ST_antiTop_tW', 'ST_top_tW'],
            "QCD": ["dataSS", "-MCSS"],
            "data_obs": ["dataOS"],
-           "ggH160": ["H-160"],
+           "ggH160": ["ggH160"],
            }
 
     checkProcs(out)
