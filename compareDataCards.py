@@ -17,7 +17,7 @@ def fetchOneDir(f, subdir):
     return out
 
 
-def histograms(fileName=""):
+def date_and_histograms(fileName=""):
     b = "%s/src/auxiliaries/shapes" % os.environ["CMSSW_BASE"]
     if b not in fileName:
         fileName = "%s/%s" % (b, fileName)
@@ -26,13 +26,14 @@ def histograms(fileName=""):
     if f.IsZombie():
         sys.exit("'%s' is a zombie." % fileName)
 
+    date = f.GetCreationDate()
     out = {}
     for key in f.GetListOfKeys():
         name = key.GetName()
         f.cd(name)
         out[name] = fetchOneDir(f, name)
     f.Close()
-    return out
+    return date, out
 
 
 def normalize(h):
@@ -301,7 +302,7 @@ def report(l=[], suffixes=["Up", "Down"], recursive=False):
         print
 
 
-def drawTitlePage(canvas, pdf, xTitle, file1, file2, band):
+def drawTitlePage(canvas, pdf, xTitle, file1, date1, file2, date2, band):
     text = r.TText()
     text.SetNDC()
     text.SetTextAlign(22)
@@ -312,14 +313,20 @@ def drawTitlePage(canvas, pdf, xTitle, file1, file2, band):
     text.SetTextSize(0.7 * text.GetTextSize())
     text.SetTextColor(lineColor1)
     text.DrawText(0.5, 0.4, file1)
+    text.DrawText(0.5, 0.37, "(%s)" % date1.AsString())
+
     text.SetTextColor(lineColor2)
     text.DrawText(0.5, 0.3, file2)
+    text.DrawText(0.5, 0.27, "(%s)" % date2.AsString())
+
+    text.SetTextColor(r.kMagenta)
+    text.DrawText(0.5, 0.1, ".pdf file created at " + r.TDatime().AsString())
     canvas.Print(pdf)
 
 
 def go(xTitle, file1, file2, band=""):
-    d1 = histograms(file1)
-    d2 = histograms(file2)
+    date1, d1 = date_and_histograms(file1)
+    date2, d2 = date_and_histograms(file2)
 
     subdirs, m1, m2 = common_keys(d1, d2)
     report([(m1, "directories missing from '%s':" % file1),
@@ -334,7 +341,7 @@ def go(xTitle, file1, file2, band=""):
     canvas = r.TCanvas()
     canvas.Print(pdf + "[")
 
-    drawTitlePage(canvas, pdf, xTitle, file1, file2, band)
+    drawTitlePage(canvas, pdf, xTitle, file1, date1, file2, date2, band)
 
     for subdir in reversed(subdirs):
         hNames, h1, h2 = common_keys(d1[subdir], d2[subdir])
