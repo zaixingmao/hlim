@@ -402,7 +402,7 @@ if __name__ == "__main__":
 
     options = opts()
 
-    whiteList = ["TT", "QCD", "VV", "ZTT", "ZLL", "ZJ", "data_obs", "W"] + \
+    whiteList = ["TT", "QCD", "VV", "ZTT", "ZL", "ZJ", "data_obs", "W"] + \
         ["ggH%s" % m for m in options.masses.split()]
 
     for band in bands:
