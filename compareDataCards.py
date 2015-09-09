@@ -6,18 +6,19 @@ import os
 import sys
 
 
-def fetchOneDir(f, subdir):
+def fetchOneDir(f, subdir, scale):
     out = {}
     for key in r.gDirectory.GetListOfKeys():
         name = key.GetName()
         h = f.Get("%s/%s" % (subdir, name)).Clone()
         h.SetDirectory(0)
+        h.Scale(scale)
         normalize(h)
         out[name] = h
     return out
 
 
-def date_and_histograms(fileName=""):
+def date_and_histograms(fileName, scale):
     b = "%s/src/auxiliaries/shapes" % os.environ["CMSSW_BASE"]
     if b not in fileName:
         fileName = "%s/%s" % (b, fileName)
@@ -31,7 +32,7 @@ def date_and_histograms(fileName=""):
     for key in f.GetListOfKeys():
         name = key.GetName()
         f.cd(name)
-        out[name] = fetchOneDir(f, name)
+        out[name] = fetchOneDir(f, name, scale)
     f.Close()
     return date, out
 
@@ -302,7 +303,7 @@ def report(l=[], suffixes=["Up", "Down"], recursive=False):
         print
 
 
-def drawTitlePage(canvas, pdf, xTitle, file1, date1, file2, date2, band):
+def drawTitlePage(canvas, pdf, xTitle, file1, date1, scale1, file2, date2, scale2, band):
     text = r.TText()
     text.SetNDC()
     text.SetTextAlign(22)
@@ -312,21 +313,23 @@ def drawTitlePage(canvas, pdf, xTitle, file1, date1, file2, date2, band):
 
     text.SetTextSize(0.7 * text.GetTextSize())
     text.SetTextColor(lineColor1)
-    text.DrawText(0.5, 0.4, file1)
+    text.DrawText(0.5, 0.45, file1)
+    text.DrawText(0.5, 0.41, "scale = %g" % scale1)
     text.DrawText(0.5, 0.37, "(%s)" % date1.AsString())
 
     text.SetTextColor(lineColor2)
-    text.DrawText(0.5, 0.3, file2)
-    text.DrawText(0.5, 0.27, "(%s)" % date2.AsString())
+    text.DrawText(0.5, 0.31, file2)
+    text.DrawText(0.5, 0.27, "scale = %g" % scale2)
+    text.DrawText(0.5, 0.23, "(%s)" % date2.AsString())
 
     text.SetTextColor(r.kMagenta)
     text.DrawText(0.5, 0.1, ".pdf file created at " + r.TDatime().AsString())
     canvas.Print(pdf)
 
 
-def go(xTitle, file1, file2, band=""):
-    date1, d1 = date_and_histograms(file1)
-    date2, d2 = date_and_histograms(file2)
+def go(xTitle, file1, scale1, file2, scale2, band=""):
+    date1, d1 = date_and_histograms(file1, scale1)
+    date2, d2 = date_and_histograms(file2, scale2)
 
     subdirs, m1, m2 = common_keys(d1, d2)
     report([(m1, "directories missing from '%s':" % file1),
@@ -341,7 +344,7 @@ def go(xTitle, file1, file2, band=""):
     canvas = r.TCanvas()
     canvas.Print(pdf + "[")
 
-    drawTitlePage(canvas, pdf, xTitle, file1, date1, file2, date2, band)
+    drawTitlePage(canvas, pdf, xTitle, file1, date1, scale1, file2, date2, scale2, band)
 
     for subdir in reversed(subdirs):
         hNames, h1, h2 = common_keys(d1[subdir], d2[subdir])
@@ -368,6 +371,18 @@ def opts():
     parser.add_option("--file2",
                       dest="file2",
                       default="Imperial/ic3.root",
+                      )
+
+    parser.add_option("--scale1",
+                      dest="scale1",
+                      default=1.0,
+                      type="float",
+                      )
+
+    parser.add_option("--scale2",
+                      dest="scale2",
+                      default=1.0,
+                      type="float",
                       )
 
     parser.add_option("--xtitle",
@@ -406,4 +421,4 @@ if __name__ == "__main__":
         ["ggH%s" % m for m in options.masses.split()]
 
     for band in bands:
-        go(options.xtitle, options.file1, options.file2, band)
+        go(options.xtitle, options.file1, options.scale1, options.file2, options.scale2, band)
