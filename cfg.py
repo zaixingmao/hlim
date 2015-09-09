@@ -2,7 +2,8 @@ import os
 import sys
 from root_dest import root_dest
 
-lumi     = 40.0e-3   # /fb
+# lumi     = 40.0e-3   # /fb
+lumi     = 20.38e-3  # /fb
 rescaleX = False
 
 substring_signal_example = "ggH160"
@@ -19,7 +20,7 @@ categories = {"tt": "tauTau_inclusive",
 #bdtDir = "/nfs_scratch/zmao/samples_Iso/datacard_new/bdt_new/"
 bdtDir = "root/bdt/11/"
 # WARNING: this variable gets modified by multi-bdt.py
-_stem = "13TeV_datacards/combined%s.root"
+_stem = "13TeV_datacards_Spring15_eletronID2/combined%s.root"
 
 
 def files(variable=""):
@@ -54,7 +55,8 @@ def procs(variable="", category=""):
            "VV": ["WZ", "WW", "ZZ", 'ST_antiTop_tW', 'ST_top_tW'],
            "W": ["WJets"],
            "ZTT": ["ZTT"],
-           "ZLL": ["ZLL"],
+           # "ZLL": ["ZL", "ZJ"],
+           "ZL": ["ZL"],
            "ZJ": ["ZJ"],
            # "singleT": ['ST_antiTop_tW', 'ST_top_tW'],
            "QCD": ["dataSS", "-MCSS"],
