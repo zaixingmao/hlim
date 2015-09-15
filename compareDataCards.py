@@ -370,7 +370,7 @@ def opts():
 
     parser.add_option("--file2",
                       dest="file2",
-                      default="Imperial/ic3.root",
+                      default="Imperial/ic4.root",
                       )
 
     parser.add_option("--scale1",
