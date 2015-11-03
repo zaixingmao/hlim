@@ -164,9 +164,9 @@ def histosOneFile(f, tree, bins, procs, variable, cuts, category):
 def printSampleInfo(xs, ini):
     n = max([len(x) for x in xs.keys()])
     header = "      ".join(["sample".ljust(n),
-                            "xs (fb)",
+                            "xs (%s)" % cfg.lumiUnit[1:],  # strip '/'
                             "#eventsAOD",
-                            "lumi_MC (/fb)",
+                            "lumi_MC (%s)" % cfg.lumiUnit,
                             ])
     print header + "  (before weight)"
     print "-" * len(header)
@@ -300,7 +300,7 @@ def printIntegrals(lst=[], l=""):
     s = 0.0
     for tag, proc, integral in sorted(lst):
         s += integral
-        print l, proc.ljust(30), "%9.3f" % integral, " (for %4.1f/fb)" % cfg.lumi
+        print l, proc.ljust(30), "%9.3f" % integral, " (for %4.1f%s)" % (cfg.lumi, cfg.lumiUnit)
     print l, " ".ljust(25), "sum = %9.3f" % s
     print l, hyphens
 
