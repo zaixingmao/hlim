@@ -10,6 +10,11 @@ import sys
 import cfg
 from compareDataCards import report
 
+import ROOT as r
+r.PyConfig.IgnoreCommandLineOptions = True
+r.gROOT.SetBatch(True)
+r.gErrorIgnoreLevel = 2000
+
 
 def error(msg="", die=True):
     s = "\033[%s%s\033[0m" % ("91m" if die else "35m", "ERROR: ")
@@ -436,13 +441,6 @@ def opts():
                       help="store sum of all backgrounds (useful for choosing binning)")
 
     options, args = parser.parse_args()
-
-    # done after opts so as not to steal --help
-    global r
-    import ROOT as r
-    r.gROOT.SetBatch(True)
-    r.gErrorIgnoreLevel = 2000
-
     return options
 
 
