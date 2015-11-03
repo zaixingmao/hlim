@@ -5,7 +5,6 @@ import collections
 import os
 import sys
 
-
 def fetchOneDir(f, subdir, scale):
     out = {}
     for key in r.gDirectory.GetListOfKeys():
@@ -400,6 +399,10 @@ def opts():
 
 
 if __name__ == "__main__":
+    r.gROOT.SetBatch(True)
+    r.PyConfig.IgnoreCommandLineOptions = True
+
+
     ignorePrefixes = ["ggAToZh", "bbH", "ggRadion", "ggGraviton"]
 
     # bands = ["CMS_scale_%s_8TeV" % s for s in ["t_tautau", "j", "btag", "btagEff", "btagFake"]]
