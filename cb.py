@@ -15,7 +15,7 @@ if __name__ == "__main__":
                     "./go.py",
                     "--full",
                     "--alsoObs",
-                    "--masses='%s'" % " ".join(["%s" % x for x in cfg.masses_spin0]),
+                    "--masses='%s'" % " ".join(["%s" % x for x in cfg.masses]),
                     "--categories='%s'" % cats,
                     ])
 
