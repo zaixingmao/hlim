@@ -9,9 +9,9 @@ rescaleX = False
 
 # masses = [160]
 # masses = [260,270,280]#range(260, 360, 10) #+ [500, 700]
-masses = [500, 1000, 1500, 2000, 2500, 3000, 3500, 4000, 4500][:2]
+masses = [500, 1000, 1500, 2000, 2500, 3000, 3500, 4000, 4500]
+# masses = masses[:2]
 
-masses_spin0 = masses  # for compatibility
 substring_signal_example = "ggH%d" % masses[0]
 
 _suffix = "inclusive"

@@ -104,7 +104,7 @@ def go_bdt(suffix="normal.root"):
     # clean up previous results
     os.system("rm -rf %s" % root_dest.bdt_tmp)
 
-    for mass in cfg.masses_spin0:
+    for mass in cfg.masses:
         for fileIn in os.listdir(cfg.bdtDir):
             if ("_H%3d_%s" % (mass, suffix)) not in fileIn:
                 continue
@@ -126,7 +126,7 @@ def go_cb(suffix="normal.root"):
     variable = {"var": "fMassKinFit",
                 "cuts": {"fMassKinFit": (0.0, None), "mJJ": (70.0, 150.0), "svMass": (90.0, 150.0)},
                 }
-    mass = "%s" % " ".join(["%s" % x for x in cfg.masses_spin0])
+    mass = "%s" % " ".join(["%s" % x for x in cfg.masses])
 
     fileOut = cfg.outFileName(**variable)
     dirOut = "%s_%s" % (variable["var"], cfg.cutDesc(variable["cuts"]))
@@ -134,7 +134,7 @@ def go_cb(suffix="normal.root"):
         make_root_file(dirOut, fileOut, variable, ini_bins=(1000, 250.0, 1000.0))
     d = cfg.variable()
     root_dest.copy(src=cfg.outFileName(var=d["var"], cuts=d["cuts"]), link=True)
-#    plot(dirOut, fileOut, xtitle=variable["var"], mass=cfg.masses_spin0[0])
+#    plot(dirOut, fileOut, xtitle=variable["var"], mass=cfg.masses[0])
     compute_limit(dirOut, fileOut, mass, False)
 
 
