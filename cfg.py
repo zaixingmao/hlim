@@ -2,25 +2,31 @@ import os
 import sys
 from root_dest import root_dest
 
-# lumi     = 40.0e-3   # /fb
-lumi     = 20.38e-3  # /fb
+lumi     = 1.264e3
+lumiUnit = "/pb"
+
 rescaleX = False
 
-substring_signal_example = "ggH160"
+# masses = [160]
+# masses = [260,270,280]#range(260, 360, 10) #+ [500, 700]
+masses = [500, 1000, 1500, 2000, 2500, 3000, 3500, 4000, 4500][:2]
 
-masses_spin0 = [260,270,280]#range(260, 360, 10) #+ [500, 700]
-masses_spin2 = [500, 700]
+masses_spin0 = masses  # for compatibility
+substring_signal_example = "ggH%d" % masses[0]
 
-categories = {"tt": "tauTau_inclusive",
-              "et": "eleTau_inclusive",
-              "mt": "muTau_inclusive",
-              "em": "emu_inclusive",
+_suffix = "inclusive"
+categories = {# "tt": "tauTau_%s" % _suffix,
+              "et": "eleTau_%s" % _suffix,
+              # "mt": "muTau_%s" % _suffix,
+              "em": "emu_%s" % _suffix,
               }
 
 #bdtDir = "/nfs_scratch/zmao/samples_Iso/datacard_new/bdt_new/"
 bdtDir = "root/bdt/11/"
 # WARNING: this variable gets modified by multi-bdt.py
-_stem = "13TeV_datacards_Spring15_eletronID2/combined%s.root"
+# _stem = "13TeV_datacards_Spring15_eletronID2/combined%s.root"
+# _stem = "13TeV_zp_inclusive/combined%s.root"
+_stem = "13TeV_zp/combined%s.root"
 
 
 def files(variable=""):
@@ -61,8 +67,9 @@ def procs(variable="", category=""):
            # "singleT": ['ST_antiTop_tW', 'ST_top_tW'],
            "QCD": ["dataSS", "-MCSS"],
            "data_obs": ["dataOS"],
-           "ggH160": ["ggH160"],
            }
+    for m in masses:
+        out["ggH%d" % m] = ["Zprime_%d" % m]
 
     checkProcs(out)
     return out
@@ -103,6 +110,7 @@ def reportExtra(proc):
 
 
 def cats():
+    print "FIXME: cfg.cats()"
     return " ".join([s[-4] for s in sorted(categories.values())])
 
 
@@ -126,6 +134,7 @@ def variable():
     ##  or
     ## a list of bin lower edges
     out = {"var": "m_vis", "bins": range(0, 200, 10) + range(200, 325, 25), "cuts": {}}
+    # out = {"var": "m_vis", "bins": range(0, 200, 10) + range(200, 325, 25) + [400, 600, 800, 1200, 1500], "cuts": {}}
     return out
 
 
