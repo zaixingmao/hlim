@@ -19,6 +19,10 @@ def fetchOneDir(f, subdir, scale):
 
 def date_and_histograms(fileName, scale):
     b = "%s/src/auxiliaries/shapes" % os.environ["CMSSW_BASE"]
+
+    if not fileName:
+        return '', {}
+
     if b not in fileName:
         fileName = "%s/%s" % (b, fileName)
 
@@ -121,7 +125,7 @@ def shortened(band):
     return s
 
 
-def oneDir(canvas, pdf, hNames, d1, d2, subdir, xTitle, band):
+def oneDir(canvas, pdf, hNames, d1, d2, subdir, xTitle, band, skip2=False):
     keep = []
 
     iEnd = len(whiteList) - 1
@@ -211,7 +215,7 @@ def oneDir(canvas, pdf, hNames, d1, d2, subdir, xTitle, band):
         h1.Draw("ehistsame" if band else "ehist")
         #keep.append(moveStatsBox(h1))
 
-        if band and h2b:
+        if band and h2b and not skip2:
             h2b.SetMarkerColor(bandColor2)
             h2b.SetLineColor(bandColor2)
             h2b.SetFillColor(bandColor2)
@@ -225,10 +229,11 @@ def oneDir(canvas, pdf, hNames, d1, d2, subdir, xTitle, band):
             h2u.SetLineColor(bandColor2)
             h2u.Draw("histsame")
 
-        h2.SetLineColor(lineColor2)
-        h2.SetMarkerColor(lineColor2)
-        h2.Draw("ehistsame")
-        #keep.append(moveStatsBox(h2))
+        if not skip2:
+            h2.SetLineColor(lineColor2)
+            h2.SetMarkerColor(lineColor2)
+            h2.Draw("ehistsame")
+            #keep.append(moveStatsBox(h2))
 
         leg = r.TLegend(0.65, 0.6, 0.87, 0.87)
         leg.SetBorderSize(0)
@@ -240,11 +245,12 @@ def oneDir(canvas, pdf, hNames, d1, d2, subdir, xTitle, band):
             leg.AddEntry(h1d, ls(h1d, "down"), "l")
         leg.AddEntry(h1, ls(h1, "nominal"), "le")
 
-        if band and h2b:
+        if band and h2b and not skip2:
             #leg.AddEntry(h2b, "band", "f")
             leg.AddEntry(h2u, ls(h2u, "up"), "l")
             leg.AddEntry(h2d, ls(h2d, "down"), "l")
-        leg.AddEntry(h2, ls(h2, "nominal"), "le")
+        if not skip2:
+            leg.AddEntry(h2, ls(h2, "nominal"), "le")
 
         #leg.SetHeader("(#color[1]{%.2f},  #color[4]{%.2f})" % (integral(h1), integral(h2)))
         leg.Draw()
@@ -311,15 +317,18 @@ def drawTitlePage(canvas, pdf, xTitle, file1, date1, scale1, file2, date2, scale
     text.DrawText(0.5, 0.7, "band: %s" % band)
 
     text.SetTextSize(0.7 * text.GetTextSize())
-    text.SetTextColor(lineColor1)
-    text.DrawText(0.5, 0.45, file1)
-    text.DrawText(0.5, 0.41, "scale = %g" % scale1)
-    text.DrawText(0.5, 0.37, "(%s)" % date1.AsString())
 
-    text.SetTextColor(lineColor2)
-    text.DrawText(0.5, 0.31, file2)
-    text.DrawText(0.5, 0.27, "scale = %g" % scale2)
-    text.DrawText(0.5, 0.23, "(%s)" % date2.AsString())
+    if file1:
+        text.SetTextColor(lineColor1)
+        text.DrawText(0.5, 0.45, file1)
+        text.DrawText(0.5, 0.41, "scale = %g" % scale1)
+        text.DrawText(0.5, 0.37, "(%s)" % date1.AsString())
+
+    if file2:
+        text.SetTextColor(lineColor2)
+        text.DrawText(0.5, 0.31, file2)
+        text.DrawText(0.5, 0.27, "scale = %g" % scale2)
+        text.DrawText(0.5, 0.23, "(%s)" % date2.AsString())
 
     text.SetTextColor(r.kMagenta)
     text.DrawText(0.5, 0.1, ".pdf file created at " + r.TDatime().AsString())
@@ -329,6 +338,10 @@ def drawTitlePage(canvas, pdf, xTitle, file1, date1, scale1, file2, date2, scale
 def go(xTitle, file1, scale1, file2, scale2, band=""):
     date1, d1 = date_and_histograms(file1, scale1)
     date2, d2 = date_and_histograms(file2, scale2)
+
+    if not file2:
+        date2 = date1
+        d2 = d1
 
     subdirs, m1, m2 = common_keys(d1, d2)
     report([(m1, "directories missing from '%s':" % file1),
@@ -352,7 +365,7 @@ def go(xTitle, file1, scale1, file2, scale2, band=""):
                 ])
 
         hNames = filter(lambda hName: not any([hName.startswith(x) for x in ignorePrefixes]), hNames)
-        oneDir(canvas, pdf, hNames, d1, d2, subdir, xTitle, band)
+        oneDir(canvas, pdf, hNames, d1, d2, subdir, xTitle, band, skip2=not file2)
 
     canvas.Print(pdf + "]")
 
