@@ -11,13 +11,17 @@ import ROOT as r
 
 def histo(fileName, subdir="", name=""):
     f = r.TFile(fileName)
-    h = f.Get("%s/%s" % (subdir, name)).Clone()
+    path = "%s/%s" % (subdir, name)
+    h1 = f.Get(path)
+    if not h1:
+        sys.exit("path %s:%s not found" % (fileName, path))
+    h = h1.Clone()
     h.SetDirectory(0)
     f.Close()
     return h
 
 
-def make_root_file(dirName, fileName, variable, ini_bins=None):
+def make_root_file(dirName, fileName, variable, ini_bins=None, subdir="tauTau_2jet2tag", minWidth=0.1, threshold=0.25):
     # print dirName
     os.system("rm -rf %s" % dirName)
     os.system("mkdir %s" % dirName)
@@ -36,11 +40,11 @@ def make_root_file(dirName, fileName, variable, ini_bins=None):
 
     # then choose a coarser binning
     fine_histo = histo(fileName=fileName,
-                       subdir="tauTau_2jet2tag",
+                       subdir=subdir,
                        name="sum_b")
 
     # variable["bins"] = determine_binning.fixed_width(fine_histo)
-    variable["bins"] = determine_binning.variable_width(h=fine_histo, minWidth=0.1, threshold=0.25)
+    variable["bins"] = determine_binning.variable_width(h=fine_histo, minWidth=minWidth, threshold=threshold)
     print "binning_____"
     print variable["bins"]
     # make histograms with this binning
@@ -138,6 +142,19 @@ def go_cb(suffix="normal.root"):
     compute_limit(dirOut, fileOut, mass, False)
 
 
+def go_zp(suffix="normal.root"):
+    variable = {"var": "m_effective", "cuts": {}}
+    fileOut = cfg.outFileName(**variable)
+    dirOut = "%s_%s" % (variable["var"], cfg.cutDesc(variable["cuts"]))
+
+    make_root_file(dirOut, fileOut, variable, ini_bins=(1000, 0.0, 1000.0), subdir="eleTau_inclusive", minWidth=25.0); ch="et"
+    # make_root_file(dirOut, fileOut, variable, ini_bins=(1000, 0.0, 1000.0), subdir="emu_inclusive", minWidth=25.0); ch="em"
+
+    v = variable["var"]
+    os.system("./compareDataCards.py --file1=Brown/%s.root --file2='' --masses='500 1000 1500 2000' --logy --xtitle='%s (GeV)'" % (v, v))
+    os.system("cp -p comparison_%s.pdf ~/public_html/comparison_%s_%s.pdf" % (v, v, ch))
+
+
 def opts():
     import optparse
     parser = optparse.OptionParser()
@@ -160,5 +177,6 @@ def opts():
 
 if __name__ == "__main__":
     options = opts()
-    go_bdt()
-    #go_cb()
+    # go_bdt()
+    # go_cb()
+    go_zp()
