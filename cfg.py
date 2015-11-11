@@ -2,7 +2,8 @@ import os
 import sys
 from root_dest import root_dest
 
-lumi     = 1.264e3
+#lumi     = 1.264e3
+lumi     = 1546.91
 lumiUnit = "/pb"
 
 rescaleX = False
@@ -26,12 +27,14 @@ bdtDir = "root/bdt/11/"
 # WARNING: this variable gets modified by multi-bdt.py
 # _stem = "13TeV_datacards_Spring15_eletronID2/combined%s.root"
 # _stem = "13TeV_zp_inclusive/combined%s.root"
-_stem = "13TeV_zp/combined%s.root"
+# _stem = "13TeV_zp/combined%s.root"
+_stem = "13TeV_zp2/combined%s.root"
 
 
 def files(variable=""):
     assert variable
-    s = ""
+    # s = ""
+    s = "_withPUWeight"
     return {"":                             _stem % s,
             # "_CMS_scale_t_tautau_8TeVUp":   _stem % "tauUp",
             # "_CMS_scale_t_tautau_8TeVDown": _stem % "tauDown",
@@ -57,10 +60,12 @@ def procs(variable="", category=""):
 
     # first character '-' means subtract rather than add
     # first character '*' (see procs2)
-    out = {"TT": ["TTJets"],
-           "VV": ["WZ", "WW", "ZZ", 'ST_antiTop_tW', 'ST_top_tW'],
-           "W": ["WJets"],
-           "ZTT": ["ZTT"],
+    out = {"TT": ["TTJets", 'ST_antiTop_tW', 'ST_top_tW'],
+           "VV": ["WZ", "WW", "ZZ"],
+           # "W": ["WJets"],
+           "W": ['WJets_HT-0to100', 'WJets_HT-100to200', 'WJets_HT-200to400', 'WJets_HT-400to600', 'WJets_HT-600toInf'],
+           # "ZTT": ["ZTT"],
+           "ZTT": ['DY_M-10to50', 'DY_M-50-H-0to100', 'DY_M-50-H-100to200', 'DY_M-50-H-200to400', 'DY_M-50-H-400to600', 'DY_M-50-H-600toInf'],
            # "ZLL": ["ZL", "ZJ"],
            "ZL": ["ZL"],
            "ZJ": ["ZJ"],
@@ -133,8 +138,8 @@ def variable():
     ## bins are either a tuple: (n, xMin, xMax)
     ##  or
     ## a list of bin lower edges
-    out = {"var": "m_vis", "bins": range(0, 200, 10) + range(200, 325, 25), "cuts": {}}
-    # out = {"var": "m_vis", "bins": range(0, 200, 10) + range(200, 325, 25) + [400, 600, 800, 1200, 1500], "cuts": {}}
+    # out = {"var": "m_vis", "bins": range(0, 200, 10) + range(200, 325, 25), "cuts": {}}
+    out = {"var": "m_vis", "bins": range(0, 300, 50) + [300, 400, 600, 800, 1200], "cuts": {}}
     return out
 
 
