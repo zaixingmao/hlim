@@ -194,8 +194,13 @@ def oneDir(canvas, pdf, hNames, d1, d2, subdir, xTitle, band, skip2=False):
         if h2b:
             hList += [h2u, h2d]
 
-        hFirst.SetMinimum(0.0)
-        hFirst.SetMaximum(1.1 * maximum(hList))
+        if options.logy:
+            r.gPad.SetLogy()
+            hFirst.SetMaximum(2.0 * maximum(hList))
+        else:
+            hFirst.SetMinimum(0.0)
+            hFirst.SetMaximum(1.1 * maximum(hList))
+
         hFirst.SetStats(False)
         hFirst.GetYaxis().SetTitleOffset(1.25)
 
@@ -407,6 +412,12 @@ def opts():
 
     parser.add_option("--raw-yields",
                       dest="raw_yields",
+                      default=False,
+                      action="store_true",
+                      )
+
+    parser.add_option("--logy",
+                      dest="logy",
                       default=False,
                       action="store_true",
                       )
