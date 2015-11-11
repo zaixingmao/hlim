@@ -12,7 +12,8 @@ def fetchOneDir(f, subdir, scale):
         h = f.Get("%s/%s" % (subdir, name)).Clone()
         h.SetDirectory(0)
         h.Scale(scale)
-        normalize(h)
+        if not options.raw_yields:
+            normalize(h)
         out[name] = h
     return out
 
@@ -77,7 +78,7 @@ def moveStatsBox(h):
 
 
 def integral(h):
-    out = h.Integral(1, h.GetNbinsX(), "width")
+    out = h.Integral(1, h.GetNbinsX(), "" if options.raw_yields else "width")
     for bin in [0, 1 + h.GetNbinsX()]:
         out += h.Integral(bin, bin)
     return out
@@ -184,15 +185,17 @@ def oneDir(canvas, pdf, hNames, d1, d2, subdir, xTitle, band, skip2=False):
         title = "%s / %s" % (subdir, hName)
         if band:
             title += " / %s" % shortened(band)
-        hFirst.SetTitle("%s;%s;events / GeV" % (title, xTitle))
-        hFirst.SetMinimum(0.0)
-        maxList = [h1, h2]
-        if h1b:
-            maxList += [h1u, h1d]
-        if h2b:
-            maxList += [h2u, h2d]
 
-        hFirst.SetMaximum(1.1 * maximum(maxList))
+        hFirst.SetTitle("%s;%s;events / %s" % (title, xTitle, "bin" if options.raw_yields else "GeV"))
+
+        hList = [h1, h2]
+        if h1b:
+            hList += [h1u, h1d]
+        if h2b:
+            hList += [h2u, h2d]
+
+        hFirst.SetMinimum(0.0)
+        hFirst.SetMaximum(1.1 * maximum(hList))
         hFirst.SetStats(False)
         hFirst.GetYaxis().SetTitleOffset(1.25)
 
@@ -402,6 +405,12 @@ def opts():
                       default="m_vis (GeV)",
                       )
 
+    parser.add_option("--raw-yields",
+                      dest="raw_yields",
+                      default=False,
+                      action="store_true",
+                      )
+
     parser.add_option("--masses",
                       dest="masses",
                       default="160",
@@ -433,8 +442,9 @@ if __name__ == "__main__":
 
     options = opts()
 
-    whiteList = ["TT", "QCD", "VV", "ZTT", "ZL", "ZJ", "data_obs", "W"] + \
-        ["ggH%s" % m for m in options.masses.split()]
+    whiteList = ["TT", "QCD", "VV", "ZTT", "W"]
+    # whiteList += ["ZL", "ZJ", "data_obs"]
+    whiteList += ["ggH%s" % m for m in options.masses.split()]
 
     for band in bands:
         go(options.xtitle, options.file1, options.scale1, options.file2, options.scale2, band)
