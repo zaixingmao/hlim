@@ -10,6 +10,11 @@ import sys
 import cfg
 from compareDataCards import report
 
+import ROOT as r
+r.PyConfig.IgnoreCommandLineOptions = True
+r.gROOT.SetBatch(True)
+r.gErrorIgnoreLevel = 2000
+
 
 def error(msg="", die=True):
     s = "\033[%s%s\033[0m" % ("91m" if die else "35m", "ERROR: ")
@@ -103,7 +108,7 @@ def histos(bins=None, variable="", cuts={}, category=""):
                 factor = -1.0 if srcProc[0] == "-" else 1.0
                 out[destProc].Add(h, factor)
 
-        applyFactor(out["QCD" + variation], f, hName="L_to_T_SF_%s" % category, unit=False)
+        applyFactor(out["QCD" + variation], f, hName=cfg.qcd_sf_name(category), unit=False)
 
         if any(["embed" in src for src in procs.get("ZTT", [])]):
            applyFactor(out["ZTT" + variation], f, hName="MC2Embed2Cat_%s" % category, unit=(category != '0M'))
@@ -128,16 +133,19 @@ def histosOneFile(f, tree, bins, procs, variable, cuts, category):
         h = r.TH1D(proc, proc+";%s;events / bin" % variable, *bins)
         h.Sumw2()
 
+        mc = "%g*triggerEff*xs*PUWeight*genEventWeight/initSumWeights" % cfg.lumi
+        # mc = "%g*triggerEff*xs*PUWeight/initEvents" % cfg.lumi
         if cfg.isData(proc):
             w = "(1.0)"
         elif cfg.isDataEmbedded(proc):
             w = "(triggerEff*embeddedWeight*decayModeWeight)"
         elif cfg.isMcEmbedded(proc):
-            w = "(%g*triggerEff*PUWeight*embeddedWeight*xs/initEvents)" % cfg.lumi
+            w = "(embeddedWeight*%s)" % mc
         elif cfg.isSignal(proc):
-            w = "(%g*triggerEff*xs*PUWeight*decayModeWeight/initEvents)" % cfg.lumi
+            # w = "(decayModeWeight*%s)" % mc
+            w = "(%s)" % mc
         else:
-            w = "(%g*triggerEff*xs*PUWeight/initEvents)" % cfg.lumi
+            w = "(%s)" % mc
 
         cutString = '(sampleName=="%s")' % proc
         if category:
@@ -161,9 +169,9 @@ def histosOneFile(f, tree, bins, procs, variable, cuts, category):
 def printSampleInfo(xs, ini):
     n = max([len(x) for x in xs.keys()])
     header = "      ".join(["sample".ljust(n),
-                            "xs (fb)",
+                            "xs (%s)" % cfg.lumiUnit[1:],  # strip '/'
                             "#eventsAOD",
-                            "lumi_MC (/fb)",
+                            "lumi_MC (%s)" % cfg.lumiUnit,
                             ])
     print header + "  (before weight)"
     print "-" * len(header)
@@ -209,8 +217,6 @@ def checkSamples(tree, fileName=".root file", variable="", category=""):
     for proc in sum(cfg.procs(variable, category).values(), []):
         if proc and proc[0] == "-":
             proc = proc[1:]
-        if proc in cfg.fakeSignalList():
-            continue  # warning is done in cfg.complain()
         if proc in xs:
             del xs[proc]
         else:
@@ -300,7 +306,7 @@ def printIntegrals(lst=[], l=""):
     s = 0.0
     for tag, proc, integral in sorted(lst):
         s += integral
-        print l, proc.ljust(30), "%9.3f" % integral, " (for %4.1f/fb)" % cfg.lumi
+        print l, proc.ljust(30), "%9.3f" % integral, " (for %4.1f%s)" % (cfg.lumi, cfg.lumiUnit)
     print l, " ".ljust(25), "sum = %9.3f" % s
     print l, hyphens
 
@@ -436,13 +442,6 @@ def opts():
                       help="store sum of all backgrounds (useful for choosing binning)")
 
     options, args = parser.parse_args()
-
-    # done after opts so as not to steal --help
-    global r
-    import ROOT as r
-    r.gROOT.SetBatch(True)
-    r.gErrorIgnoreLevel = 2000
-
     return options
 
 

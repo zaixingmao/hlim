@@ -5,20 +5,25 @@ import collections
 import os
 import sys
 
-
-def fetchOneDir(f, subdir):
+def fetchOneDir(f, subdir, scale):
     out = {}
     for key in r.gDirectory.GetListOfKeys():
         name = key.GetName()
         h = f.Get("%s/%s" % (subdir, name)).Clone()
         h.SetDirectory(0)
-        normalize(h)
+        h.Scale(scale)
+        if not options.raw_yields:
+            normalize(h)
         out[name] = h
     return out
 
 
-def histograms(fileName=""):
+def date_and_histograms(fileName, scale):
     b = "%s/src/auxiliaries/shapes" % os.environ["CMSSW_BASE"]
+
+    if not fileName:
+        return '', {}
+
     if b not in fileName:
         fileName = "%s/%s" % (b, fileName)
 
@@ -26,13 +31,14 @@ def histograms(fileName=""):
     if f.IsZombie():
         sys.exit("'%s' is a zombie." % fileName)
 
+    date = f.GetCreationDate()
     out = {}
     for key in f.GetListOfKeys():
         name = key.GetName()
         f.cd(name)
-        out[name] = fetchOneDir(f, name)
+        out[name] = fetchOneDir(f, name, scale)
     f.Close()
-    return out
+    return date, out
 
 
 def normalize(h):
@@ -72,7 +78,7 @@ def moveStatsBox(h):
 
 
 def integral(h):
-    out = h.Integral(1, h.GetNbinsX(), "width")
+    out = h.Integral(1, h.GetNbinsX(), "" if options.raw_yields else "width")
     for bin in [0, 1 + h.GetNbinsX()]:
         out += h.Integral(bin, bin)
     return out
@@ -120,8 +126,10 @@ def shortened(band):
     return s
 
 
-def oneDir(canvas, pdf, hNames, d1, d2, subdir, xTitle, band):
+def oneDir(canvas, pdf, hNames, d1, d2, subdir, xTitle, band, skip2=False):
     keep = []
+
+    iEnd = len(whiteList) - 1
     for i, hName in enumerate(whiteList):
         if not hName:
             continue
@@ -135,11 +143,14 @@ def oneDir(canvas, pdf, hNames, d1, d2, subdir, xTitle, band):
         if hName in hNames:
             hNames.remove(hName)
         else:
-            print "ERROR: %s not found" % hName
+            print "ERROR: '%s' not in list of available names: %s" % (hName, str(hNames))
 
         h1 = d1[subdir].get(hName)
         if not h1:
             print "ERROR: %s/%s not found" % (subdir, hName)
+            if j == 3 or i == iEnd:
+                canvas.cd(0)
+                canvas.Print(pdf)
             continue
 
         h1b = None
@@ -153,6 +164,9 @@ def oneDir(canvas, pdf, hNames, d1, d2, subdir, xTitle, band):
         h2 = d2[subdir].get(hName)
         if not h2:
             print "ERROR: %s/%s not found" % (subdir, hName)
+            if j == 3 or i == iEnd:
+                canvas.cd(0)
+                canvas.Print(pdf)
             continue
 
         h2b = None
@@ -171,15 +185,22 @@ def oneDir(canvas, pdf, hNames, d1, d2, subdir, xTitle, band):
         title = "%s / %s" % (subdir, hName)
         if band:
             title += " / %s" % shortened(band)
-        hFirst.SetTitle("%s;%s;events / GeV" % (title, xTitle))
-        hFirst.SetMinimum(0.0)
-        maxList = [h1, h2]
-        if h1b:
-            maxList += [h1u, h1d]
-        if h2b:
-            maxList += [h2u, h2d]
 
-        hFirst.SetMaximum(1.1 * maximum(maxList))
+        hFirst.SetTitle("%s;%s;events / %s" % (title, xTitle, "bin" if options.raw_yields else "GeV"))
+
+        hList = [h1, h2]
+        if h1b:
+            hList += [h1u, h1d]
+        if h2b:
+            hList += [h2u, h2d]
+
+        if options.logy:
+            r.gPad.SetLogy()
+            hFirst.SetMaximum(2.0 * maximum(hList))
+        else:
+            hFirst.SetMinimum(0.0)
+            hFirst.SetMaximum(1.1 * maximum(hList))
+
         hFirst.SetStats(False)
         hFirst.GetYaxis().SetTitleOffset(1.25)
 
@@ -202,7 +223,7 @@ def oneDir(canvas, pdf, hNames, d1, d2, subdir, xTitle, band):
         h1.Draw("ehistsame" if band else "ehist")
         #keep.append(moveStatsBox(h1))
 
-        if band and h2b:
+        if band and h2b and not skip2:
             h2b.SetMarkerColor(bandColor2)
             h2b.SetLineColor(bandColor2)
             h2b.SetFillColor(bandColor2)
@@ -216,10 +237,11 @@ def oneDir(canvas, pdf, hNames, d1, d2, subdir, xTitle, band):
             h2u.SetLineColor(bandColor2)
             h2u.Draw("histsame")
 
-        h2.SetLineColor(lineColor2)
-        h2.SetMarkerColor(lineColor2)
-        h2.Draw("ehistsame")
-        #keep.append(moveStatsBox(h2))
+        if not skip2:
+            h2.SetLineColor(lineColor2)
+            h2.SetMarkerColor(lineColor2)
+            h2.Draw("ehistsame")
+            #keep.append(moveStatsBox(h2))
 
         leg = r.TLegend(0.65, 0.6, 0.87, 0.87)
         leg.SetBorderSize(0)
@@ -231,16 +253,17 @@ def oneDir(canvas, pdf, hNames, d1, d2, subdir, xTitle, band):
             leg.AddEntry(h1d, ls(h1d, "down"), "l")
         leg.AddEntry(h1, ls(h1, "nominal"), "le")
 
-        if band and h2b:
+        if band and h2b and not skip2:
             #leg.AddEntry(h2b, "band", "f")
             leg.AddEntry(h2u, ls(h2u, "up"), "l")
             leg.AddEntry(h2d, ls(h2d, "down"), "l")
-        leg.AddEntry(h2, ls(h2, "nominal"), "le")
+        if not skip2:
+            leg.AddEntry(h2, ls(h2, "nominal"), "le")
 
         #leg.SetHeader("(#color[1]{%.2f},  #color[4]{%.2f})" % (integral(h1), integral(h2)))
         leg.Draw()
         keep.append(leg)
-        if j == 3 or i == (len(whiteList) - 1):
+        if j == 3 or i == iEnd:
             canvas.cd(0)
             canvas.Print(pdf)
 
@@ -293,7 +316,7 @@ def report(l=[], suffixes=["Up", "Down"], recursive=False):
         print
 
 
-def drawTitlePage(canvas, pdf, xTitle, file1, file2, band):
+def drawTitlePage(canvas, pdf, xTitle, file1, date1, scale1, file2, date2, scale2, band):
     text = r.TText()
     text.SetNDC()
     text.SetTextAlign(22)
@@ -302,16 +325,31 @@ def drawTitlePage(canvas, pdf, xTitle, file1, file2, band):
     text.DrawText(0.5, 0.7, "band: %s" % band)
 
     text.SetTextSize(0.7 * text.GetTextSize())
-    text.SetTextColor(lineColor1)
-    text.DrawText(0.5, 0.4, file1)
-    text.SetTextColor(lineColor2)
-    text.DrawText(0.5, 0.3, file2)
+
+    if file1:
+        text.SetTextColor(lineColor1)
+        text.DrawText(0.5, 0.45, file1)
+        text.DrawText(0.5, 0.41, "scale = %g" % scale1)
+        text.DrawText(0.5, 0.37, "(%s)" % date1.AsString())
+
+    if file2:
+        text.SetTextColor(lineColor2)
+        text.DrawText(0.5, 0.31, file2)
+        text.DrawText(0.5, 0.27, "scale = %g" % scale2)
+        text.DrawText(0.5, 0.23, "(%s)" % date2.AsString())
+
+    text.SetTextColor(r.kMagenta)
+    text.DrawText(0.5, 0.1, ".pdf file created at " + r.TDatime().AsString())
     canvas.Print(pdf)
 
 
-def go(xTitle, file1, file2, band=""):
-    d1 = histograms(file1)
-    d2 = histograms(file2)
+def go(xTitle, file1, scale1, file2, scale2, band=""):
+    date1, d1 = date_and_histograms(file1, scale1)
+    date2, d2 = date_and_histograms(file2, scale2)
+
+    if not file2:
+        date2 = date1
+        d2 = d1
 
     subdirs, m1, m2 = common_keys(d1, d2)
     report([(m1, "directories missing from '%s':" % file1),
@@ -326,7 +364,7 @@ def go(xTitle, file1, file2, band=""):
     canvas = r.TCanvas()
     canvas.Print(pdf + "[")
 
-    drawTitlePage(canvas, pdf, xTitle, file1, file2, band)
+    drawTitlePage(canvas, pdf, xTitle, file1, date1, scale1, file2, date2, scale2, band)
 
     for subdir in reversed(subdirs):
         hNames, h1, h2 = common_keys(d1[subdir], d2[subdir])
@@ -334,10 +372,8 @@ def go(xTitle, file1, file2, band=""):
                 (h2, 'histograms missing from %s/%s:' % (file2, subdir)),
                 ])
 
-        #if subdir == "tauTau_2jet2tag":
-        #    continue
         hNames = filter(lambda hName: not any([hName.startswith(x) for x in ignorePrefixes]), hNames)
-        oneDir(canvas, pdf, hNames, d1, d2, subdir, xTitle, band)
+        oneDir(canvas, pdf, hNames, d1, d2, subdir, xTitle, band, skip2=not file2)
 
     canvas.Print(pdf + "]")
 
@@ -348,22 +384,47 @@ def opts():
 
     parser.add_option("--file1",
                       dest="file1",
-                      default="Italians/htt_tt.inputs-Hhh-8TeV_m_ttbb_kinfit_KinFitConvergedWithMassWindow.root",
+                      # default="Brown/htt_data50ns_mc25ns_noPUWeight-13TeV-mvis.root",
+                      default="Brown/m_vis.root",
                       )
 
     parser.add_option("--file2",
                       dest="file2",
-                      default="Brown/fMassKinFit_0.0.fMassKinFit_70.0.mJJ.150.0_90.0.svMass.150.0.root",
+                      default="Imperial/ic4.root",
+                      )
+
+    parser.add_option("--scale1",
+                      dest="scale1",
+                      default=1.0,
+                      type="float",
+                      )
+
+    parser.add_option("--scale2",
+                      dest="scale2",
+                      default=1.0,
+                      type="float",
                       )
 
     parser.add_option("--xtitle",
                       dest="xtitle",
-                      default="fMassKinFit (after cuts)",
+                      default="m_vis (GeV)",
+                      )
+
+    parser.add_option("--raw-yields",
+                      dest="raw_yields",
+                      default=False,
+                      action="store_true",
+                      )
+
+    parser.add_option("--logy",
+                      dest="logy",
+                      default=False,
+                      action="store_true",
                       )
 
     parser.add_option("--masses",
                       dest="masses",
-                      default="260 300 350",
+                      default="160",
                       )
 
     options, args = parser.parse_args()
@@ -371,9 +432,14 @@ def opts():
 
 
 if __name__ == "__main__":
-    ignorePrefixes = ["ggAToZh", "bbH", "W", "ggRadion", "ggGraviton"]
+    r.gROOT.SetBatch(True)
+    r.PyConfig.IgnoreCommandLineOptions = True
 
-    bands = ["CMS_scale_%s_8TeV" % s for s in ["t_tautau", "j", "btag", "btagEff", "btagFake"]]
+
+    ignorePrefixes = ["ggAToZh", "bbH", "ggRadion", "ggGraviton"]
+
+    # bands = ["CMS_scale_%s_8TeV" % s for s in ["t_tautau", "j", "btag", "btagEff", "btagFake"]]
+    bands = [""]
 
     r.gErrorIgnoreLevel = 2000
     r.gStyle.SetOptStat("rme")
@@ -387,12 +453,9 @@ if __name__ == "__main__":
 
     options = opts()
 
-    # options.xtitle = "svMass (preselection)"
-    # options.file1 = "Italians-afs/htt_tt.inputs-Hhh-8TeV_m_sv.root"
-    # options.file2 = "Brown/svMass.root"
-
-    whiteList = ["TT", "QCD", "VV", "ZTT", "data_obs", "ZLL", "W"] + \
-        ["ggHTohhTo2Tau2B%s" % m for m in options.masses.split()]
+    whiteList = ["TT", "QCD", "VV", "ZTT", "W"]
+    # whiteList += ["ZL", "ZJ", "data_obs"]
+    whiteList += ["ggH%s" % m for m in options.masses.split()]
 
     for band in bands:
-        go(options.xtitle, options.file1, options.file2, band)
+        go(options.xtitle, options.file1, options.scale1, options.file2, options.scale2, band)
