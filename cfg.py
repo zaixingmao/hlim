@@ -67,9 +67,8 @@ def procs(variable="", category=""):
            # "ZTT": ["ZTT"],
            "ZTT": ['DY_M-10to50', 'DY_M-50-H-0to100', 'DY_M-50-H-100to200', 'DY_M-50-H-200to400', 'DY_M-50-H-400to600', 'DY_M-50-H-600toInf'],
            # "ZLL": ["ZL", "ZJ"],
-           "ZL": ["ZL"],
-           "ZJ": ["ZJ"],
-           # "singleT": ['ST_antiTop_tW', 'ST_top_tW'],
+           # "ZL": ["ZL"],
+           # "ZJ": ["ZJ"],
            "QCD": ["dataSS", "-MCSS"],
            "data_obs": ["dataOS"],
            }
