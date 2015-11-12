@@ -7,7 +7,7 @@ rescaleX = False
 
 substring_signal_example = "2B350"
 
-masses_spin0 = range(260, 360, 10) #+ [500, 700]
+masses_spin0 = [260,270,280]#range(260, 360, 10) #+ [500, 700]
 masses_spin2 = [500, 700]
 
 categories = {#"MM_LM": "tauTau_2jet2tag",
@@ -16,7 +16,7 @@ categories = {#"MM_LM": "tauTau_2jet2tag",
               "0M": "tauTau_2jet0tag",
               }
 
-bdtDir = "root/bdt/10"
+bdtDir = "/nfs_scratch/zmao/samples_Iso/datacard_new/bdt_new/"
 # WARNING: this variable gets modified by multi-bdt.py
 _stem = "root/cb/5/combined_iso1.0_one1To4_iso_%s__withDYEmbed_massWindow.root"
 _stem = "/nfs_scratch/zmao/samples_Iso/datacard_new/combined_iso1.0_one1To4_iso_%s__withDYEmbed_massWindow.root"

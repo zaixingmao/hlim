@@ -114,8 +114,16 @@ if __name__ == "__main__":
             lopts = ["", " --stable --rMin -5 --rMax 5"][0]
             os.system("limit.py --max-likelihood %s %s" % (lopts, lim1))
             os.system("cat %s/out/mlfit.txt" % lim1)
+            os.system("limit.py --likelihood-scan %s" % (lim1))
+            os.system("mv %s/higgsCombineTest.MultiDimFit*.root %s/hlim/" %(lim1, base))
+
+
             #os.system("limit.py --significance-frequentist %s" % lim1)
-            #os.system("limit.py --pvalue-frequentist %s" % lim1)
+#             os.system("limit.py --toys 500 --expectedOnly --goodness-of-fit %s" % lim1)
+#             os.system("mv %s/higgsCombineTest.GoodnessOfFit.mH%s.*.root %s/higgsCombineTest.GoodnessOfFit.mH%s.[0-9]*.root" %(lim1, mass, lim1, mass))
+#             os.system("limit.py --collect --goodness-of-fit %s" % lim1)
+#             os.system("limit.py --goodness-of-fit %s" % lim1)
+#             os.system("limit.py --pvalue-frequentist %s" % lim1)
             os.system("limit.py --asymptotic %s" % lim1)
 
     if options.BDT:
@@ -129,11 +137,22 @@ if __name__ == "__main__":
             mm = "260 270 280 290 300 310 320 330 340 350"
             plotcommon = "%s/ masspoints='%s'" % (root_dest.bdt_tmp, mm)
 
-        os.system(" ".join(["plot",
-                            "--max-likelihood",
-                            "%s/max-likelihood_sm.py" % layouts,
-                            plotcommon,
-                            ]))
+#         os.system(" ".join(["plot",
+#                             "--max-likelihood",
+#                             "%s/max-likelihood_sm.py" % layouts,
+#                             plotcommon,
+#                             ]))
+#         os.system(" ".join(["plot",
+#                             "--pvalue-frequentist",
+#                             "%s/pvalue-sm.py" % layouts,
+#                             plotcommon,
+#                             ]))
+# 
+#         os.system(" ".join(["plot",
+#                             "--goodness-of-fit",
+#                             "%s/goodness-of-fit.py" % layouts,
+#                             plotcommon,
+#                             ]))
 
         old = "%s/limit-mssm-ggHTohh.py" % layouts
         new = old.replace(".py", "2.py")
@@ -152,22 +171,23 @@ if __name__ == "__main__":
         #                    plotcommon,
         #                    ]))
         #
-        #os.system(" ".join(["plot",
-        #                    "--pvalue-frequentist",
-        #                    "%s/pvalue-sm.py" % layouts,
-        #                    plotcommon,
-        #                    ]))
+
 
     if options.postfit:
-        masses = []; print "FIXME: repair postfit"
+#         masses = []; print "FIXME: repair postfit"
         for mass in (masses[:1] if options.postfitonlyone else masses):
             lim1 = "%s/tt/%s" % (lim, mass)
             test = "%s/test" % base
-            ugh = "-a Hhh --mA 300 --tanb 2"
+            ugh = "-a Hhh --mH %s --tanb 2" %mass
 
             os.system("cd %s && python mlfit_and_copy.py %s --skip %s" % (test, ugh, lim1))
 
-            config = "%s/hlim/limits.config-sm-tt-only" % base
-            os.system("cd %s && python produce_macros_Hhh.py %s --config %s" % (test, ugh, config))
+            config = "%s/hlim/limits.config-Hhh-tt-only" % base
+            os.system("cd %s && python produce_macros_Hhh.py %s "  % (test, ugh)) #--config %s" % (test, ugh, config))
             os.system("cd %s && ./fixmacros.sh" % test)
-            os.system("cd %s && python run_macros.py -a Hhh --config %s" % (test, config))
+            os.system("cd %s && python run_macros.py -a Hhh "  % (test))#--config %s" % (test, config))
+
+            os.system("cd %s && mv tauTau_* ../hlim/BDT_H%s/"  % (test, mass))
+            os.system("mv tt_goodness-* BDT_H%s"  % (mass))
+
+            print "Postfit plots => %s/hlim/BDT_H%s" %(base, mass)
