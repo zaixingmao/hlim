@@ -182,7 +182,7 @@ def printSampleInfo(xs, ini):
             continue
         fields = [key.ljust(n)]
         if not cfg.isData(key):
-            fields += ["%8.0f" % x,
+            fields += ["%8.0f" % x, # "%e" % x,
                        " %12.0f" % nEvents,
                        "       %7.1f" % (nEvents / x),
                        ]
@@ -284,13 +284,15 @@ def printTag(tag, l):
     print l, a
 
 
-def go(var={}, sFactor=0, sKey=""):
+def go(var={}, sFactor=0, sKey="", categoryWhitelist=None):
     assert var
     printHeader(**var)
 
     l = " " * 4
     f = r.TFile(cfg.outFileName(sFactor=sFactor, sKey=sKey, **var), "RECREATE")
     for category, tag in cfg.categories.iteritems():
+        if categoryWhitelist and category not in categoryWhitelist:
+            continue
         hs = histos(category=category, bins=var["bins"], variable=var["var"], cuts=var["cuts"])
         if options.integrals or options.xs or options.contents:
             printTag(tag, l)
