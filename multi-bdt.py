@@ -21,7 +21,7 @@ def histo(fileName, subdir="", name=""):
     return h
 
 
-def make_root_file(dirName, fileName, variable, ini_bins=None, subdir="tauTau_2jet2tag", minWidth=0.1, threshold=0.25):
+def make_root_file(dirName, fileName, variable, ini_bins=None, subdir="tauTau_2jet2tag", minWidth=0.1, threshold=0.25, catlist=None):
     # print dirName
     os.system("rm -rf %s" % dirName)
     os.system("mkdir %s" % dirName)
@@ -49,7 +49,7 @@ def make_root_file(dirName, fileName, variable, ini_bins=None, subdir="tauTau_2j
     print variable["bins"]
     # make histograms with this binning
     make_root_files.options.contents = True
-    make_root_files.go(variable)
+    make_root_files.go(variable, categoryWhitelist=catlist)
 
 
 def plot(dirName, fileName, xtitle, mass):
@@ -147,12 +147,14 @@ def go_zp(suffix="normal.root"):
     fileOut = cfg.outFileName(**variable)
     dirOut = "%s_%s" % (variable["var"], cfg.cutDesc(variable["cuts"]))
 
-    make_root_file(dirOut, fileOut, variable, ini_bins=(1000, 0.0, 1000.0), subdir="eleTau_inclusive", minWidth=25.0); ch="et"
-    # make_root_file(dirOut, fileOut, variable, ini_bins=(1000, 0.0, 1000.0), subdir="emu_inclusive", minWidth=25.0); ch="em"
+    for ch, subdir in cfg.categories.iteritems():
+        v = variable["var"]
 
-    v = variable["var"]
-    os.system("./compareDataCards.py --file1=Brown/%s.root --file2='' --masses='500 1000 1500 2000' --logy --xtitle='%s (GeV)'" % (v, v))
-    os.system("cp -p comparison_%s.pdf ~/public_html/comparison_%s_%s.pdf" % (v, v, ch))
+        make_root_file(dirOut, fileOut, variable, ini_bins=(1000, 0.0, 1000.0), subdir=subdir, minWidth=25.0, catlist=[ch])
+        root_dest.copy(src=cfg.outFileName(var=v, cuts=variable["cuts"]), channel=ch, era="13TeV", tag="Zp")
+
+        os.system("./compareDataCards.py --file1=Brown/%s.root --file2='' --masses='500 1000 1500 2000' --logy --xtitle='%s (GeV)'" % (v, v))
+        os.system("cp -p comparison_%s.pdf ~/public_html/comparison_%s_%s.pdf" % (v, v, ch))
 
 
 def opts():
