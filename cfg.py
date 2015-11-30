@@ -3,7 +3,6 @@ import sys
 from root_dest import root_dest
 
 #lumi     = 1.264e3
-lumi     = 1546.91
 lumiUnit = "/pb"
 
 rescaleX = False
@@ -19,7 +18,7 @@ _suffix = "inclusive"
 categories = {# "tt": "tauTau_%s" % _suffix,
               "et": "eleTau_%s" % _suffix,
               # "mt": "muTau_%s" % _suffix,
-              "em": "emu_%s" % _suffix,
+              # "em": "emu_%s" % _suffix,
               }
 
 #bdtDir = "/nfs_scratch/zmao/samples_Iso/datacard_new/bdt_new/"
@@ -27,8 +26,10 @@ bdtDir = "root/bdt/11/"
 # WARNING: this variable gets modified by multi-bdt.py
 # _stem = "13TeV_datacards_Spring15_eletronID2/combined%s.root"
 # _stem = "13TeV_zp_inclusive/combined%s.root"
-# _stem = "13TeV_zp/combined%s.root"
-_stem = "13TeV_zp2/combined%s.root"
+#lumi     = 1546.91; _stem = "13TeV_zp/combined%s.root"
+#lumi     = 1546.91; _stem = "13TeV_zp2/combined%s.root"
+#lumi     = 2093.3; _stem = "13TeV_zp3/combined%s.root"
+lumi     = 2093.3; _stem = "13TeV_zp3l/combined%s.root"
 
 
 def files(variable=""):
@@ -60,7 +61,7 @@ def procs(variable="", category=""):
 
     # first character '-' means subtract rather than add
     # first character '*' (see procs2)
-    out = {"TT": ["TTJets", 'ST_antiTop_tW', 'ST_top_tW'],
+    out = {"TT": ["TTJets", 'ST_antiTop_tW', 'ST_top_tW', 'ST_t-channel_antiTop_tW', 'ST_t-channel_top_tW'],
            "VV": ["WZ", "WW", "ZZ"],
            # "W": ["WJets"],
            "W": ['WJets_HT-0to100', 'WJets_HT-100to200', 'WJets_HT-200to400', 'WJets_HT-400to600', 'WJets_HT-600toInf'],
