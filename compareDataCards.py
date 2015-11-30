@@ -453,7 +453,7 @@ if __name__ == "__main__":
 
     options = opts()
 
-    whiteList = ["TT", "QCD", "VV", "ZTT", "W"]
+    whiteList = ["TT", "QCD", "VV", "ZTT", "W", "sum_b"]
     # whiteList += ["ZL", "ZJ", "data_obs"]
     whiteList += ["ggH%s" % m for m in options.masses.split()]
 
