@@ -143,7 +143,16 @@ def go_cb(suffix="normal.root"):
 
 
 def go_zp(suffix="normal.root"):
-    variable = {"var": "m_effective", "cuts": {}}
+    variable = {"var": "m_effective",
+                "cuts": {"tauTightIso": (0.5, None),
+                         "eleRelIso": (None, 0.15),
+                         "pfMEt": (30, None),
+                         "pZetaCut": (-50, None),
+                         "nCSVL": (None, 0.5),
+                         "cosDPhi": (None, -0.95),
+                         },
+                }
+
     fileOut = cfg.outFileName(**variable)
     dirOut = "%s_%s" % (variable["var"], cfg.cutDesc(variable["cuts"]))
 
@@ -153,8 +162,12 @@ def go_zp(suffix="normal.root"):
         make_root_file(dirOut, fileOut, variable, ini_bins=(1000, 0.0, 1000.0), subdir=subdir, minWidth=25.0, catlist=[ch])
         root_dest.copy(src=cfg.outFileName(var=v, cuts=variable["cuts"]), channel=ch, era="13TeV", tag="Zp")
 
-        os.system("./compareDataCards.py --file1=Brown/%s.root --file2='' --masses='500 1000 1500 2000' --logy --xtitle='%s (GeV)'" % (v, v))
+        args = "--file1=Brown/htt_%s.inputs-Zp-13TeV.root --file2='' --masses='500 1000 1500 2000' --logy --xtitle='%s (GeV)'" % (ch, v)
+        os.system("./compareDataCards.py %s" % args)
         os.system("cp -p comparison_%s.pdf ~/public_html/comparison_%s_%s.pdf" % (v, v, ch))
+
+        os.system("./compareDataCards.py %s --raw-yields" % args)
+        os.system("cp -p comparison_%s.pdf ~/public_html/comparison_%s_%s_raw.pdf" % (v, v, ch))
 
 
 def opts():
