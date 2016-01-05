@@ -9,7 +9,7 @@ rescaleX = False
 
 # masses = [160]
 # masses = [260,270,280]#range(260, 360, 10) #+ [500, 700]
-masses = [500, 1000, 1500, 2000, 2500, 3000, 3500, 4000, 4500]
+masses = [500, 1000, 1500, 2000, 2500, 3000, 3500, 4000, 4500, 5000]
 # masses = masses[:2]
 
 substring_signal_example = "ggH%d" % masses[0]
@@ -18,7 +18,7 @@ _suffix = "inclusive"
 categories = {# "tt": "tauTau_%s" % _suffix,
               "et": "eleTau_%s" % _suffix,
               # "mt": "muTau_%s" % _suffix,
-              # "em": "emu_%s" % _suffix,
+              "em": "emu_%s" % _suffix,
               }
 
 #bdtDir = "/nfs_scratch/zmao/samples_Iso/datacard_new/bdt_new/"
@@ -29,13 +29,14 @@ bdtDir = "root/bdt/11/"
 #lumi     = 1546.91; _stem = "13TeV_zp/combined%s.root"
 #lumi     = 1546.91; _stem = "13TeV_zp2/combined%s.root"
 #lumi     = 2093.3; _stem = "13TeV_zp3/combined%s.root"
-lumi     = 2093.3; _stem = "13TeV_zp3l/combined%s.root"
+#lumi     = 2093.3; _stem = "13TeV_zp3l/combined%s.root"
+lumi     = 2093.3; _stem = "13TeV_zp_jan4/combined%s.root"
 
 
 def files(variable=""):
     assert variable
-    # s = ""
-    s = "_withPUWeight"
+    s = ""
+    # s = "_withPUWeight"
     return {"":                             _stem % s,
             # "_CMS_scale_t_tautau_8TeVUp":   _stem % "tauUp",
             # "_CMS_scale_t_tautau_8TeVDown": _stem % "tauDown",
@@ -52,7 +53,8 @@ def files(variable=""):
 
 def qcd_sf_name(category):
     # return "L_to_T_SF_%s" % category
-    return "SS_to_OS_%s" % category
+    # return "SS_to_OS_%s" % category
+    return "Loose_to_Tight_%s" % category  # NOTE! incorporate prong req
 
 
 def procs(variable="", category=""):
@@ -62,16 +64,23 @@ def procs(variable="", category=""):
     # first character '-' means subtract rather than add
     # first character '*' (see procs2)
     out = {"TT": ["TTJets", 'ST_antiTop_tW', 'ST_top_tW', 'ST_t-channel_antiTop_tW', 'ST_t-channel_top_tW'],
-           "VV": ["WZ", "WW", "ZZ"],
-           # "W": ["WJets"],
+           "VV": ['VVTo2L2Nu', 'WWTo1L1Nu2Q', 'WZJets', 'WZTo1L1Nu2Q', 'WZTo1L3Nu', 'WZTo2L2Q', 'ZZTo2L2Q', 'ZZTo4L'],
            "W": ['WJets_HT-0to100', 'WJets_HT-100to200', 'WJets_HT-200to400', 'WJets_HT-400to600', 'WJets_HT-600toInf'],
+           "ZTT": ['DY_M-50-H-0to100', 'DY_M-50-H-100to200', 'DY_M-50-H-200to400', 'DY_M-50-H-400to600', 'DY_M-50-H-600toInf'] +\
+               ['DY_M-5to50-H-0to100', 'DY_M-5to50-H-200to400', 'DY_M-5to50-H-400to600', 'DY_M-5to50-H-600toInf'],
+
+           # "VV": ["WZ", "WW", "ZZ"],
+           # "W": ["WJets"],
            # "ZTT": ["ZTT"],
-           "ZTT": ['DY_M-10to50', 'DY_M-50-H-0to100', 'DY_M-50-H-100to200', 'DY_M-50-H-200to400', 'DY_M-50-H-400to600', 'DY_M-50-H-600toInf'],
            # "ZLL": ["ZL", "ZJ"],
            # "ZL": ["ZL"],
            # "ZJ": ["ZJ"],
-           "QCD": ["dataSS", "-MCSS"],
-           "data_obs": ["dataOS"],
+
+           # "QCD": ["dataSS", "-MCSS"],
+           # "data_obs": ["dataOS"],
+
+           "QCD": ["dataLoose", "-MCLoose"],
+           "data_obs": ["dataTight"],
            }
     for m in masses:
         out["ggH%d" % m] = ["Zprime_%d" % m]
