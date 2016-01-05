@@ -144,12 +144,12 @@ def go_cb(suffix="normal.root"):
 
 def go_zp(suffix="normal.root"):
     variable = {"var": "m_effective",
-                "cuts": {"tauTightIso": (0.5, None),
-                         "eleRelIso": (None, 0.15),
-                         "pfMEt": (30, None),
-                         "pZetaCut": (-50, None),
-                         "nCSVL": (None, 0.5),
-                         "cosDPhi": (None, -0.95),
+                "cuts": {# "tauTightIso": (0.5, None),
+                         # "eleRelIso": (None, 0.15),
+                         # "pfMEt": (30, None),
+                         # "pZetaCut": (-50, None),
+                         # "nCSVL": (None, 0.5),
+                         # "cosDPhi": (None, -0.95),
                          },
                 }
 
