@@ -151,11 +151,19 @@ def histosOneFile(f, tree, bins, procs, variable, cuts, category):
         if category:
             cutString += ' && (Category=="%s")' % category
 
-        for cutVar, (cutMin, cutMax) in sorted(cuts.iteritems()):
+        for cutVarRaw, (cutMin, cutMax) in sorted(cuts.iteritems()):
+            invert = cutVarRaw[0] == "~"
+            cutVar = cutVarRaw[1:] if invert else cutVarRaw
+
+            cutString1 = ""
             if cutMin is not None:
-                cutString += " && (%g < %s)" % (cutMin, cutVar)
+                cutString1 += " && (%g < %s)" % (cutMin, cutVar)
             if cutMax is not None:
-                cutString += " && (%s < %g)" % (cutVar, cutMax)
+                cutString1 += " && (%s < %g)" % (cutVar, cutMax)
+
+            if invert:
+                cutString1 = " && !(%s)" % (cutString1[4:])
+            cutString += cutString1
 
         tree.Draw("%s>>%s" % (variable, proc), '(%s)*(%s)' % (w, cutString))
         h.SetDirectory(0)
