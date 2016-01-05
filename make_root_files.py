@@ -182,7 +182,8 @@ def printSampleInfo(xs, ini):
             continue
         fields = [key.ljust(n)]
         if not cfg.isData(key):
-            fields += ["%8.0f" % x, # "%e" % x,
+            fields += [# "%10.1f" % x,
+                        "%e" % x,
                        " %12.0f" % nEvents,
                        "       %7.1f" % (nEvents / x),
                        ]
