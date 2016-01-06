@@ -360,7 +360,7 @@ def sumb(hs, name="sum_b"):
             continue
         if cfg.isData(key):
             continue
-        if key.endswith("8TeVUp") or key.endswith("8TeVDown"):
+        if cfg.isVariation(key):
             continue
 
         if d is None:
