@@ -120,6 +120,7 @@ def shortened(band):
     s = band
     for old, new in [("_tautau_8TeV", ""),
                      ("_8TeV", ""),
+                     ("_13TeV", ""),
                      ("CMS_", ""),
                      ]:
         s = s.replace(old, new)
@@ -439,7 +440,8 @@ if __name__ == "__main__":
     ignorePrefixes = ["ggAToZh", "bbH", "ggRadion", "ggGraviton"]
 
     # bands = ["CMS_scale_%s_8TeV" % s for s in ["t_tautau", "j", "btag", "btagEff", "btagFake"]]
-    bands = [""]
+    # bands = [""]
+    bands = ["CMS_scale_W_13TeV", "CMS_scale_j_13TeV"]
 
     r.gErrorIgnoreLevel = 2000
     r.gStyle.SetOptStat("rme")
