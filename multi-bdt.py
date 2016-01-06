@@ -158,6 +158,8 @@ def go_zp(suffix="normal.root"):
                          # "pZetaCut": (-50, None),
                          # "nCSVL": (None, 0.5),
                          # "cosDPhi": (None, -0.95),
+
+                         "~tauDecayMode": (4.5, 9.5),
                          },
                 }
 
@@ -166,8 +168,9 @@ def go_zp(suffix="normal.root"):
 
     for ch, subdir in cfg.categories.iteritems():
         v = variable["var"]
-
-        make_root_file(dirOut, fileOut, variable, ini_bins=(1000, 0.0, 1000.0), subdir=subdir, minWidth=25.0, threshold=0.25, catlist=[ch])
+        # ini_bins = [73.0, 98.0, 123.0, 148.0, 173.0, 198.0, 223.0, 248.0, 273.0, 298.0, 335.0, 360.0, 390.0, 425.0, 495.0, 520.0]
+        # make_root_file(dirOut, fileOut, variable, ini_bins=ini_bins, subdir=subdir, catlist=[ch])
+        make_root_file(dirOut, fileOut, variable, ini_bins=(1000, 0.0, 1000.0), subdir=subdir, minWidth=25.0, threshold=0.20, catlist=[ch])
         root_dest.copy(src=cfg.outFileName(var=v, cuts=variable["cuts"]), channel=ch, era="13TeV", tag="Zp")
 
         args = "--file1=Brown/htt_%s.inputs-Zp-13TeV.root --file2='' --masses='500 1000 1500 2000' --logy --xtitle='%s (GeV)'" % (ch, v)
