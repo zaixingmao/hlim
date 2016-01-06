@@ -35,13 +35,13 @@ lumi     = 2093.3; _stem = "13TeV_zp_jan4/combined%s.root"
 
 def files(variable=""):
     assert variable
-    s = ""
-    # s = "_withPUWeight"
-    return {"":                             _stem % s,
+    return {"":                             _stem % "",
+            # "_CMS_scale_W_13TeVUp":   _stem % "_W_2_0",
+            # "_CMS_scale_W_13TeVDown": _stem % "_W_0_5",
+            "_CMS_scale_j_13TeVUp":   _stem % "_Jet35",
+            "_CMS_scale_j_13TeVDown": _stem % "_Jet25",
             # "_CMS_scale_t_tautau_8TeVUp":   _stem % "tauUp",
             # "_CMS_scale_t_tautau_8TeVDown": _stem % "tauDown",
-            # "_CMS_scale_j_8TeVUp":   _stem % "jetUp",
-            # "_CMS_scale_j_8TeVDown": _stem % "jetDown",
             # "_CMS_scale_btag_8TeVUp": _stem % "bSysUp",
             # "_CMS_scale_btag_8TeVDown": _stem % "bSysDown",
             # "_CMS_scale_btagEff_8TeVUp": _stem % "bSysUp",     # duplicate of btag
@@ -56,11 +56,12 @@ def qcd_sf_name(category, cuts=None):
     # return "SS_to_OS_%s" % category
 
     prefix = "Loose_to_Tight"
-    if category == "et":
-        assert cuts.get('~tauDecayMode') == (4.5, 9.5), cuts
+    tdm = cuts.get('~tauDecayMode')
+
+    if category == "et" and tdm:
+        assert tdm == (4.5, 9.5), cuts
         return "%s_et_1prong_3prong" % prefix
-    else:
-        return "%s_%s" % (prefix, category)
+    return "%s_%s" % (prefix, category)
 
 
 def procs(variable="", category=""):
@@ -108,6 +109,7 @@ def procs2(variable="", category=""):
 def isData(proc):
     return proc.startswith("data")
 
+
 def isDataEmbedded(proc):
     return proc.startswith("DY_embed")  # fixme: dimuon
 
@@ -118,6 +120,13 @@ def isMcEmbedded(proc):
 
 def isSignal(proc):
     return any([proc.startswith(p) for p in ["ggH", "ggA", "ggGraviton", "ggRadion", "bbH"]])
+
+
+def isVariation(proc):
+    for com in [7, 8, 13]:
+        if proc.endswith("%dTeVUp" % com) or proc.endswith("%dTeVDown" % com):
+            return True
+    return False
 
 
 def reportExtra(proc):
