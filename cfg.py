@@ -51,10 +51,16 @@ def files(variable=""):
             }
 
 
-def qcd_sf_name(category):
+def qcd_sf_name(category, cuts=None):
     # return "L_to_T_SF_%s" % category
     # return "SS_to_OS_%s" % category
-    return "Loose_to_Tight_%s" % category  # NOTE! incorporate prong req
+
+    prefix = "Loose_to_Tight"
+    if category == "et":
+        assert cuts.get('~tauDecayMode') == (4.5, 9.5), cuts
+        return "%s_et_1prong_3prong" % prefix
+    else:
+        return "%s_%s" % (prefix, category)
 
 
 def procs(variable="", category=""):
