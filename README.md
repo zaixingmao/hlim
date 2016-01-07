@@ -5,28 +5,21 @@ cmsrel CMSSW_7_1_5
 cd CMSSW_7_1_5/src
 cmsenv
 
-git clone https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit HiggsAnalysis/CombinedLimit
-cd HiggsAnalysis/CombinedLimit
-git checkout v5.0.1
-cd ../..
-
-git clone https://github.com/cms-analysis/HiggsAnalysis-HiggsToTauTau HiggsAnalysis/HiggsToTauTau
-cd HiggsAnalysis/HiggsToTauTau
-source environment.sh
-
-git clone https://github.com/zaixingmao/hlim
-cp -p hlim/test.gitignore test/.gitignore
-cd ../..
+git clone https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit.git HiggsAnalysis/CombinedLimit
+git clone https://github.com/cms-analysis/CombineHarvester.git CombineHarvester
+git clone https://github.com/roger-wolf/HiggsAnalysis-HiggsToTauTau-auxiliaries.git auxiliaries
+git clone https://github.com/zaixingmao/hlim.git
 
 scram b -j 4
 ```
 
 ####run
 ```bash
-cd CMSSW_7_1_5/src/HiggsAnalysis/HiggsToTauTau/hlim
+cd CMSSW_7_1_5/src/hlim
 cmsenv
 
 # edit cfg.py
-./make_root_files.py
-./go.py --file=root/a.root --full
+./multi-bdt.py
+./zp.py
+./lim.py
 ```
