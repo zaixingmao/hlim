@@ -36,8 +36,8 @@ lumi     = 2093.3; _stem = "13TeV_zp_jan4/combined%s.root"
 def files(variable=""):
     assert variable
     return {"":                             _stem % "",
-            # "_CMS_scale_W_13TeVUp":   _stem % "_W_2_0",
-            # "_CMS_scale_W_13TeVDown": _stem % "_W_0_5",
+            # "_CMS_scale_W_13TeVUp":   _stem % "_W_1_15",
+            # "_CMS_scale_W_13TeVDown": _stem % "_W_0_85",
             "_CMS_scale_j_13TeVUp":   _stem % "_Jet35",
             "_CMS_scale_j_13TeVDown": _stem % "_Jet25",
             # "_CMS_scale_t_tautau_8TeVUp":   _stem % "tauUp",
@@ -123,10 +123,7 @@ def isSignal(proc):
 
 
 def isVariation(proc):
-    for com in [7, 8, 13]:
-        if proc.endswith("%dTeVUp" % com) or proc.endswith("%dTeVDown" % com):
-            return True
-    return False
+    return proc.endswith("Down") or proc.endswith("Up")
 
 
 def reportExtra(proc):
