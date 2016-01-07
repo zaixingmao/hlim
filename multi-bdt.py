@@ -21,7 +21,7 @@ def histo(fileName, subdir="", name=""):
     return h
 
 
-def make_root_file(dirName, fileName, variable, ini_bins=None, subdir="tauTau_2jet2tag", minWidth=None, threshold=None, catlist=None):
+def make_root_file(dirName, fileName, variable, ini_bins=None, subdir="", minWidth=None, threshold=None, catlist=None):
     # print dirName
     os.system("rm -rf %s" % dirName)
     os.system("mkdir %s" % dirName)
@@ -37,13 +37,13 @@ def make_root_file(dirName, fileName, variable, ini_bins=None, subdir="tauTau_2j
 
     variable["bins"] = ini_bins
 
-    bail = (minWidth is None) or (threshold is None)
-    if bail:
+    staticBinning = (minWidth is None) or (threshold is None)
+    if staticBinning:
         make_root_files.options.contents = True
 
-    make_root_files.go(variable, categoryWhitelist=catlist)
+    make_root_files.go(variable, categoryWhitelist=catlist, skipVariations=not staticBinning)
 
-    if bail:
+    if staticBinning:
         return
 
     # then choose a coarser binning
@@ -128,7 +128,7 @@ def go_bdt(suffix="normal.root"):
 
             dirOut = fileIn.replace("combined", variable["var"]).replace("_%s" % suffix, "")
             if not options.reuse:
-                make_root_file(dirOut, fileOut, variable, ini_bins=(1000, -1.0, 1.0), minWidth=0.1, threshold=0.25)
+                make_root_file(dirOut, fileOut, variable, ini_bins=(1000, -1.0, 1.0), subdir="tauTau_2jet2tag", minWidth=0.1, threshold=0.25)
             root_dest.copy(src=fileOut, link=True)
             plot(dirOut, fileOut, xtitle=variable["var"]+variable["tag"], mass=mass)
             compute_limit(dirOut, fileOut, mass)
@@ -143,7 +143,7 @@ def go_cb(suffix="normal.root"):
     fileOut = cfg.outFileName(**variable)
     dirOut = "%s_%s" % (variable["var"], cfg.cutDesc(variable["cuts"]))
     if not options.reuse:
-        make_root_file(dirOut, fileOut, variable, ini_bins=(1000, 250.0, 1000.0), minWidth=0.1, threshold=0.25)
+        make_root_file(dirOut, fileOut, variable, ini_bins=(1000, 250.0, 1000.0), subdir="tauTau_2jet2tag", minWidth=0.1, threshold=0.25)
     d = cfg.variable()
     root_dest.copy(src=cfg.outFileName(var=d["var"], cuts=d["cuts"]), link=True)
 #    plot(dirOut, fileOut, xtitle=variable["var"], mass=cfg.masses[0])
