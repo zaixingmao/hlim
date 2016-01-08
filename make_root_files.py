@@ -78,7 +78,7 @@ def rescaled_bins(bins, variable):
     return bins, variable
 
 
-def histos(bins=None, variable="", cuts={}, category=""):
+def histos(bins=None, variable="", cuts={}, category="", skipVariations=False):
     assert bins
 
     # rescale so that bin width is 1.0
@@ -89,6 +89,9 @@ def histos(bins=None, variable="", cuts={}, category=""):
 
     out = {}
     for variation, fileName in cfg.files(variable).iteritems():
+        if skipVariations and variation:
+            continue
+
         f = r.TFile(fileName)
         tree = f.Get("eventTree")
         checkSamples(tree, fileName, variable, category)
@@ -108,7 +111,8 @@ def histos(bins=None, variable="", cuts={}, category=""):
                 factor = -1.0 if srcProc[0] == "-" else 1.0
                 out[destProc].Add(h, factor)
 
-        applyFactor(out["QCD" + variation], f, hName=cfg.qcd_sf_name(category), unit=False)
+
+        applyFactor(out["QCD" + variation], f, hName=cfg.qcd_sf_name(category, cuts=cuts), unit=False)
 
         if any(["embed" in src for src in procs.get("ZTT", [])]):
            applyFactor(out["ZTT" + variation], f, hName="MC2Embed2Cat_%s" % category, unit=(category != '0M'))
@@ -151,11 +155,19 @@ def histosOneFile(f, tree, bins, procs, variable, cuts, category):
         if category:
             cutString += ' && (Category=="%s")' % category
 
-        for cutVar, (cutMin, cutMax) in sorted(cuts.iteritems()):
+        for cutVarRaw, (cutMin, cutMax) in sorted(cuts.iteritems()):
+            invert = cutVarRaw[0] == "~"
+            cutVar = cutVarRaw[1:] if invert else cutVarRaw
+
+            cutString1 = ""
             if cutMin is not None:
-                cutString += " && (%g < %s)" % (cutMin, cutVar)
+                cutString1 += " && (%g < %s)" % (cutMin, cutVar)
             if cutMax is not None:
-                cutString += " && (%s < %g)" % (cutVar, cutMax)
+                cutString1 += " && (%s < %g)" % (cutVar, cutMax)
+
+            if invert:
+                cutString1 = " && !(%s)" % (cutString1[4:])
+            cutString += cutString1
 
         tree.Draw("%s>>%s" % (variable, proc), '(%s)*(%s)' % (w, cutString))
         h.SetDirectory(0)
@@ -182,7 +194,8 @@ def printSampleInfo(xs, ini):
             continue
         fields = [key.ljust(n)]
         if not cfg.isData(key):
-            fields += ["%8.0f" % x,
+            fields += [# "%10.1f" % x,
+                        "%e" % x,
                        " %12.0f" % nEvents,
                        "       %7.1f" % (nEvents / x),
                        ]
@@ -249,7 +262,7 @@ def applyFactor(h=None, tfile=None, hName="", unit=False):
 
 
 def describe(h, l, keys):
-    print l, h.GetXaxis().GetTitle(), "(sum of %s)" % str(keys)
+    print l, h.GetXaxis().GetTitle(), "(sum of %s)" % str(sorted(keys))
     headers = "bin    x_lo       width    cont  +-   err    (   rel)"
     print l, headers
     print l, "-" * len(headers)
@@ -262,7 +275,7 @@ def describe(h, l, keys):
         if c:
             s += "  (%5.1f%s)" % (100.*e/c, "%")
         print l, s
-    print l, "sum".ljust(12) + " = %9.3f" % h.Integral(0, 2 + h.GetNbinsX())
+    print l, "sum".ljust(12) + " = %9.3f" % h.Integral(0, 1 + h.GetNbinsX())
     print
 
 
@@ -285,14 +298,16 @@ def printTag(tag, l):
     print l, a
 
 
-def go(var={}, sFactor=0, sKey=""):
+def go(var={}, sFactor=0, sKey="", categoryWhitelist=None, skipVariations=False):
     assert var
     printHeader(**var)
 
     l = " " * 4
     f = r.TFile(cfg.outFileName(sFactor=sFactor, sKey=sKey, **var), "RECREATE")
     for category, tag in cfg.categories.iteritems():
-        hs = histos(category=category, bins=var["bins"], variable=var["var"], cuts=var["cuts"])
+        if categoryWhitelist and category not in categoryWhitelist:
+            continue
+        hs = histos(category=category, bins=var["bins"], variable=var["var"], cuts=var["cuts"], skipVariations=skipVariations)
         if options.integrals or options.xs or options.contents:
             printTag(tag, l)
         f.mkdir(tag).cd()
@@ -322,10 +337,11 @@ def oneTag(tag, hs, sKey, sFactor, l):
         #h.Print("all")
         if cfg.isSignal(proc) and cfg.substring_signal_example not in proc:
             pass
-        elif proc.endswith("Down") or proc.endswith("Up"):
+        elif cfg.isVariation(proc):
             pass
         else:
             integrals.append((tag, proc, h.Integral(0, 2 + h.GetNbinsX())))
+
         h.Write()
 
     if options.integrals:
@@ -335,13 +351,32 @@ def oneTag(tag, hs, sKey, sFactor, l):
         fakeDataset(hs, sKey, sFactor, l).Write()
 
     if options.sumb:
-        h, keys = sumb(hs)
-        h.Write()
-        if options.contents and options.unblind:
-            describe(h, l, keys)
+        suffixes = sorted(cfg.files("DUMMY").keys())
+        for suffix in suffixes:
+            h, keys = sumb(hs, suffix=suffix)
+            if not h:  # due to go(skipVariations=True)
+                print "skipping", suffix
+                continue
+            h.Write()
+            if options.contents:
+                if suffix:
+                    nOld = len(l) + len(h.GetXaxis().GetTitle())
+                    print "%s %s = %9.3f  %s %s" % (l,
+                                                    "sum".ljust(12),
+                                                    h.Integral(0, 1 + h.GetNbinsX()),
+                                                    "(sum of %s)" % str(sorted([x.replace(suffix, "") for x in keys])),
+                                                    suffix,
+                                                    )
+                elif options.unblind:  # fake-dataset not created nor printed
+                    describe(h, l, keys)
+
+        if options.contents and any(suffixes):
+            print
 
 
-def sumb(hs, name="sum_b"):
+def sumb(hs, name="sum_b", suffix=""):
+    name += suffix
+
     d = None
     keys = []
     for key, histo in hs.iteritems():
@@ -349,7 +384,9 @@ def sumb(hs, name="sum_b"):
             continue
         if cfg.isData(key):
             continue
-        if key.endswith("8TeVUp") or key.endswith("8TeVDown"):
+        if (not suffix) and cfg.isVariation(key):
+            continue
+        if suffix and not key.endswith(suffix):
             continue
 
         if d is None:

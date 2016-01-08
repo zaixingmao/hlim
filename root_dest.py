@@ -9,9 +9,8 @@ root_dest = "%s/src/auxiliaries/shapes/Brown" % os.environ["CMSSW_BASE"]
 
 bdt_tmp = "%s/src/LIMITS-tmp/tt" % os.environ["CMSSW_BASE"]
 
-def copy(src="", link=False):
-    src = os.path.abspath(src).replace(root_dest + "/", "")
-    dest = "%s/%s" % (root_dest, "htt_tt.inputs-Hhh-8TeV.root")
+def copy(src="", channel="tt", era="8TeV", tag="Hhh", link=False):
+    dest = "%s/%s" % (root_dest, "htt_%s.inputs-%s-%s.root" % (channel, tag, era))
 
     try:
         os.remove(dest)
@@ -20,6 +19,7 @@ def copy(src="", link=False):
             print e
             sys.exit(1)
     if link:
+        src = os.path.abspath(src).replace(root_dest + "/", "")
         os.system("ln -s %s %s" % (src, dest))
     else:
         os.system("cp -p %s %s" % (src, dest))

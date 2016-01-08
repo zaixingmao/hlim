@@ -3,14 +3,13 @@ import sys
 from root_dest import root_dest
 
 #lumi     = 1.264e3
-lumi     = 1546.91
 lumiUnit = "/pb"
 
 rescaleX = False
 
 # masses = [160]
 # masses = [260,270,280]#range(260, 360, 10) #+ [500, 700]
-masses = [500, 1000, 1500, 2000, 2500, 3000, 3500, 4000, 4500]
+masses = [500, 1000, 1500, 2000, 2500, 3000, 3500, 4000, 4500, 5000]
 # masses = masses[:2]
 
 substring_signal_example = "ggH%d" % masses[0]
@@ -27,19 +26,22 @@ bdtDir = "root/bdt/11/"
 # WARNING: this variable gets modified by multi-bdt.py
 # _stem = "13TeV_datacards_Spring15_eletronID2/combined%s.root"
 # _stem = "13TeV_zp_inclusive/combined%s.root"
-# _stem = "13TeV_zp/combined%s.root"
-_stem = "13TeV_zp2/combined%s.root"
+#lumi     = 1546.91; _stem = "13TeV_zp/combined%s.root"
+#lumi     = 1546.91; _stem = "13TeV_zp2/combined%s.root"
+#lumi     = 2093.3; _stem = "13TeV_zp3/combined%s.root"
+#lumi     = 2093.3; _stem = "13TeV_zp3l/combined%s.root"
+lumi     = 2093.3; _stem = "13TeV_zp_jan4/combined%s.root"
 
 
 def files(variable=""):
     assert variable
-    # s = ""
-    s = "_withPUWeight"
-    return {"":                             _stem % s,
+    return {"":                             _stem % "",
+            # "_CMS_scale_W_13TeVUp":   _stem % "_W_1_15",
+            # "_CMS_scale_W_13TeVDown": _stem % "_W_0_85",
+            "_CMS_scale_j_13TeVUp":   _stem % "_Jet35",
+            "_CMS_scale_j_13TeVDown": _stem % "_Jet25",
             # "_CMS_scale_t_tautau_8TeVUp":   _stem % "tauUp",
             # "_CMS_scale_t_tautau_8TeVDown": _stem % "tauDown",
-            # "_CMS_scale_j_8TeVUp":   _stem % "jetUp",
-            # "_CMS_scale_j_8TeVDown": _stem % "jetDown",
             # "_CMS_scale_btag_8TeVUp": _stem % "bSysUp",
             # "_CMS_scale_btag_8TeVDown": _stem % "bSysDown",
             # "_CMS_scale_btagEff_8TeVUp": _stem % "bSysUp",     # duplicate of btag
@@ -49,9 +51,17 @@ def files(variable=""):
             }
 
 
-def qcd_sf_name(category):
+def qcd_sf_name(category, cuts=None):
     # return "L_to_T_SF_%s" % category
-    return "SS_to_OS_%s" % category
+    # return "SS_to_OS_%s" % category
+
+    prefix = "Loose_to_Tight"
+    tdm = cuts.get('~tauDecayMode')
+
+    if category == "et" and tdm:
+        assert tdm == (4.5, 9.5), cuts
+        return "%s_et_1prong_3prong" % prefix
+    return "%s_%s" % (prefix, category)
 
 
 def procs(variable="", category=""):
@@ -60,17 +70,24 @@ def procs(variable="", category=""):
 
     # first character '-' means subtract rather than add
     # first character '*' (see procs2)
-    out = {"TT": ["TTJets", 'ST_antiTop_tW', 'ST_top_tW'],
-           "VV": ["WZ", "WW", "ZZ"],
-           # "W": ["WJets"],
+    out = {"TT": ["TTJets", 'ST_antiTop_tW', 'ST_top_tW', 'ST_t-channel_antiTop_tW', 'ST_t-channel_top_tW'],
+           "VV": ['VVTo2L2Nu', 'WWTo1L1Nu2Q', 'WZJets', 'WZTo1L1Nu2Q', 'WZTo1L3Nu', 'WZTo2L2Q', 'ZZTo2L2Q', 'ZZTo4L'],
            "W": ['WJets_HT-0to100', 'WJets_HT-100to200', 'WJets_HT-200to400', 'WJets_HT-400to600', 'WJets_HT-600toInf'],
+           "ZTT": ['DY_M-50-H-0to100', 'DY_M-50-H-100to200', 'DY_M-50-H-200to400', 'DY_M-50-H-400to600', 'DY_M-50-H-600toInf'] +\
+               ['DY_M-5to50-H-0to100', 'DY_M-5to50-H-200to400', 'DY_M-5to50-H-400to600', 'DY_M-5to50-H-600toInf'],
+
+           # "VV": ["WZ", "WW", "ZZ"],
+           # "W": ["WJets"],
            # "ZTT": ["ZTT"],
-           "ZTT": ['DY_M-10to50', 'DY_M-50-H-0to100', 'DY_M-50-H-100to200', 'DY_M-50-H-200to400', 'DY_M-50-H-400to600', 'DY_M-50-H-600toInf'],
            # "ZLL": ["ZL", "ZJ"],
            # "ZL": ["ZL"],
            # "ZJ": ["ZJ"],
-           "QCD": ["dataSS", "-MCSS"],
-           "data_obs": ["dataOS"],
+
+           # "QCD": ["dataSS", "-MCSS"],
+           # "data_obs": ["dataOS"],
+
+           "QCD": ["dataLoose", "-MCLoose"],
+           "data_obs": ["dataTight"],
            }
     for m in masses:
         out["ggH%d" % m] = ["Zprime_%d" % m]
@@ -92,6 +109,7 @@ def procs2(variable="", category=""):
 def isData(proc):
     return proc.startswith("data")
 
+
 def isDataEmbedded(proc):
     return proc.startswith("DY_embed")  # fixme: dimuon
 
@@ -102,6 +120,10 @@ def isMcEmbedded(proc):
 
 def isSignal(proc):
     return any([proc.startswith(p) for p in ["ggH", "ggA", "ggGraviton", "ggRadion", "bbH"]])
+
+
+def isVariation(proc):
+    return proc.endswith("Down") or proc.endswith("Up")
 
 
 def reportExtra(proc):

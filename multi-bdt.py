@@ -21,7 +21,7 @@ def histo(fileName, subdir="", name=""):
     return h
 
 
-def make_root_file(dirName, fileName, variable, ini_bins=None, subdir="tauTau_2jet2tag", minWidth=0.1, threshold=0.25):
+def make_root_file(dirName, fileName, variable, ini_bins=None, subdir="", minWidth=None, threshold=None, catlist=None):
     # print dirName
     os.system("rm -rf %s" % dirName)
     os.system("mkdir %s" % dirName)
@@ -36,7 +36,15 @@ def make_root_file(dirName, fileName, variable, ini_bins=None, subdir="tauTau_2j
         print "BLIND!"
 
     variable["bins"] = ini_bins
-    make_root_files.go(variable)
+
+    staticBinning = (minWidth is None) or (threshold is None)
+    if staticBinning:
+        make_root_files.options.contents = True
+
+    make_root_files.go(variable, categoryWhitelist=catlist, skipVariations=not staticBinning)
+
+    if staticBinning:
+        return
 
     # then choose a coarser binning
     fine_histo = histo(fileName=fileName,
@@ -49,7 +57,7 @@ def make_root_file(dirName, fileName, variable, ini_bins=None, subdir="tauTau_2j
     print variable["bins"]
     # make histograms with this binning
     make_root_files.options.contents = True
-    make_root_files.go(variable)
+    make_root_files.go(variable, categoryWhitelist=catlist)
 
 
 def plot(dirName, fileName, xtitle, mass):
@@ -120,7 +128,7 @@ def go_bdt(suffix="normal.root"):
 
             dirOut = fileIn.replace("combined", variable["var"]).replace("_%s" % suffix, "")
             if not options.reuse:
-                make_root_file(dirOut, fileOut, variable, ini_bins=(1000, -1.0, 1.0))
+                make_root_file(dirOut, fileOut, variable, ini_bins=(1000, -1.0, 1.0), subdir="tauTau_2jet2tag", minWidth=0.1, threshold=0.25)
             root_dest.copy(src=fileOut, link=True)
             plot(dirOut, fileOut, xtitle=variable["var"]+variable["tag"], mass=mass)
             compute_limit(dirOut, fileOut, mass)
@@ -135,7 +143,7 @@ def go_cb(suffix="normal.root"):
     fileOut = cfg.outFileName(**variable)
     dirOut = "%s_%s" % (variable["var"], cfg.cutDesc(variable["cuts"]))
     if not options.reuse:
-        make_root_file(dirOut, fileOut, variable, ini_bins=(1000, 250.0, 1000.0))
+        make_root_file(dirOut, fileOut, variable, ini_bins=(1000, 250.0, 1000.0), subdir="tauTau_2jet2tag", minWidth=0.1, threshold=0.25)
     d = cfg.variable()
     root_dest.copy(src=cfg.outFileName(var=d["var"], cuts=d["cuts"]), link=True)
 #    plot(dirOut, fileOut, xtitle=variable["var"], mass=cfg.masses[0])
@@ -143,16 +151,34 @@ def go_cb(suffix="normal.root"):
 
 
 def go_zp(suffix="normal.root"):
-    variable = {"var": "m_effective", "cuts": {}}
+    variable = {"var": "m_effective",
+                "cuts": {# "tauTightIso": (0.5, None),
+                         # "eleRelIso": (None, 0.15),
+                         # "pfMEt": (30, None),
+                         # "pZetaCut": (-50, None),
+                         # "nCSVL": (None, 0.5),
+                         # "cosDPhi": (None, -0.95),
+
+                         "~tauDecayMode": (4.5, 9.5),
+                         },
+                }
+
     fileOut = cfg.outFileName(**variable)
     dirOut = "%s_%s" % (variable["var"], cfg.cutDesc(variable["cuts"]))
 
-    make_root_file(dirOut, fileOut, variable, ini_bins=(1000, 0.0, 1000.0), subdir="eleTau_inclusive", minWidth=25.0); ch="et"
-    # make_root_file(dirOut, fileOut, variable, ini_bins=(1000, 0.0, 1000.0), subdir="emu_inclusive", minWidth=25.0); ch="em"
+    for ch, subdir in cfg.categories.iteritems():
+        v = variable["var"]
+        # ini_bins = [73.0, 98.0, 123.0, 148.0, 173.0, 198.0, 223.0, 248.0, 273.0, 298.0, 335.0, 360.0, 390.0, 425.0, 495.0, 520.0]
+        # make_root_file(dirOut, fileOut, variable, ini_bins=ini_bins, subdir=subdir, catlist=[ch])
+        make_root_file(dirOut, fileOut, variable, ini_bins=(1000, 0.0, 1000.0), subdir=subdir, minWidth=25.0, threshold=0.20, catlist=[ch])
+        root_dest.copy(src=cfg.outFileName(var=v, cuts=variable["cuts"]), channel=ch, era="13TeV", tag="Zp")
 
-    v = variable["var"]
-    os.system("./compareDataCards.py --file1=Brown/%s.root --file2='' --masses='500 1000 1500 2000' --logy --xtitle='%s (GeV)'" % (v, v))
-    os.system("cp -p comparison_%s.pdf ~/public_html/comparison_%s_%s.pdf" % (v, v, ch))
+        args = "--file1=Brown/htt_%s.inputs-Zp-13TeV.root --file2='' --masses='500 1000 1500 2000' --logy --xtitle='%s (GeV)'" % (ch, v)
+        os.system("./compareDataCards.py %s" % args)
+        os.system("cp -p comparison_%s.pdf ~/public_html/comparison_%s_%s.pdf" % (v, v, ch))
+
+        os.system("./compareDataCards.py %s --raw-yields" % args)
+        os.system("cp -p comparison_%s.pdf ~/public_html/comparison_%s_%s_raw.pdf" % (v, v, ch))
 
 
 def opts():
