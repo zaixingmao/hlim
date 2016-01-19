@@ -88,7 +88,7 @@ def histos(bins=None, variable="", cuts={}, category="", skipVariations=False):
     procs = cfg.procs(variable, category)
 
     out = {}
-    for variation, fileName in cfg.files(variable).iteritems():
+    for variation, fileName in cfg.files(category).iteritems():
         if skipVariations and variation:
             continue
 
@@ -263,7 +263,7 @@ def applyFactor(h=None, tfile=None, hName="", unit=False):
 
 def describe(h, l, keys):
     print l, h.GetXaxis().GetTitle(), "(sum of %s)" % str(sorted(keys))
-    headers = "bin    x_lo       width    cont  +-   err    (   rel)"
+    headers = "bin    x_lo        width    cont  +-   err    (   rel)"
     print l, headers
     print l, "-" * len(headers)
     for iBinX in range(1, 1 + h.GetNbinsX()):
@@ -271,7 +271,7 @@ def describe(h, l, keys):
         c = h.GetBinContent(iBinX)
         e = h.GetBinError(iBinX)
         w = h.GetBinWidth(iBinX)
-        s = " %2d   %9.2e   %4.2f   %7.1e +- %7.1e" % (iBinX, x, w, c, e)
+        s = " %2d   %9.2e   %6.2f   %7.1e +- %7.1e" % (iBinX, x, w, c, e)
         if c:
             s += "  (%5.1f%s)" % (100.*e/c, "%")
         print l, s
@@ -311,7 +311,7 @@ def go(var={}, sFactor=0, sKey="", categoryWhitelist=None, skipVariations=False)
         if options.integrals or options.xs or options.contents:
             printTag(tag, l)
         f.mkdir(tag).cd()
-        oneTag(tag, hs, sKey, sFactor, l)
+        oneTag(category, tag, hs, sKey, sFactor, l)
     f.Close()
 
 
@@ -326,7 +326,7 @@ def printIntegrals(lst=[], l=""):
     print l, hyphens
 
 
-def oneTag(tag, hs, sKey, sFactor, l):
+def oneTag(category, tag, hs, sKey, sFactor, l):
     integrals = []
     # scale and write
     for (proc, h) in hs.iteritems():
@@ -351,7 +351,7 @@ def oneTag(tag, hs, sKey, sFactor, l):
         fakeDataset(hs, sKey, sFactor, l).Write()
 
     if options.sumb:
-        suffixes = sorted(cfg.files("DUMMY").keys())
+        suffixes = sorted(cfg.files(category).keys())
         for suffix in suffixes:
             h, keys = sumb(hs, suffix=suffix)
             if not h:  # due to go(skipVariations=True)
