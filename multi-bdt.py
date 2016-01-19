@@ -6,6 +6,7 @@ import os
 import sys
 import make_root_files
 import determine_binning
+import compareDataCards
 import ROOT as r
 
 
@@ -174,11 +175,17 @@ def go_zp(suffix="normal.root"):
         root_dest.copy(src=cfg.outFileName(var=v, cuts=variable["cuts"]), channel=ch, era="13TeV", tag="Zp")
 
         args = "--file1=Brown/htt_%s.inputs-Zp-13TeV.root --file2='' --masses='500 1000 1500 2000' --logy --xtitle='%s (GeV)'" % (ch, v)
-        os.system("./compareDataCards.py %s" % args)
-        os.system("cp -p comparison_%s.pdf ~/public_html/comparison_%s_%s.pdf" % (v, v, ch))
+        # os.system("./compareDataCards.py %s" % args)
+        # os.system("cp -p comparison_%s.pdf ~/public_html/comparison_%s_%s.pdf" % (v, v, ch))
 
         os.system("./compareDataCards.py %s --raw-yields" % args)
-        os.system("cp -p comparison_%s.pdf ~/public_html/comparison_%s_%s_raw.pdf" % (v, v, ch))
+        variations = cfg.files(ch).keys()
+        for prefix in variations:
+            if not prefix and 2 <= len(variations):
+                continue
+
+            prefix2 = compareDataCards.shortened(prefix).replace("Up", "").replace("Down", "")
+            os.system("cp -p comparison_%s%s.pdf ~/public_html/comparison_%s%s_%s_raw.pdf" % (v, prefix2, v, prefix2, ch))
 
 
 def opts():
