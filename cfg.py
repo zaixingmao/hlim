@@ -43,12 +43,10 @@ def files(category=""):
            "_CMS_scale_btag_13TeVDown": _stem % (category, "_bScaleDown"),
            }
     if category == "et":
-        out.update({# "_CMS_scale_W_13TeVUp":   _stem % "_W_1_15",
-                    # "_CMS_scale_W_13TeVDown": _stem % "_W_0_85",
-                    # "_CMS_scale_j_13TeVUp":   _stem % "_Jet35",
-                    # "_CMS_scale_j_13TeVDown": _stem % "_Jet25",
-                    # "_CMS_scale_t_tautau_13TeVUp":   _stem % "tauUp",
-                    # "_CMS_scale_t_tautau_13TeVDown": _stem % "tauDown",
+        out.update({"_CMS_scale_W_13TeVUp":   _stem % (category, "_W_1_15"),
+                    "_CMS_scale_W_13TeVDown": _stem % (category, "_W_0_85"),
+                    # "_CMS_scale_t_tautau_13TeVUp":   _stem % (category, "tauUp"),
+                    # "_CMS_scale_t_tautau_13TeVDown": _stem % (category, "tauDown"),
                     })
     return out
 
