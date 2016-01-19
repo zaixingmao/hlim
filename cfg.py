@@ -30,25 +30,27 @@ bdtDir = "root/bdt/11/"
 #lumi     = 1546.91; _stem = "13TeV_zp2/combined%s.root"
 #lumi     = 2093.3; _stem = "13TeV_zp3/combined%s.root"
 #lumi     = 2093.3; _stem = "13TeV_zp3l/combined%s.root"
-lumi     = 2093.3; _stem = "13TeV_zp_jan4/combined%s.root"
+#lumi     = 2093.3; _stem = "13TeV_zp_jan4/combined%s.root"
+lumi     = 2093.3; _stem = "13TeV_zp_jan18/combined_%s_withPUWeight%s.root"
 
 
-def files(variable=""):
-    assert variable
-    return {"":                             _stem % "",
-            # "_CMS_scale_W_13TeVUp":   _stem % "_W_1_15",
-            # "_CMS_scale_W_13TeVDown": _stem % "_W_0_85",
-            "_CMS_scale_j_13TeVUp":   _stem % "_Jet35",
-            "_CMS_scale_j_13TeVDown": _stem % "_Jet25",
-            # "_CMS_scale_t_tautau_8TeVUp":   _stem % "tauUp",
-            # "_CMS_scale_t_tautau_8TeVDown": _stem % "tauDown",
-            # "_CMS_scale_btag_8TeVUp": _stem % "bSysUp",
-            # "_CMS_scale_btag_8TeVDown": _stem % "bSysDown",
-            # "_CMS_scale_btagEff_8TeVUp": _stem % "bSysUp",     # duplicate of btag
-            # "_CMS_scale_btagEff_8TeVDown": _stem % "bSysDown", # duplicate of btag
-            # "_CMS_scale_btagFake_8TeVUp": _stem % "bMisUp",
-            # "_CMS_scale_btagFake_8TeVDown": _stem % "bMisDown",
-            }
+def files(category=""):
+    assert category
+    out = {"":                          _stem % (category, ""),
+           "_CMS_scale_j_13TeVUp":      _stem % (category, "_jetECUp"),
+           "_CMS_scale_j_13TeVDown":    _stem % (category, "_jetECDown"),
+           "_CMS_scale_btag_13TeVUp":   _stem % (category, "_bScaleUp"),  # b and light
+           "_CMS_scale_btag_13TeVDown": _stem % (category, "_bScaleDown"),
+           }
+    if category == "et":
+        out.update({# "_CMS_scale_W_13TeVUp":   _stem % "_W_1_15",
+                    # "_CMS_scale_W_13TeVDown": _stem % "_W_0_85",
+                    # "_CMS_scale_j_13TeVUp":   _stem % "_Jet35",
+                    # "_CMS_scale_j_13TeVDown": _stem % "_Jet25",
+                    # "_CMS_scale_t_tautau_13TeVUp":   _stem % "tauUp",
+                    # "_CMS_scale_t_tautau_13TeVDown": _stem % "tauDown",
+                    })
+    return out
 
 
 def qcd_sf_name(category, cuts=None):
