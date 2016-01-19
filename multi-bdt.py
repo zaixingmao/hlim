@@ -168,24 +168,24 @@ def go_zp(suffix="normal.root"):
     dirOut = "%s_%s" % (variable["var"], cfg.cutDesc(variable["cuts"]))
 
     for ch, subdir in cfg.categories.iteritems():
-        v = variable["var"]
+        variations = set([key.replace("Up", "").replace("Down", "") for key in cfg.files(ch).keys()])
+
         # ini_bins = [73.0, 98.0, 123.0, 148.0, 173.0, 198.0, 223.0, 248.0, 273.0, 298.0, 335.0, 360.0, 390.0, 425.0, 495.0, 520.0]
         # make_root_file(dirOut, fileOut, variable, ini_bins=ini_bins, subdir=subdir, catlist=[ch])
         make_root_file(dirOut, fileOut, variable, ini_bins=(1000, 0.0, 1000.0), subdir=subdir, minWidth=25.0, threshold=0.20, catlist=[ch])
         root_dest.copy(src=cfg.outFileName(var=v, cuts=variable["cuts"]), channel=ch, era="13TeV", tag="Zp")
 
-        args = "--file1=Brown/htt_%s.inputs-Zp-13TeV.root --file2='' --masses='500 1000 1500 2000' --logy --xtitle='%s (GeV)'" % (ch, v)
+        args = "--file1=Brown/htt_%s.inputs-Zp-13TeV.root --file2='' --masses='500 1000 1500 2000' --logy --xtitle='%s (GeV)'" % (ch, variable["var"])
+        args += " --bands=%s" % ",".join([v.replace("_CMS", "CMS") for v in variations])
+
         # os.system("./compareDataCards.py %s" % args)
-        # os.system("cp -p comparison_%s.pdf ~/public_html/comparison_%s_%s.pdf" % (v, v, ch))
+        # os.system("cp -p comparison_%s.pdf ~/public_html/comparison_%s_%s.pdf" % (variable["var"], variable["var"], ch))
 
         os.system("./compareDataCards.py %s --raw-yields" % args)
-        variations = cfg.files(ch).keys()
-        for prefix in variations:
-            if not prefix and 2 <= len(variations):
-                continue
 
-            prefix2 = compareDataCards.shortened(prefix).replace("Up", "").replace("Down", "")
-            os.system("cp -p comparison_%s%s.pdf ~/public_html/comparison_%s%s_%s_raw.pdf" % (v, prefix2, v, prefix2, ch))
+        for prefix in variations:
+            prefix2 = compareDataCards.shortened(prefix)
+            os.system("cp -p comparison_%s%s.pdf ~/public_html/%s%s_%s_raw.pdf" % (variable["var"], prefix2, variable["var"], prefix2, ch))
 
 
 def opts():
