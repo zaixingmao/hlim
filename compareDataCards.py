@@ -428,6 +428,12 @@ def opts():
                       default="160",
                       )
 
+    parser.add_option("--bands",
+                      dest="bands",
+                      # default=",".join(["CMS_scale_%s_8TeV" % s for s in ["t_tautau", "j", "btag", "btagEff", "btagFake"]]),
+                      default=",".join(["", "CMS_scale_W_13TeV", "CMS_scale_j_13TeV", "CMS_scale_btag_13TeV"])
+                      )
+
     options, args = parser.parse_args()
     return options
 
@@ -438,10 +444,6 @@ if __name__ == "__main__":
 
 
     ignorePrefixes = ["ggAToZh", "bbH", "ggRadion", "ggGraviton"]
-
-    # bands = ["CMS_scale_%s_8TeV" % s for s in ["t_tautau", "j", "btag", "btagEff", "btagFake"]]
-    # bands = [""]
-    bands = ["CMS_scale_W_13TeV", "CMS_scale_j_13TeV"]
 
     r.gErrorIgnoreLevel = 2000
     r.gStyle.SetOptStat("rme")
@@ -459,5 +461,5 @@ if __name__ == "__main__":
     # whiteList += ["ZL", "ZJ", "data_obs"]
     whiteList += ["ggH%s" % m for m in options.masses.split()]
 
-    for band in bands:
+    for band in options.bands.split(","):
         go(options.xtitle, options.file1, options.scale1, options.file2, options.scale2, band)
