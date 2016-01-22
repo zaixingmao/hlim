@@ -31,7 +31,7 @@ bdtDir = "root/bdt/11/"
 #lumi     = 2093.3; _stem = "13TeV_zp3/combined%s.root"
 #lumi     = 2093.3; _stem = "13TeV_zp3l/combined%s.root"
 #lumi     = 2093.3; _stem = "13TeV_zp_jan4/combined%s.root"
-lumi     = 2093.3; _stem = "13TeV_zp_jan18/combined_%s_withPUWeight%s.root"
+lumi     = 2093.3; _stem = "13TeV_zp_jan21/combined_%s_withPUWeight%s.root"
 
 
 def files(category=""):
@@ -45,8 +45,8 @@ def files(category=""):
     if category == "et":
         out.update({"_CMS_scale_W_13TeVUp":   _stem % (category, "_W_1_15"),
                     "_CMS_scale_W_13TeVDown": _stem % (category, "_W_0_85"),
-                    # "_CMS_scale_t_tautau_13TeVUp":   _stem % (category, "tauUp"),
-                    # "_CMS_scale_t_tautau_13TeVDown": _stem % (category, "tauDown"),
+                    "_CMS_scale_t_13TeVUp": _stem % (category, "_tauECUp"),
+                    "_CMS_scale_t_13TeVDown": _stem % (category, "_tauECDown"),
                     })
     return out
 
@@ -74,7 +74,7 @@ def procs(variable="", category=""):
            "VV": ['VVTo2L2Nu', 'WWTo1L1Nu2Q', 'WZJets', 'WZTo1L1Nu2Q', 'WZTo1L3Nu', 'WZTo2L2Q', 'ZZTo2L2Q', 'ZZTo4L'],
            "W": ['WJets_HT-0to100', 'WJets_HT-100to200', 'WJets_HT-200to400', 'WJets_HT-400to600', 'WJets_HT-600toInf'],
            "ZTT": ['DY_M-50-H-0to100', 'DY_M-50-H-100to200', 'DY_M-50-H-200to400', 'DY_M-50-H-400to600', 'DY_M-50-H-600toInf'] +\
-               ['DY_M-5to50-H-0to100', 'DY_M-5to50-H-200to400', 'DY_M-5to50-H-400to600', 'DY_M-5to50-H-600toInf'],
+               [], #['DY_M-5to50-H-0to100', 'DY_M-5to50-H-200to400', 'DY_M-5to50-H-400to600', 'DY_M-5to50-H-600toInf'],
 
            # "VV": ["WZ", "WW", "ZZ"],
            # "W": ["WJets"],
