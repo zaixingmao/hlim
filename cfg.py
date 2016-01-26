@@ -13,6 +13,7 @@ masses = [500, 1000, 1500, 2000, 2500, 3000, 3500, 4000, 4500, 5000]
 # masses = masses[:2]
 
 substring_signal_example = "ggH%d" % masses[0]
+flipped_suffix = "_WAS_FLIPPED"
 
 _suffix = "inclusive"
 categories = {# "tt": "tauTau_%s" % _suffix,
@@ -127,7 +128,7 @@ def isVariation(proc):
 
 
 def isFlippedTracker(proc):
-    return proc.endswith("_WAS_FLIPPED")
+    return proc.endswith(flipped_suffix)
 
 
 def reportExtra(proc):

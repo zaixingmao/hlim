@@ -8,7 +8,7 @@ import os
 import sys
 
 import cfg
-from compareDataCards import report
+import compareDataCards
 
 import ROOT as r
 r.PyConfig.IgnoreCommandLineOptions = True
@@ -81,7 +81,7 @@ def rescaled_bins(bins, variable):
 def flipped_negative_bins(d):
     out = {}
     for name, h in sorted(d.iteritems()):
-        flipped = h.Clone(name + "_WAS_FLIPPED")
+        flipped = h.Clone(name + cfg.flipped_suffix)
         flipped.Reset()
 
         for iBin in range(1, 1 + h.GetNbinsX()):
@@ -261,9 +261,9 @@ def checkSamples(tree, fileName=".root file", variable="", category=""):
         if not cfg.reportExtra(key):
             del xs[key]
 
-    report([(xs.keys(), "Samples in %s but not procs():" % fileName),
-            (extra, "Samples in procs() but not %s:" % fileName),
-            ])
+    compareDataCards.report([(xs.keys(), "Samples in %s but not procs():" % fileName),
+                             (extra, "Samples in procs() but not %s:" % fileName),
+                             ])
 
 
 def applyFactor(h=None, tfile=None, hName="", unit=False):
