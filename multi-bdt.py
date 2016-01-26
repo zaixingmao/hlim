@@ -58,7 +58,7 @@ def make_root_file(dirName, fileName, variable, ini_bins=None, subdir="", minWid
     print variable["bins"]
     # make histograms with this binning
     make_root_files.options.contents = True
-    make_root_files.go(variable, categoryWhitelist=catlist)
+    make_root_files.go(variable, categoryWhitelist=catlist, flipNegativeBins=True)
 
 
 def plot(dirName, fileName, xtitle, mass):
