@@ -137,7 +137,7 @@ def draw(h, gopts, d, colorFlip):
         flipped.SetLineStyle(h.GetLineStyle())
         flipped.SetLineColor(colorFlip)
         flipped.SetMarkerColor(colorFlip)
-        flipped.Draw(gopts.replace("hist", ""))
+        flipped.Draw(gopts.replace("hist", "") + "same")
 
 
 def oneDir(canvas, pdf, hNames, d1, d2, subdir, xTitle, band, skip2=False):
