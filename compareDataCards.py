@@ -5,6 +5,7 @@ import collections
 import os
 import sys
 
+
 def fetchOneDir(f, subdir, scale):
     out = {}
     for key in r.gDirectory.GetListOfKeys():
@@ -127,6 +128,18 @@ def shortened(band):
     return s
 
 
+def draw(h, gopts, d, colorFlip):
+    h.Draw(gopts)
+
+    flipped = d.get(h.GetName() + "_WAS_FLIPPED")
+    if flipped:
+        flipped.Multiply(h)
+        flipped.SetLineStyle(h.GetLineStyle())
+        flipped.SetLineColor(colorFlip)
+        flipped.SetMarkerColor(colorFlip)
+        flipped.Draw(gopts.replace("hist", ""))
+
+
 def oneDir(canvas, pdf, hNames, d1, d2, subdir, xTitle, band, skip2=False):
     keep = []
 
@@ -214,14 +227,14 @@ def oneDir(canvas, pdf, hNames, d1, d2, subdir, xTitle, band, skip2=False):
 
             h1d.SetLineColor(bandColor1)
             h1d.SetLineStyle(4)
-            h1d.Draw("histsame")
+            draw(h1d, "histsame", d1[subdir], bandColor1Flip)
 
             h1u.SetLineColor(bandColor1)
-            h1u.Draw("histsame")
+            draw(h1u, "histsame", d1[subdir], bandColor1Flip)
 
         h1.SetLineColor(lineColor1)
         h1.SetMarkerColor(lineColor1)
-        h1.Draw("ehistsame" if band else "ehist")
+        draw(h1, "ehistsame" if band else "ehist", d1[subdir], lineColor1Flip)
         #keep.append(moveStatsBox(h1))
 
         if band and h2b and not skip2:
@@ -233,15 +246,15 @@ def oneDir(canvas, pdf, hNames, d1, d2, subdir, xTitle, band, skip2=False):
 
             h2d.SetLineColor(bandColor2)
             h2d.SetLineStyle(4)
-            h2d.Draw("histsame")
+            draw(h2d, "histsame", d2[subdir], bandColor2Flip)
 
             h2u.SetLineColor(bandColor2)
-            h2u.Draw("histsame")
+            draw(h2u, "histsame", d2[subdir], bandColor2Flip)
 
         if not skip2:
             h2.SetLineColor(lineColor2)
             h2.SetMarkerColor(lineColor2)
-            h2.Draw("ehistsame")
+            draw(h2, "ehistsame", d2[subdir], lineColor2Flip)
             #keep.append(moveStatsBox(h2))
 
         leg = r.TLegend(0.65, 0.6, 0.87, 0.87)
@@ -284,7 +297,7 @@ def tryNums(m, h):
     return num
 
 
-def report(l=[], suffixes=["Up", "Down"], recursive=False):
+def report(l=[], suffixes=["Up", "Down", "_WAS_FLIPPED"], recursive=False):
     for (hs, message) in l:
         if not hs:
             continue
@@ -450,10 +463,14 @@ if __name__ == "__main__":
     r.gROOT.SetBatch(True)
 
     lineColor1 = r.kBlack
+    lineColor1Flip = r.kOrange - 7
     bandColor1 = r.kGray
+    bandColor1Flip = r.kOrange - 5
 
     lineColor2 = r.kBlue
+    lineColor2Flip = r.kViolet + 4
     bandColor2 = r.kCyan
+    bandColor2Flip = r.kViolet + 6
 
     options = opts()
 
