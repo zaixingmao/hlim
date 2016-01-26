@@ -126,6 +126,10 @@ def isVariation(proc):
     return proc.endswith("Down") or proc.endswith("Up")
 
 
+def isFlippedTracker(proc):
+    return proc.endswith("_WAS_FLIPPED")
+
+
 def reportExtra(proc):
     # don't report about MC DY and W, which are typically not used
     if proc.startswith("DY") and proc.endswith("JetsToLL"):
