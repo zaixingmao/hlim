@@ -78,7 +78,25 @@ def rescaled_bins(bins, variable):
     return bins, variable
 
 
-def histos(bins=None, variable="", cuts={}, category="", skipVariations=False):
+def flipped_negative_bins(d):
+    out = {}
+    for name, h in sorted(d.iteritems()):
+        flipped = h.Clone(name + "_WAS_FLIPPED")
+        flipped.Reset()
+
+        for iBin in range(1, 1 + h.GetNbinsX()):
+            c = h.GetBinContent(iBin)
+            if c < 0.0:
+                h.SetBinContent(iBin, -c)
+                flipped.SetBinContent(iBin, 1)
+                print "flipped %s %3d (%4.1e)" % (name, iBin, c)
+        out[name] = h
+        if flipped.Integral():
+            out[flipped.GetName()] = flipped
+    return out
+
+
+def histos(bins=None, variable="", cuts={}, category="", skipVariations=False, flipNegativeBins=False):
     assert bins
 
     # rescale so that bin width is 1.0
@@ -118,7 +136,11 @@ def histos(bins=None, variable="", cuts={}, category="", skipVariations=False):
            applyFactor(out["ZTT" + variation], f, hName="MC2Embed2Cat_%s" % category, unit=(category != '0M'))
 
         merge_second_layer(out, f, variable, category, variation)
+
         f.Close()
+
+    if flipNegativeBins:
+        out = flipped_negative_bins(out)  # modifies histograms and adds tracking histograms
     return out
 
 
@@ -298,7 +320,7 @@ def printTag(tag, l):
     print l, a
 
 
-def go(var={}, sFactor=0, sKey="", categoryWhitelist=None, skipVariations=False):
+def go(var={}, sFactor=0, sKey="", categoryWhitelist=None, skipVariations=False, flipNegativeBins=False):
     assert var
     printHeader(**var)
 
@@ -307,7 +329,7 @@ def go(var={}, sFactor=0, sKey="", categoryWhitelist=None, skipVariations=False)
     for category, tag in cfg.categories.iteritems():
         if categoryWhitelist and category not in categoryWhitelist:
             continue
-        hs = histos(category=category, bins=var["bins"], variable=var["var"], cuts=var["cuts"], skipVariations=skipVariations)
+        hs = histos(category=category, bins=var["bins"], variable=var["var"], cuts=var["cuts"], skipVariations=skipVariations, flipNegativeBins=flipNegativeBins)
         if options.integrals or options.xs or options.contents:
             printTag(tag, l)
         f.mkdir(tag).cd()
@@ -338,6 +360,8 @@ def oneTag(category, tag, hs, sKey, sFactor, l):
         if cfg.isSignal(proc) and cfg.substring_signal_example not in proc:
             pass
         elif cfg.isVariation(proc):
+            pass
+        elif cfg.isFlippedTracker(proc):
             pass
         else:
             integrals.append((tag, proc, h.Integral(0, 2 + h.GetNbinsX())))
@@ -383,6 +407,8 @@ def sumb(hs, name="sum_b", suffix=""):
         if cfg.isSignal(key):
             continue
         if cfg.isData(key):
+            continue
+        if cfg.isFlippedTracker(key):
             continue
         if (not suffix) and cfg.isVariation(key):
             continue
