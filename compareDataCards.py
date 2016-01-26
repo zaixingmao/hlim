@@ -131,7 +131,7 @@ def shortened(band):
 def draw(h, gopts, d, colorFlip):
     h.Draw(gopts)
 
-    flipped = d.get(h.GetName() + "_WAS_FLIPPED")
+    flipped = d.get(h.GetName() + options.flippedSuffix)
     if flipped:
         flipped.Multiply(h)
         flipped.SetLineStyle(h.GetLineStyle())
@@ -445,6 +445,11 @@ def opts():
                       dest="bands",
                       # default=",".join(["CMS_scale_%s_8TeV" % s for s in ["t_tautau", "j", "btag", "btagEff", "btagFake"]]),
                       default=",".join(["", "CMS_scale_W_13TeV", "CMS_scale_j_13TeV", "CMS_scale_btag_13TeV"])
+                      )
+
+    parser.add_option("--flipped-suffix",
+                      dest="flippedSuffix",
+                      default="_WAS_FLIPPED",
                       )
 
     options, args = parser.parse_args()
