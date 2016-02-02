@@ -19,7 +19,7 @@ _suffix = "inclusive"
 categories = {# "tt": "tauTau_%s" % _suffix,
               "et": "eleTau_%s" % _suffix,
               # "mt": "muTau_%s" % _suffix,
-              "em": "emu_%s" % _suffix,
+              # "em": "emu_%s" % _suffix,
               }
 
 #bdtDir = "/nfs_scratch/zmao/samples_Iso/datacard_new/bdt_new/"
@@ -32,31 +32,39 @@ bdtDir = "root/bdt/11/"
 #lumi     = 2093.3; _stem = "13TeV_zp3/combined%s.root"
 #lumi     = 2093.3; _stem = "13TeV_zp3l/combined%s.root"
 #lumi     = 2093.3; _stem = "13TeV_zp_jan4/combined%s.root"
-lumi     = 2093.3; _stem = "13TeV_zp_jan21/combined_%s_withPUWeight%s.root"
+# lumi     = 2093.3; _stem = "13TeV_zp_jan21/combined_%s_withPUWeight%s.root"
+# lumi     = 2093.3; _stem = "13TeV_zp_feb0/combined_%s_withPUWeight%s.root"
+lumi     = 2093.3; _stem = "13TeV_zp_feb1/combined_%s_withPUWeight%s.root"
 
 
 def files(category=""):
     assert category
     out = {"":                          _stem % (category, ""),
-           "_CMS_scale_j_13TeVUp":      _stem % (category, "_jetECUp"),
-           "_CMS_scale_j_13TeVDown":    _stem % (category, "_jetECDown"),
+           # "_CMS_scale_j_13TeVUp":      _stem % (category, "_jetECUp"),
+           # "_CMS_scale_j_13TeVDown":    _stem % (category, "_jetECDown"),
            "_CMS_scale_btag_13TeVUp":   _stem % (category, "_bScaleUp"),  # b and light
            "_CMS_scale_btag_13TeVDown": _stem % (category, "_bScaleDown"),
            }
     if category == "et":
-        out.update({"_CMS_scale_W_13TeVUp":   _stem % (category, "_W_1_15"),
-                    "_CMS_scale_W_13TeVDown": _stem % (category, "_W_0_85"),
-                    "_CMS_scale_t_13TeVUp": _stem % (category, "_tauECUp"),
-                    "_CMS_scale_t_13TeVDown": _stem % (category, "_tauECDown"),
-                    })
+        out.update({
+                # "_CMS_scale_W_13TeVUp":   _stem % (category, "_W_1_15"),
+                # "_CMS_scale_W_13TeVDown": _stem % (category, "_W_0_85"),
+                # "_CMS_scale_t_13TeVUp": _stem % (category, "_tauECUp"),
+                # "_CMS_scale_t_13TeVDown": _stem % (category, "_tauECDown"),
+                })
     return out
 
 
-def qcd_sf_name(category, cuts=None):
+def transfer_factor_name(category, proc, variation, cuts=None):
     # return "L_to_T_SF_%s" % category
     # return "SS_to_OS_%s" % category
+    # # Feb. 0
+    # if proc == "QCD":
+    #     return "Loose_to_Tight_et_1prong_3prong"
+    # if proc == "WJets":
+    #     return "WJets_Loose_to_Tight"
 
-    prefix = "Loose_to_Tight"
+    prefix = "%s_Loose_to_Tight" % proc
     tdm = cuts.get('~tauDecayMode')
 
     if category == "et" and tdm:
@@ -73,10 +81,10 @@ def procs(variable="", category=""):
     # first character '*' (see procs2)
     out = {"TT": ["TTJets", 'ST_antiTop_tW', 'ST_top_tW', 'ST_t-channel_antiTop_tW', 'ST_t-channel_top_tW'],
            "VV": ['VVTo2L2Nu', 'WWTo1L1Nu2Q', 'WZJets', 'WZTo1L1Nu2Q', 'WZTo1L3Nu', 'WZTo2L2Q', 'ZZTo2L2Q', 'ZZTo4L'],
-           "W": ['WJets_HT-0to100', 'WJets_HT-100to200', 'WJets_HT-200to400', 'WJets_HT-400to600', 'WJets_HT-600toInf'],
            "ZTT": ['DY_M-50-H-0to100', 'DY_M-50-H-100to200', 'DY_M-50-H-200to400', 'DY_M-50-H-400to600', 'DY_M-50-H-600toInf'] +\
                [], #['DY_M-5to50-H-0to100', 'DY_M-5to50-H-200to400', 'DY_M-5to50-H-400to600', 'DY_M-5to50-H-600toInf'],
 
+           # "W": ['WJets_HT-0to100', 'WJets_HT-100to200', 'WJets_HT-200to400', 'WJets_HT-400to600', 'WJets_HT-600toInf'],
            # "VV": ["WZ", "WW", "ZZ"],
            # "W": ["WJets"],
            # "ZTT": ["ZTT"],
@@ -87,7 +95,9 @@ def procs(variable="", category=""):
            # "QCD": ["dataSS", "-MCSS"],
            # "data_obs": ["dataOS"],
 
+           "W": ["WJetsLoose"],
            "QCD": ["dataLoose", "-MCLoose"],
+
            "data_obs": ["dataTight"],
            }
     for m in masses:
