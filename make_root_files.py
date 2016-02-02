@@ -111,6 +111,9 @@ def histos(bins=None, variable="", cuts={}, category="", skipVariations=False, f
             continue
 
         f = r.TFile(fileName)
+        if f.IsZombie():
+            error(msg="(see above)", die=True)
+
         tree = f.Get("eventTree")
         checkSamples(tree, fileName, variable, category)
 
