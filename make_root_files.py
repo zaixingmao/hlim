@@ -129,11 +129,12 @@ def histos(bins=None, variable="", cuts={}, category="", skipVariations=False, f
                 factor = -1.0 if srcProc[0] == "-" else 1.0
                 out[destProc].Add(h, factor)
 
-
-        applyFactor(out["QCD" + variation], f, hName=cfg.qcd_sf_name(category, cuts=cuts), unit=False)
+        applyFactor(out["QCD" + variation], f, hName=cfg.transfer_factor_name(category, "QCD", variation, cuts=cuts), unit=False)
+        applyFactor(out["W" + variation], f, hName=cfg.transfer_factor_name(category, "WJets", variation, cuts=cuts), unit=False)
 
         if any(["embed" in src for src in procs.get("ZTT", [])]):
-           applyFactor(out["ZTT" + variation], f, hName="MC2Embed2Cat_%s" % category, unit=(category != '0M'))
+            print "WARNING: modifying ZTT"
+            applyFactor(out["ZTT" + variation], f, hName="MC2Embed2Cat_%s" % category, unit=(category != '0M'))
 
         merge_second_layer(out, f, variable, category, variation)
 
