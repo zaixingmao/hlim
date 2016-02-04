@@ -42,7 +42,7 @@ def make_root_file(dirName, fileName, variable, ini_bins=None, subdir="", minWid
     if staticBinning:
         make_root_files.options.contents = True
 
-    make_root_files.go(variable, categoryWhitelist=catlist, skipVariations=not staticBinning)
+    make_root_files.go(variable, categoryWhitelist=catlist, skipVariations=not staticBinning, flipNegativeBins=staticBinning)
 
     if staticBinning:
         return
@@ -172,8 +172,10 @@ def go_zp(suffix="normal.root"):
         variations = set([key.replace("Up", "").replace("Down", "") for key in cfg.files(ch).keys()])
 
         # ini_bins = [73.0, 98.0, 123.0, 148.0, 173.0, 198.0, 223.0, 248.0, 273.0, 298.0, 335.0, 360.0, 390.0, 425.0, 495.0, 520.0]
-        # make_root_file(dirOut, fileOut, variable, ini_bins=ini_bins, subdir=subdir, catlist=[ch])
-        make_root_file(dirOut, fileOut, variable, ini_bins=(1000, 0.0, 1000.0), subdir=subdir, minWidth=25.0, threshold=0.20, catlist=[ch])
+        # bsm = [0, 100, 110, 120, 130, 140, 150, 160, 170, 180, 190, 200, 225, 250, 275, 300, 400, 600, 900, 1500]
+        bsm = [0, 100, 110, 120, 130, 140, 150, 160, 170, 180, 190, 200, 225, 250, 275, 300, 400, 600, 900]
+        make_root_file(dirOut, fileOut, variable, ini_bins=bsm, subdir=subdir, catlist=[ch])
+        # make_root_file(dirOut, fileOut, variable, ini_bins=(1000, 0.0, 1000.0), subdir=subdir, minWidth=25.0, threshold=0.20, catlist=[ch])
         root_dest.copy(src=cfg.outFileName(var=variable["var"], cuts=variable["cuts"]), channel=ch, era="13TeV", tag="Zp")
 
         args = "--file1=Brown/htt_%s.inputs-Zp-13TeV.root --file2='' --masses='500 1000 1500 2000' --logy --xtitle='%s (GeV)'" % (ch, variable["var"])
