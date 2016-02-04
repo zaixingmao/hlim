@@ -34,23 +34,24 @@ bdtDir = "root/bdt/11/"
 #lumi     = 2093.3; _stem = "13TeV_zp_jan4/combined%s.root"
 # lumi     = 2093.3; _stem = "13TeV_zp_jan21/combined_%s_withPUWeight%s.root"
 # lumi     = 2093.3; _stem = "13TeV_zp_feb0/combined_%s_withPUWeight%s.root"
-lumi     = 2093.3; _stem = "13TeV_zp_feb1/combined_%s_withPUWeight%s.root"
+# lumi     = 2093.3; _stem = "13TeV_zp_feb1/combined_%s_withPUWeight%s.root"
+lumi     = 2093.3; _stem = "13TeV_zp_feb2/combined_%s_withPUWeight%s.root"
 
 
 def files(category=""):
     assert category
     out = {"":                          _stem % (category, ""),
-           # "_CMS_scale_j_13TeVUp":      _stem % (category, "_jetECUp"),
-           # "_CMS_scale_j_13TeVDown":    _stem % (category, "_jetECDown"),
+           "_CMS_scale_j_13TeVUp":      _stem % (category, "_jetECUp"),
+           "_CMS_scale_j_13TeVDown":    _stem % (category, "_jetECDown"),
            "_CMS_scale_btag_13TeVUp":   _stem % (category, "_bScaleUp"),  # b and light
            "_CMS_scale_btag_13TeVDown": _stem % (category, "_bScaleDown"),
            }
     if category == "et":
         out.update({
-                # "_CMS_scale_W_13TeVUp":   _stem % (category, "_W_1_15"),
-                # "_CMS_scale_W_13TeVDown": _stem % (category, "_W_0_85"),
-                # "_CMS_scale_t_13TeVUp": _stem % (category, "_tauECUp"),
-                # "_CMS_scale_t_13TeVDown": _stem % (category, "_tauECDown"),
+                "_CMS_scale_W_13TeVUp":   _stem % (category, "_1.25"),
+                "_CMS_scale_W_13TeVDown": _stem % (category, "_1.05"),
+                "_CMS_scale_t_13TeVUp": _stem % (category, "_tauECUp"),
+                "_CMS_scale_t_13TeVDown": _stem % (category, "_tauECDown"),
                 })
     return out
 
@@ -111,10 +112,15 @@ def procs2(variable="", category=""):
     """first character '*' means unit normalize and then use factor"""
     assert variable
     assert category
+    out = {}
+
     # out = {"VV": ["*VV", "*singleT"],
     #        "ZLL": ["*ZLL"],
     #        }
-    return {}
+
+    # out["W+QCD"] = ["W", "QCD"]
+
+    return out
 
 
 def isData(proc):
