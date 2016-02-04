@@ -41,7 +41,7 @@ def burst_one(inFileName="", hNameOut="", blackList=["Up", "Down", "WAS_FLIPPED"
 
             if proc.startswith("ZPrime_"):
                 mass = int(proc.split("_")[1])
-                factor = xs_fb.get(mass)
+                factor = xs_fb(mass)
                 if factor:
                     h.Scale(factor / 1000.)  # 1 pb --> some xs_fb
                 else:
@@ -58,17 +58,20 @@ def burst_one(inFileName="", hNameOut="", blackList=["Up", "Down", "WAS_FLIPPED"
     fIn.Close()
 
 
+def xs_fb(m):
+    return {500: 9330.0,
+            1000:  468.0,
+            1500:   72.3,
+            2000:   17.3,
+            2500:   5.54,
+            3000:   1.29,
+            3500:   0.49,
+            4000:   0.255,
+            4500:   0.17,
+            }.get(m)
+
+
 if __name__ == "__main__":
-    xs_fb = { 500: 9330.0,
-             1000:  468.0,
-             1500:   72.3,
-             2000:   17.3,
-             2500:   5.54,
-             3000:   1.29,
-             3500:   0.49,
-             4000:   0.255,
-             4500:   0.17,
-             }
 
     for filename in ["htt_et.inputs-Zp-13TeV.root", "htt_em.inputs-Zp-13TeV.root"][:1]:
         full = "%s/src/auxiliaries/shapes/Brown/%s" % (os.environ["CMSSW_BASE"], filename)
