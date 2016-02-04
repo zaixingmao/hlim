@@ -26,7 +26,7 @@ def burst_one(inFileName="", hNameOut="", blackList=["Up", "Down", "WAS_FLIPPED"
             if any([hName.endswith(x) for x in blackList]):
                 continue
 
-            if hName in ["data_obs", "sum_b"]:
+            if hName in ["sum_b"]:
                 continue
             h = fIn.Get("%s/%s" % (subdir, hName)).Clone(hNameOut)
             h.SetDirectory(0)
