@@ -82,9 +82,18 @@ def mu():
     merge(stems=stems, hName=hName, inDir=d, outDir="eleTau_inclusive", suffix="_muTauSR_ForFitter.root")
 
 
+def had():
+    stems = ["ZprimeToTauTau_M_%d" % i for i in [500, 1000, 1500, 2000, 2500, 3000]]
+    stems += ["Data", "Diboson", "QCD", "TTBar", "WJets", "ZJets"]
+    d = "Fitter/"
+    hName = "DiJetMass"
+    merge(stems=stems, hName=hName, inDir=d, outDir="eleTau_inclusive", suffix="_diTauSR_ForFitter.root")
+
+
 if __name__ == "__main__":
     # m1("eleTau")
     # m1("emu")
     # m2()
-    mu()
+    # mu()
     # ele()
+    had()
