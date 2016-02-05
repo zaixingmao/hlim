@@ -181,13 +181,13 @@ def oneDir(canvas, pdf, hNames, d1, d2, subdir, xTitle, band, skip2=False):
             h1u = d1[subdir].get("%s_%sUp" % (hName, band))
             h1d = d1[subdir].get("%s_%sDown" % (hName, band))
             if h1u and h1d:
-                if options.divide:
+                if options.asRatio:
                     h1u.Divide(h1denom)
                     h1d.Divide(h1denom)
                 h1b = bandHisto(h1u, h1d)
                 keep.append(h1b)
 
-        if options.divide:
+        if options.asRatio:
             h1.Divide(h1denom)
 
         h2 = d2[subdir].get(hName)
@@ -205,13 +205,13 @@ def oneDir(canvas, pdf, hNames, d1, d2, subdir, xTitle, band, skip2=False):
             h2u = d2[subdir].get("%s_%sUp" % (hName, band))
             h2d = d2[subdir].get("%s_%sDown" % (hName, band))
             if h2u and h2d:
-                if options.divide:
+                if options.asRatio:
                     h2u.Divide(h2denom)
                     h2d.Divide(h2denom)
                 h2b = bandHisto(h2u, h2d)
                 keep.append(h2b)
 
-        if options.divide:
+        if options.asRatio:
             h2.Divide(h2denom)
 
         canvas.cd(1 + j)
@@ -236,7 +236,7 @@ def oneDir(canvas, pdf, hNames, d1, d2, subdir, xTitle, band, skip2=False):
             hFirst.SetMaximum(2.0 * maximum(hList))
         else:
             hFirst.SetMinimum(0.0)
-            hFirst.SetMaximum(2.0 if options.divide else 1.1 * maximum(hList))
+            hFirst.SetMaximum(2.0 if options.asRatio else 1.1 * maximum(hList))
 
         hFirst.SetStats(False)
         hFirst.GetYaxis().SetTitleOffset(1.25)
@@ -475,8 +475,8 @@ def opts():
                       default="_WAS_FLIPPED",
                       )
 
-    parser.add_option("--divide",
-                      dest="divide",
+    parser.add_option("--as-ratio",
+                      dest="asRatio",
                       default=False,
                       action="store_true",
                       )

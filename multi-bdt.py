@@ -183,7 +183,7 @@ def go_zp(suffix="normal.root"):
 
         for extra_args, suffix in [("--logy", ""),
                                    ("--logy --raw-yields", "_raw"),
-                                   ("--divide --raw-yields", "_div"),
+                                   ("--as-ratio --raw-yields", "_div"),
                                    ]:
             cmd = "./compareDataCards.py %s %s" % (args, extra_args)
             os.system(cmd)
