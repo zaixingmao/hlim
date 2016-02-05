@@ -171,10 +171,9 @@ def go_zp(suffix="normal.root"):
     for ch, subdir in cfg.categories.iteritems():
         variations = set([key.replace("Up", "").replace("Down", "") for key in cfg.files(ch).keys()])
 
-        # ini_bins = [73.0, 98.0, 123.0, 148.0, 173.0, 198.0, 223.0, 248.0, 273.0, 298.0, 335.0, 360.0, 390.0, 425.0, 495.0, 520.0]
-        # bsm = [0, 100, 110, 120, 130, 140, 150, 160, 170, 180, 190, 200, 225, 250, 275, 300, 400, 600, 900, 1500]
         bsm = [0, 100, 110, 120, 130, 140, 150, 160, 170, 180, 190, 200, 225, 250, 275, 300, 400, 600, 900]
         make_root_file(dirOut, fileOut, variable, ini_bins=bsm, subdir=subdir, catlist=[ch])
+        # make_root_file(dirOut, fileOut, variable, ini_bins=(100, 0.0, 1000.0), subdir=subdir, catlist=[ch])  # change flip to False!!
         # make_root_file(dirOut, fileOut, variable, ini_bins=(1000, 0.0, 1000.0), subdir=subdir, minWidth=25.0, threshold=0.20, catlist=[ch])
         root_dest.copy(src=cfg.outFileName(var=variable["var"], cuts=variable["cuts"]), channel=ch, era="13TeV", tag="Zp")
 
@@ -185,6 +184,7 @@ def go_zp(suffix="normal.root"):
         # os.system("cp -p comparison_%s.pdf ~/public_html/comparison_%s_%s.pdf" % (variable["var"], variable["var"], ch))
 
         os.system("./compareDataCards.py %s --raw-yields" % args)
+        # print "./compareDataCards.py %s --raw-yields" % args
 
         for prefix in variations:
             prefix2 = compareDataCards.shortened(prefix)
