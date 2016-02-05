@@ -122,7 +122,8 @@ def go_bdt(suffix="normal.root"):
             if ("_H%3d_%s" % (mass, suffix)) not in fileIn:
                 continue
 
-            cfg._stem = "%s/%s" % (cfg.bdtDir, fileIn.replace(suffix, "%s.root"))
+            sys.exit("FIX ME: cfg._stem")
+            # cfg._stem = "%s/%s" % (cfg.bdtDir, fileIn.replace(suffix, "%s.root"))
 
             variable["tag"] = "%3d" % mass
             fileOut = cfg.outFileName(**variable)
