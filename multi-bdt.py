@@ -178,18 +178,20 @@ def go_zp(suffix="normal.root"):
         # make_root_file(dirOut, fileOut, variable, ini_bins=(1000, 0.0, 1000.0), subdir=subdir, minWidth=25.0, threshold=0.20, catlist=[ch])
         root_dest.copy(src=cfg.outFileName(var=variable["var"], cuts=variable["cuts"]), channel=ch, era="13TeV", tag="Zp")
 
-        args = "--file1=Brown/htt_%s.inputs-Zp-13TeV.root --file2='' --masses='500 1000 1500 2000' --logy --xtitle='%s (GeV)'" % (ch, variable["var"])
+        args = "--file1=Brown/htt_%s.inputs-Zp-13TeV.root --file2='' --masses='500 1000 1500 2000' --xtitle='%s (GeV)'" % (ch, variable["var"])
         args += " --bands=%s" % ",".join([v.replace("_CMS", "CMS") for v in variations])
 
-        # os.system("./compareDataCards.py %s" % args)
-        # os.system("cp -p comparison_%s.pdf ~/public_html/comparison_%s_%s.pdf" % (variable["var"], variable["var"], ch))
+        for extra_args, suffix in [("--logy", ""),
+                                   ("--logy --raw-yields", "_raw"),
+                                   ("--divide --raw-yields", "_div"),
+                                   ]:
+            cmd = "./compareDataCards.py %s %s" % (args, extra_args)
+            os.system(cmd)
+            # print cmd
 
-        os.system("./compareDataCards.py %s --raw-yields" % args)
-        # print "./compareDataCards.py %s --raw-yields" % args
-
-        for prefix in variations:
-            prefix2 = compareDataCards.shortened(prefix)
-            os.system("cp -p comparison_%s%s.pdf ~/public_html/%s%s_%s_raw.pdf" % (variable["var"], prefix2, variable["var"], prefix2, ch))
+            for prefix in variations:
+                prefix2 = compareDataCards.shortened(prefix)
+                os.system("cp -p comparison_%s%s.pdf ~/public_html/%s%s_%s%s.pdf" % (variable["var"], prefix2, variable["var"], prefix2, ch, suffix))
 
 
 def opts():
