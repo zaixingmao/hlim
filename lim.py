@@ -52,6 +52,6 @@ def dump(ch, d):
 
 
 if __name__ == "__main__":
-    for ch in ["et", "em"]:
-        chain = chained(filenames(ch=ch, masses=range(500, 2500, 500)))
+    for ch in ["et", "em", "mt", "tt"][:2]:
+        chain = chained(filenames(ch=ch, masses=range(500, 3500, 500)))
         dump(ch, limits(chain))
