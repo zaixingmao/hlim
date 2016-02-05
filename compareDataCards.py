@@ -140,6 +140,13 @@ def draw(h, gopts, d, colorFlip):
         flipped.Draw(gopts.replace("hist", "") + "same")
 
 
+def errorless(h):
+    out = h.Clone("%s_noErrors" % h.GetName())
+    for iBin in range(0, 2 + out.GetNbinsX()):
+        out.SetBinError(iBin, 0.0)
+    return out
+
+
 def oneDir(canvas, pdf, hNames, d1, d2, subdir, xTitle, band, skip2=False):
     keep = []
 
@@ -160,6 +167,8 @@ def oneDir(canvas, pdf, hNames, d1, d2, subdir, xTitle, band, skip2=False):
             print "ERROR: '%s' not in list of available names: %s" % (hName, str(hNames))
 
         h1 = d1[subdir].get(hName)
+        h1denom = errorless(h1)
+
         if not h1:
             print "ERROR: %s/%s not found" % (subdir, hName)
             if j == 3 or i == iEnd:
@@ -172,10 +181,18 @@ def oneDir(canvas, pdf, hNames, d1, d2, subdir, xTitle, band, skip2=False):
             h1u = d1[subdir].get("%s_%sUp" % (hName, band))
             h1d = d1[subdir].get("%s_%sDown" % (hName, band))
             if h1u and h1d:
+                if options.divide:
+                    h1u.Divide(h1denom)
+                    h1d.Divide(h1denom)
                 h1b = bandHisto(h1u, h1d)
                 keep.append(h1b)
 
+        if options.divide:
+            h1.Divide(h1denom)
+
         h2 = d2[subdir].get(hName)
+        h2denom = errorless(h2)
+
         if not h2:
             print "ERROR: %s/%s not found" % (subdir, hName)
             if j == 3 or i == iEnd:
@@ -188,8 +205,14 @@ def oneDir(canvas, pdf, hNames, d1, d2, subdir, xTitle, band, skip2=False):
             h2u = d2[subdir].get("%s_%sUp" % (hName, band))
             h2d = d2[subdir].get("%s_%sDown" % (hName, band))
             if h2u and h2d:
+                if options.divide:
+                    h2u.Divide(h2denom)
+                    h2d.Divide(h2denom)
                 h2b = bandHisto(h2u, h2d)
                 keep.append(h2b)
+
+        if options.divide:
+            h2.Divide(h2denom)
 
         canvas.cd(1 + j)
         r.gPad.SetTickx()
@@ -213,7 +236,7 @@ def oneDir(canvas, pdf, hNames, d1, d2, subdir, xTitle, band, skip2=False):
             hFirst.SetMaximum(2.0 * maximum(hList))
         else:
             hFirst.SetMinimum(0.0)
-            hFirst.SetMaximum(1.1 * maximum(hList))
+            hFirst.SetMaximum(2.0 if options.divide else 1.1 * maximum(hList))
 
         hFirst.SetStats(False)
         hFirst.GetYaxis().SetTitleOffset(1.25)
@@ -450,6 +473,12 @@ def opts():
     parser.add_option("--flipped-suffix",
                       dest="flippedSuffix",
                       default="_WAS_FLIPPED",
+                      )
+
+    parser.add_option("--divide",
+                      dest="divide",
+                      default=False,
+                      action="store_true",
                       )
 
     options, args = parser.parse_args()
