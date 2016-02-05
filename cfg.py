@@ -35,10 +35,10 @@ def files(category=""):
 
     assert category
     out = {"":                          stem % (category, ""),
-           # "_CMS_scale_j_13TeVUp":      stem % (category, "_jetECUp"),
-           # "_CMS_scale_j_13TeVDown":    stem % (category, "_jetECDown"),
-           # "_CMS_scale_btag_13TeVUp":   stem % (category, "_bScaleUp"),  # b and light
-           # "_CMS_scale_btag_13TeVDown": stem % (category, "_bScaleDown"),
+           "_CMS_scale_j_13TeVUp":      stem % (category, "_jetECUp"),
+           "_CMS_scale_j_13TeVDown":    stem % (category, "_jetECDown"),
+           "_CMS_scale_btag_13TeVUp":   stem % (category, "_bScaleUp"),  # b and light
+           "_CMS_scale_btag_13TeVDown": stem % (category, "_bScaleDown"),
            }
     if category == "et":
         out.update({
