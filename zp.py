@@ -39,10 +39,11 @@ def rename_and_write(cb):
 
     writer = ch.CardWriter('LIMITS/$TAG/$MASS/$ANALYSIS_$CHANNEL_$BINID_$ERA.txt',
                            'LIMITS/$TAG/common/$ANALYSIS_$CHANNEL.input.root')
+
     # writer.SetVerbosity(1)
     writer.WriteCards('cmb', cb)
     for chn in chns:
-        writer.WriteCards(chn,cb.cp().channel([chn]))
+        writer.WriteCards(chn, cb.cp().channel([chn]))
     print '>> Done!'
 
 
@@ -57,12 +58,16 @@ def add_systematics(cb):
     print '>> Adding systematic uncertainties...'
 
     signal = cb.cp().signals().process_set()
-
     mc = ['ZTT','TT','VV', 'W']
     dd = ['QCD']
 
     # common (norm)
-    cb.cp().process(signal + mc).AddSyst(cb, "lumi_%s" % era, "lnN", ch.SystMap()(1.04))
+    cb.cp().process(signal + mc).AddSyst(cb, "CMS_lumi_%s" % era, "lnN", ch.SystMap()(1.04))
+    cb.cp().process(["QCD"]).AddSyst(cb, "CMS_QCD_LT_%s" % era, "lnN", ch.SystMap()(1.15))
+    cb.cp().process(["W"]).AddSyst(cb, "CMS_W_LT_%s" % era, "lnN", ch.SystMap()(1.15))
+    cb.cp().process(["TT"]).AddSyst(cb, "CMS_TT_xs_%s" % era, "lnN", ch.SystMap()(1.15))
+    cb.cp().process(["ZTT"]).AddSyst(cb, "CMS_ZTT_xs_%s" % era, "lnN", ch.SystMap()(1.15))
+    cb.cp().process(["VV"]).AddSyst(cb, "CMS_VV_xs_%s" % era, "lnN", ch.SystMap()(1.15))
 
     # common (shape)
     cb.cp().process(signal + mc + dd).AddSyst(cb, "CMS_scale_j_%s" % era, "shape", ch.SystMap()(1.0))
@@ -72,8 +77,6 @@ def add_systematics(cb):
     cb.cp().process(signal + mc + dd).channel(['et']).AddSyst(cb, "CMS_scale_W_13TeV", "shape", ch.SystMap()(1.0))
     cb.cp().process(signal + mc + dd).channel(['et']).AddSyst(cb, "CMS_scale_t_13TeV", "shape", ch.SystMap()(1.0))
 
-    print_cb(cb)
-
 
 def go(cb):
     add_processes_and_observations(cb)
@@ -81,6 +84,7 @@ def go(cb):
     add_shapes(cb)
     add_bbb(cb)
     rename_and_write(cb)
+    print_cb(cb)
 
 
 if __name__ == "__main__":
@@ -92,11 +96,15 @@ if __name__ == "__main__":
 
     input_dirs = {'et' : 'Brown',
                   'em' : 'Brown',
+                  # 'mt' : 'BSM3G',
+                  # 'tt' : 'BSM3G',
                   }
     chns = sorted(input_dirs.keys())
 
     bkg_procs = {'et' : ['ZTT', 'W', 'QCD', 'TT', 'VV'],
                  'em' : ['ZTT', 'W', 'QCD', 'TT', 'VV'],
+                 'mt' : ['ZTT', 'W', 'QCD', 'TT', 'VV'],
+                 'tt' : ['ZTT', 'W', 'QCD', 'TT', 'VV'],
                  }
 
     sig_procs = ['ggH']
@@ -108,7 +116,13 @@ if __name__ == "__main__":
         'em_%s' % era : [
             (0, 'emu_inclusive'),
             ],
+        'mt_%s' % era : [
+            (0, 'eleTau_inclusive'),
+            ],
+        'tt_%s' % era : [
+            (0, 'eleTau_inclusive'),
+            ],
         }
 
-    masses = ch.ValsFromRange('500:1000|500')
+    masses = ch.ValsFromRange('500:3000|500')
     go(cb)
