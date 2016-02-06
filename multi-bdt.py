@@ -41,6 +41,7 @@ def make_root_file(dirName, fileName, variable, ini_bins=None, subdir="", minWid
     staticBinning = (minWidth is None) or (threshold is None)
     if staticBinning:
         make_root_files.options.contents = True
+        # make_root_files.options.factors = True
 
     make_root_files.go(variable, categoryWhitelist=catlist, skipVariations=not staticBinning, flipNegativeBins=staticBinning)
 
