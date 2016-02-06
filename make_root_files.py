@@ -282,8 +282,9 @@ def applyFactor(h=None, tfile=None, hName="", unit=False):
     if not hFactor:
         error("Could not find histogram '%s' in file '%s'." % (hName, tfile.GetName()))
     factor = hFactor.GetBinContent(1)
+    unc = hFactor.GetBinError(1)
     if options.factors:
-        print "%s: %8.6f" % (hName, factor)
+        print "%s: %8.6f +- %8.6f  (%8.6f)" % (hName, factor, unc, unc / factor)
     h.Scale(factor)
 
 
