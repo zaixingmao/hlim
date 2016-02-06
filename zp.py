@@ -63,15 +63,21 @@ def add_systematics(cb):
 
     # common (norm)
     cb.cp().process(signal + mc).AddSyst(cb, "CMS_lumi_%s" % era, "lnN", ch.SystMap()(1.04))
-    cb.cp().process(["QCD"]).AddSyst(cb, "CMS_QCD_LT_%s" % era, "lnN", ch.SystMap()(1.15))
-    cb.cp().process(["W"]).AddSyst(cb, "CMS_W_LT_%s" % era, "lnN", ch.SystMap()(1.15))
-    cb.cp().process(["TT"]).AddSyst(cb, "CMS_TT_xs_%s" % era, "lnN", ch.SystMap()(1.15))
-    cb.cp().process(["ZTT"]).AddSyst(cb, "CMS_ZTT_xs_%s" % era, "lnN", ch.SystMap()(1.15))
+    cb.cp().process(["TT"]).AddSyst(cb, "CMS_TT_xs_%s" % era, "lnN", ch.SystMap()(1.08))
+    cb.cp().process(["ZTT"]).AddSyst(cb, "CMS_ZTT_xs_%s" % era, "lnN", ch.SystMap()(1.12))
     cb.cp().process(["VV"]).AddSyst(cb, "CMS_VV_xs_%s" % era, "lnN", ch.SystMap()(1.15))
 
     # common (shape)
     cb.cp().process(signal + mc + dd).AddSyst(cb, "CMS_scale_j_%s" % era, "shape", ch.SystMap()(1.0))
     cb.cp().process(signal + mc + dd).AddSyst(cb, "CMS_scale_btag_%s" % era, "shape", ch.SystMap()(1.0))
+
+    # em (norm)
+    cb.cp().process(["QCD"]).channel(['em']).AddSyst(cb, "CMS_em_QCD_LT_%s" % era, "lnN", ch.SystMap()(1.37))
+    cb.cp().process(["W"]).channel(['em']).AddSyst(cb, "CMS_em_W_LT_%s" % era, "lnN", ch.SystMap()(1.41))
+
+    # et (norm)
+    cb.cp().process(["QCD"]).channel(['et']).AddSyst(cb, "CMS_et_QCD_LT_%s" % era, "lnN", ch.SystMap()(1.164))
+    cb.cp().process(["W"]).channel(['et']).AddSyst(cb, "CMS_et_W_LT_%s" % era, "lnN", ch.SystMap()(1.096))
 
     # et (shape)
     cb.cp().process(signal + mc + dd).channel(['et']).AddSyst(cb, "CMS_scale_W_13TeV", "shape", ch.SystMap()(1.0))
