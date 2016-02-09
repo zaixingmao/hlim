@@ -509,7 +509,7 @@ if __name__ == "__main__":
     options = opts()
 
     whiteList = ["TT", "QCD", "VV", "ZTT", "W", "sum_b", "W+QCD"][:-1]
-    # whiteList += ["ZL", "ZJ", "data_obs"]
+    whiteList += ["data_obs"]
     whiteList += ["ggH%s" % m for m in options.masses.split()]
 
     for band in options.bands.split(","):
