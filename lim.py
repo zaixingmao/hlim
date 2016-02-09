@@ -91,7 +91,7 @@ if __name__ == "__main__":
     chs = ["et", "em", "mt", "tt"][:2]
     for ch in chs:
         dump_lim(ch, limits(chained(filenames(ch=ch, masses=masses, method="Asymptotic"))), tag="limit")
-        # dump_lim(ch, limits(chained(filenames(ch=ch, masses=masses, method="Asymptotic", extra="-t -1"))), tag="prelimit")
+        dump_lim(ch, limits(chained(filenames(ch=ch, masses=masses, method="Asymptotic", extra="-t -1"))), tag="prelimit")
         dump_lim(ch, limits(chained(filenames(ch=ch, masses=masses, method="MaxLikelihoodFit"))), tag="r")
         dump_lim(ch, limits(chained(filenames(ch=ch, masses=masses, method="ProfileLikelihood", extra="--significance"))), tag="signif")
         dump_lim(ch, limits(chained(filenames(ch=ch, masses=masses, method="GoodnessOfFit", extra="--algo=saturated --fixedSignalStrength=0"))), tag="gof")
