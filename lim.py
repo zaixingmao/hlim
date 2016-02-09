@@ -62,14 +62,14 @@ def dump_lim(ch, d, tag="", n=10):
     masses = sorted(list(masses))
 
     header0 = "%s %s" % (ch, tag)
-    header = "   ".join([header0.ljust(n)] + ["%5d" % m for m in masses])
+    header = "   ".join([header0.ljust(n)] + ["%7d" % m for m in masses])
     print header
     print "-" * len(header)
     for quantile, mass_dict in sorted(d.iteritems()):
-        row = ["%5.3f" % quantile if quantile > 0.0 else "(obs)"]
+        row = ["%7.3f" % quantile if quantile > 0.0 else "(obs)"]
         row[0] = row[0].ljust(n)
         for m in masses:
-            row.append("%5.3f" % mass_dict[m])
+            row.append("%7.3f" % mass_dict[m])
         print "   ".join(row)
     print
 
@@ -93,4 +93,5 @@ if __name__ == "__main__":
         dump_lim(ch, limits(chained(filenames(ch=ch, masses=masses, method="Asymptotic"))), tag="limit")
         dump_lim(ch, limits(chained(filenames(ch=ch, masses=masses, method="MaxLikelihoodFit"))), tag="r")
         dump_lim(ch, limits(chained(filenames(ch=ch, masses=masses, method="ProfileLikelihood", extra="--significance"))), tag="signif")
+        dump_lim(ch, limits(chained(filenames(ch=ch, masses=masses, method="GoodnessOfFit", extra="--algo=saturated --fixedSignalStrength=0"))), tag="gof")
         diff_nuisances(ch, filenames_ml(ch, masses))
