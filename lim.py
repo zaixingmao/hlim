@@ -4,23 +4,21 @@ import os
 import ROOT as r
 
 
-def filenames_lim(ch="", masses=[]):
+def filenames(ch="", masses=[], method="", extra=""):
+    assert method
+
     out = []
     for m in masses:
         # print ch, m
-        cmd = "combine -M Asymptotic -m %d -n .Zprime.%s LIMITS/%s/%d/htt_%s_0_13TeV.txt > /dev/null" % (m, ch, ch, m, ch)
+        args = "-M %s -m %d -n .Zprime.%s %s" % (method, m, ch, extra)
+        cmd = "combine %s LIMITS/%s/%d/htt_%s_0_13TeV.txt >& /dev/null" % (args, ch, m, ch)
         # print cmd
         os.system(cmd)
-        out.append("higgsCombine.Zprime.%s.Asymptotic.mH%d.root" % (ch, m))
-
-        # f = r.TFile(out[-1])
-        # tree = f.Get("limit")
-        # tree.Scan("mh:limit:quantileExpected", "quantileExpected > 0.0")
-        # f.Close()
+        out.append("higgsCombine.Zprime.%s.%s.mH%d.root" % (ch, method, m))
     return out
 
 
-def filenames_ml(ch="", masses=[]):
+def filenames_ml(ch="", masses=[], quiet=True):
     out = []
 
     outFile = "ml_results_%s.txt" % ch
@@ -29,9 +27,12 @@ def filenames_ml(ch="", masses=[]):
 
     for m in masses:
         #"--saveNLL --saveShapes --saveNormalizations"
-        os.system('echo "\n%d" >> %s' % (m, outFile))
-        cmd = "combine -M MaxLikelihoodFit -m %d -n .Zprime.%s LIMITS/%s/%d/htt_%s_0_13TeV.txt | grep -A 1 'Best fit r'" % (m, ch, ch, m, ch)
-        os.system("%s >> %s" % (cmd, outFile))
+        cmd = "combine -M MaxLikelihoodFit -m %d -n .Zprime.%s LIMITS/%s/%d/htt_%s_0_13TeV.txt" % (m, ch, ch, m, ch)
+        if quiet:
+            os.system("%s >& /dev/null" % cmd)
+        else:
+            os.system('echo "\n%d" >> %s' % (m, outFile))
+            os.system("%s | grep -A 1 'Best fit r' >> %s" % (cmd, outFile))
         dest = "higgsCombine.Zprime.%s.ML.mH%d.root" % (ch, m)
         os.system("mv mlfit.Zprime.%s.root %s" % (ch, dest))
         out.append(dest)
@@ -49,8 +50,6 @@ def limits(chain):
     d = {}
     for iEntry in range(chain.GetEntries()):
         chain.GetEntry(iEntry)
-        if chain.quantileExpected <= 0.0:
-            continue
         key = round(chain.quantileExpected, 3)
         if key not in d:
             d[key] = {}
@@ -58,15 +57,21 @@ def limits(chain):
     return d
 
 
-def dump(ch, d):
+def dump_lim(ch, d, tag="", n=10):
     masses = set(sum([x.keys() for x in d.values()], []))
     masses = sorted(list(masses))
-    print "   ".join([ch.ljust(5)] + ["%5d" % m for m in masses])
+
+    header0 = "%s %s" % (ch, tag)
+    header = "   ".join([header0.ljust(n)] + ["%5d" % m for m in masses])
+    print header
+    print "-" * len(header)
     for quantile, mass_dict in sorted(d.iteritems()):
-        row = ["%5.3f" % quantile]
+        row = ["%5.3f" % quantile if quantile > 0.0 else "(obs)"]
+        row[0] = row[0].ljust(n)
         for m in masses:
             row.append("%5.3f" % mass_dict[m])
         print "   ".join(row)
+    print
 
 
 def diff_nuisances(ch="", filenames=[]):
@@ -85,8 +90,7 @@ if __name__ == "__main__":
     masses = range(500, 3500, 500)
     chs = ["et", "em", "mt", "tt"][:2]
     for ch in chs:
-        chain = chained(filenames_lim(ch=ch, masses=masses))
-        dump(ch, limits(chain))
-
-    for ch in chs:
+        dump_lim(ch, limits(chained(filenames(ch=ch, masses=masses, method="Asymptotic"))), tag="limit")
+        dump_lim(ch, limits(chained(filenames(ch=ch, masses=masses, method="MaxLikelihoodFit"))), tag="r")
+        dump_lim(ch, limits(chained(filenames(ch=ch, masses=masses, method="ProfileLikelihood", extra="--significance"))), tag="signif")
         diff_nuisances(ch, filenames_ml(ch, masses))
