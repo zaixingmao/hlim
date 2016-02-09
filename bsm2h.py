@@ -19,8 +19,10 @@ def merge(stems=None, inDir=None, outDir=None, hName=None, suffix=None):
                 ("WJets", "W"),
                 ("ZJets", "ZTT"),
 
-                ("Z.root", "ZTT.root"),
+                ("eleTau_Z", "eleTau_ZTT"),
+                ("emu_Z", "emu_ZTT"),
                 ("eleTau_", ""),
+                ("emu_", ""),
                 ]
 
     for stem in stems:
@@ -66,14 +68,6 @@ def m2():
     merge(stems=stems, hName=hName, inDir=d, outDir="eleTau_inclusive", suffix="_%s.root" % hName)
 
 
-def ele():
-    stems = ["eleTau_ZPrime_%d" % i for i in [500, 1000, 1500, 2000, 2500, 3000]]
-    stems += ["eleTau_VV", "eleTau_QCD", "eleTau_TT", "eleTau_W", "eleTau_Z", "eleTau_data_obs"]
-    d = "Fitter/eleTau_8TeVbins_900/"
-    hName = "m_effective"
-    merge(stems=stems, hName=hName, inDir=d, outDir="eleTau_inclusive", suffix=".root")
-
-
 def mu():
     stems = ["ZprimeToTauTau_M_%d" % i for i in [500, 1000, 1500, 2000, 2500, 3000]]
     stems += ["Data", "Diboson", "QCD", "TTBar", "WJets", "ZJets"]
@@ -90,10 +84,20 @@ def had():
     merge(stems=stems, hName=hName, inDir=d, outDir="eleTau_inclusive", suffix="_diTauSR_ForFitter.root")
 
 
+def to_h(prefix=""):
+    stems = ["%s_ZPrime_%d" % (prefix, i) for i in [500, 1000, 1500, 2000, 2500, 3000]]
+    stems += ["%s_VV" % prefix, "%s_QCD" % prefix, "%s_TT" % prefix, "%s_W" % prefix, "%s_Z" % prefix, "%s_data_obs" % prefix]
+    d = "Fitter/%s/" % prefix
+    hName = "m_effective"
+    merge(stems=stems, hName=hName, inDir=d, outDir="%s_inclusive" % prefix, suffix=".root")
+
+
 if __name__ == "__main__":
     # m1("eleTau")
     # m1("emu")
     # m2()
     # mu()
-    # ele()
-    had()
+    # had()
+    # to_h("eleTau")
+    to_h("emu")
+
