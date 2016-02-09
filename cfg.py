@@ -13,6 +13,7 @@ masses = [500, 1000, 1500, 2000, 2500, 3000, 3500, 4000, 4500, 5000]
 # masses = masses[:2]
 
 substring_signal_example = "ggH%d" % masses[0]
+flipped_suffix = "_WAS_FLIPPED"
 
 _suffix = "inclusive"
 categories = {# "tt": "tauTau_%s" % _suffix,
@@ -23,41 +24,44 @@ categories = {# "tt": "tauTau_%s" % _suffix,
 
 #bdtDir = "/nfs_scratch/zmao/samples_Iso/datacard_new/bdt_new/"
 bdtDir = "root/bdt/11/"
-# WARNING: this variable gets modified by multi-bdt.py
-# _stem = "13TeV_datacards_Spring15_eletronID2/combined%s.root"
-# _stem = "13TeV_zp_inclusive/combined%s.root"
-#lumi     = 1546.91; _stem = "13TeV_zp/combined%s.root"
-#lumi     = 1546.91; _stem = "13TeV_zp2/combined%s.root"
-#lumi     = 2093.3; _stem = "13TeV_zp3/combined%s.root"
-#lumi     = 2093.3; _stem = "13TeV_zp3l/combined%s.root"
-lumi     = 2093.3; _stem = "13TeV_zp_jan4/combined%s.root"
+lumi = 2093.3
+
+def files(category=""):
+    if category == "et":
+        stem = "13TeV_zp_feb2/combined_%s_withPUWeight%s.root"
+    if category == "em":
+        # stem = "13TeV_zp_jan21/combined_%s_withPUWeight%s.root"
+        stem = "13TeV_zp_feb5/combined_%s_withPUWeight%s.root"
+
+    assert category
+    out = {"":                          stem % (category, ""),
+           "_CMS_scale_j_13TeVUp":      stem % (category, "_jetECUp"),
+           "_CMS_scale_j_13TeVDown":    stem % (category, "_jetECDown"),
+           "_CMS_scale_btag_13TeVUp":   stem % (category, "_bScaleUp"),  # b and light
+           "_CMS_scale_btag_13TeVDown": stem % (category, "_bScaleDown"),
+           }
+    if category == "et":
+        out.update({
+                "_CMS_scale_W_13TeVUp":   stem % (category, "_1.25"),
+                "_CMS_scale_W_13TeVDown": stem % (category, "_1.05"),
+                "_CMS_scale_t_13TeVUp": stem % (category, "_tauECUp"),
+                "_CMS_scale_t_13TeVDown": stem % (category, "_tauECDown"),
+                })
+    return out
 
 
-def files(variable=""):
-    assert variable
-    return {"":                             _stem % "",
-            # "_CMS_scale_W_13TeVUp":   _stem % "_W_1_15",
-            # "_CMS_scale_W_13TeVDown": _stem % "_W_0_85",
-            "_CMS_scale_j_13TeVUp":   _stem % "_Jet35",
-            "_CMS_scale_j_13TeVDown": _stem % "_Jet25",
-            # "_CMS_scale_t_tautau_8TeVUp":   _stem % "tauUp",
-            # "_CMS_scale_t_tautau_8TeVDown": _stem % "tauDown",
-            # "_CMS_scale_btag_8TeVUp": _stem % "bSysUp",
-            # "_CMS_scale_btag_8TeVDown": _stem % "bSysDown",
-            # "_CMS_scale_btagEff_8TeVUp": _stem % "bSysUp",     # duplicate of btag
-            # "_CMS_scale_btagEff_8TeVDown": _stem % "bSysDown", # duplicate of btag
-            # "_CMS_scale_btagFake_8TeVUp": _stem % "bMisUp",
-            # "_CMS_scale_btagFake_8TeVDown": _stem % "bMisDown",
-            }
-
-
-def qcd_sf_name(category, cuts=None):
+def transfer_factor_name(category, proc, variation, cuts=None):
     # return "L_to_T_SF_%s" % category
     # return "SS_to_OS_%s" % category
+    # # Feb. 0
+    # if proc == "QCD":
+    #     return "Loose_to_Tight_et_1prong_3prong"
+    # if proc == "WJets":
+    #     return "WJets_Loose_to_Tight"
 
-    prefix = "Loose_to_Tight"
+    prefix = "%s_Loose_to_Tight" % proc
+
     tdm = cuts.get('~tauDecayMode')
-
     if category == "et" and tdm:
         assert tdm == (4.5, 9.5), cuts
         return "%s_et_1prong_3prong" % prefix
@@ -72,10 +76,10 @@ def procs(variable="", category=""):
     # first character '*' (see procs2)
     out = {"TT": ["TTJets", 'ST_antiTop_tW', 'ST_top_tW', 'ST_t-channel_antiTop_tW', 'ST_t-channel_top_tW'],
            "VV": ['VVTo2L2Nu', 'WWTo1L1Nu2Q', 'WZJets', 'WZTo1L1Nu2Q', 'WZTo1L3Nu', 'WZTo2L2Q', 'ZZTo2L2Q', 'ZZTo4L'],
-           "W": ['WJets_HT-0to100', 'WJets_HT-100to200', 'WJets_HT-200to400', 'WJets_HT-400to600', 'WJets_HT-600toInf'],
            "ZTT": ['DY_M-50-H-0to100', 'DY_M-50-H-100to200', 'DY_M-50-H-200to400', 'DY_M-50-H-400to600', 'DY_M-50-H-600toInf'] +\
-               ['DY_M-5to50-H-0to100', 'DY_M-5to50-H-200to400', 'DY_M-5to50-H-400to600', 'DY_M-5to50-H-600toInf'],
+               [], #['DY_M-5to50-H-0to100', 'DY_M-5to50-H-200to400', 'DY_M-5to50-H-400to600', 'DY_M-5to50-H-600toInf'],
 
+           # "W": ['WJets_HT-0to100', 'WJets_HT-100to200', 'WJets_HT-200to400', 'WJets_HT-400to600', 'WJets_HT-600toInf'],
            # "VV": ["WZ", "WW", "ZZ"],
            # "W": ["WJets"],
            # "ZTT": ["ZTT"],
@@ -86,7 +90,9 @@ def procs(variable="", category=""):
            # "QCD": ["dataSS", "-MCSS"],
            # "data_obs": ["dataOS"],
 
+           "W": ["WJetsLoose"],
            "QCD": ["dataLoose", "-MCLoose"],
+
            "data_obs": ["dataTight"],
            }
     for m in masses:
@@ -100,10 +106,15 @@ def procs2(variable="", category=""):
     """first character '*' means unit normalize and then use factor"""
     assert variable
     assert category
+    out = {}
+
     # out = {"VV": ["*VV", "*singleT"],
     #        "ZLL": ["*ZLL"],
     #        }
-    return {}
+
+    # out["W+QCD"] = ["W", "QCD"]
+
+    return out
 
 
 def isData(proc):
@@ -124,6 +135,10 @@ def isSignal(proc):
 
 def isVariation(proc):
     return proc.endswith("Down") or proc.endswith("Up")
+
+
+def isFlippedTracker(proc):
+    return proc.endswith(flipped_suffix)
 
 
 def reportExtra(proc):

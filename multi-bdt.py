@@ -6,6 +6,7 @@ import os
 import sys
 import make_root_files
 import determine_binning
+import compareDataCards
 import ROOT as r
 
 
@@ -40,8 +41,9 @@ def make_root_file(dirName, fileName, variable, ini_bins=None, subdir="", minWid
     staticBinning = (minWidth is None) or (threshold is None)
     if staticBinning:
         make_root_files.options.contents = True
+        # make_root_files.options.factors = True
 
-    make_root_files.go(variable, categoryWhitelist=catlist, skipVariations=not staticBinning)
+    make_root_files.go(variable, categoryWhitelist=catlist, skipVariations=not staticBinning, flipNegativeBins=staticBinning)
 
     if staticBinning:
         return
@@ -57,7 +59,7 @@ def make_root_file(dirName, fileName, variable, ini_bins=None, subdir="", minWid
     print variable["bins"]
     # make histograms with this binning
     make_root_files.options.contents = True
-    make_root_files.go(variable, categoryWhitelist=catlist)
+    make_root_files.go(variable, categoryWhitelist=catlist, flipNegativeBins=True)
 
 
 def plot(dirName, fileName, xtitle, mass):
@@ -121,7 +123,8 @@ def go_bdt(suffix="normal.root"):
             if ("_H%3d_%s" % (mass, suffix)) not in fileIn:
                 continue
 
-            cfg._stem = "%s/%s" % (cfg.bdtDir, fileIn.replace(suffix, "%s.root"))
+            sys.exit("FIX ME: cfg._stem")
+            # cfg._stem = "%s/%s" % (cfg.bdtDir, fileIn.replace(suffix, "%s.root"))
 
             variable["tag"] = "%3d" % mass
             fileOut = cfg.outFileName(**variable)
@@ -152,14 +155,15 @@ def go_cb(suffix="normal.root"):
 
 def go_zp(suffix="normal.root"):
     variable = {"var": "m_effective",
+                # "var": "mt_1",
                 "cuts": {# "tauTightIso": (0.5, None),
                          # "eleRelIso": (None, 0.15),
                          # "pfMEt": (30, None),
                          # "pZetaCut": (-50, None),
                          # "nCSVL": (None, 0.5),
                          # "cosDPhi": (None, -0.95),
-
-                         "~tauDecayMode": (4.5, 9.5),
+                         # "mt_1": (None, 50.0),
+                         "~tauDecayMode": (4.5, 9.5),  # first character '~' means invert the cut
                          },
                 }
 
@@ -167,18 +171,28 @@ def go_zp(suffix="normal.root"):
     dirOut = "%s_%s" % (variable["var"], cfg.cutDesc(variable["cuts"]))
 
     for ch, subdir in cfg.categories.iteritems():
-        v = variable["var"]
-        # ini_bins = [73.0, 98.0, 123.0, 148.0, 173.0, 198.0, 223.0, 248.0, 273.0, 298.0, 335.0, 360.0, 390.0, 425.0, 495.0, 520.0]
-        # make_root_file(dirOut, fileOut, variable, ini_bins=ini_bins, subdir=subdir, catlist=[ch])
-        make_root_file(dirOut, fileOut, variable, ini_bins=(1000, 0.0, 1000.0), subdir=subdir, minWidth=25.0, threshold=0.20, catlist=[ch])
-        root_dest.copy(src=cfg.outFileName(var=v, cuts=variable["cuts"]), channel=ch, era="13TeV", tag="Zp")
+        variations = set([key.replace("Up", "").replace("Down", "") for key in cfg.files(ch).keys()])
 
-        args = "--file1=Brown/htt_%s.inputs-Zp-13TeV.root --file2='' --masses='500 1000 1500 2000' --logy --xtitle='%s (GeV)'" % (ch, v)
-        os.system("./compareDataCards.py %s" % args)
-        os.system("cp -p comparison_%s.pdf ~/public_html/comparison_%s_%s.pdf" % (v, v, ch))
+        bsm = [0, 100, 110, 120, 130, 140, 150, 160, 170, 180, 190, 200, 225, 250, 275, 300, 400, 600, 900]
+        make_root_file(dirOut, fileOut, variable, ini_bins=bsm, subdir=subdir, catlist=[ch])
+        # make_root_file(dirOut, fileOut, variable, ini_bins=(100, 0.0, 1000.0), subdir=subdir, catlist=[ch])  # change flip to False!!
+        # make_root_file(dirOut, fileOut, variable, ini_bins=(1000, 0.0, 1000.0), subdir=subdir, minWidth=25.0, threshold=0.20, catlist=[ch])
+        root_dest.copy(src=cfg.outFileName(var=variable["var"], cuts=variable["cuts"]), channel=ch, era="13TeV", tag="Zp")
 
-        os.system("./compareDataCards.py %s --raw-yields" % args)
-        os.system("cp -p comparison_%s.pdf ~/public_html/comparison_%s_%s_raw.pdf" % (v, v, ch))
+        args = "--file1=Brown/htt_%s.inputs-Zp-13TeV.root --file2='' --masses='500 1000 1500 2000' --xtitle='%s (GeV)'" % (ch, variable["var"])
+        args += " --bands=%s" % ",".join([v.replace("_CMS", "CMS") for v in variations])
+
+        for extra_args, suffix in [("--logy", ""),
+                                   ("--logy --raw-yields", "_raw"),
+                                   ("--as-ratio --raw-yields", "_div"),
+                                   ]:
+            cmd = "./compareDataCards.py %s %s" % (args, extra_args)
+            os.system(cmd)
+            # print cmd
+
+            for prefix in variations:
+                prefix2 = compareDataCards.shortened(prefix)
+                os.system("cp -p comparison_%s%s.pdf ~/public_html/%s%s_%s%s.pdf" % (variable["var"], prefix2, variable["var"], prefix2, ch, suffix))
 
 
 def opts():

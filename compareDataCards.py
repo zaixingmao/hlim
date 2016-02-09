@@ -5,6 +5,7 @@ import collections
 import os
 import sys
 
+
 def fetchOneDir(f, subdir, scale):
     out = {}
     for key in r.gDirectory.GetListOfKeys():
@@ -127,6 +128,25 @@ def shortened(band):
     return s
 
 
+def draw(h, gopts, d, colorFlip):
+    h.Draw(gopts)
+
+    flipped = d.get(h.GetName() + options.flippedSuffix)
+    if flipped:
+        flipped.Multiply(h)
+        flipped.SetLineStyle(h.GetLineStyle())
+        flipped.SetLineColor(colorFlip)
+        flipped.SetMarkerColor(colorFlip)
+        flipped.Draw(gopts.replace("hist", "") + "same")
+
+
+def errorless(h):
+    out = h.Clone("%s_noErrors" % h.GetName())
+    for iBin in range(0, 2 + out.GetNbinsX()):
+        out.SetBinError(iBin, 0.0)
+    return out
+
+
 def oneDir(canvas, pdf, hNames, d1, d2, subdir, xTitle, band, skip2=False):
     keep = []
 
@@ -147,6 +167,8 @@ def oneDir(canvas, pdf, hNames, d1, d2, subdir, xTitle, band, skip2=False):
             print "ERROR: '%s' not in list of available names: %s" % (hName, str(hNames))
 
         h1 = d1[subdir].get(hName)
+        h1denom = errorless(h1)
+
         if not h1:
             print "ERROR: %s/%s not found" % (subdir, hName)
             if j == 3 or i == iEnd:
@@ -159,10 +181,18 @@ def oneDir(canvas, pdf, hNames, d1, d2, subdir, xTitle, band, skip2=False):
             h1u = d1[subdir].get("%s_%sUp" % (hName, band))
             h1d = d1[subdir].get("%s_%sDown" % (hName, band))
             if h1u and h1d:
+                if options.asRatio:
+                    h1u.Divide(h1denom)
+                    h1d.Divide(h1denom)
                 h1b = bandHisto(h1u, h1d)
                 keep.append(h1b)
 
+        if options.asRatio:
+            h1.Divide(h1denom)
+
         h2 = d2[subdir].get(hName)
+        h2denom = errorless(h2)
+
         if not h2:
             print "ERROR: %s/%s not found" % (subdir, hName)
             if j == 3 or i == iEnd:
@@ -175,8 +205,14 @@ def oneDir(canvas, pdf, hNames, d1, d2, subdir, xTitle, band, skip2=False):
             h2u = d2[subdir].get("%s_%sUp" % (hName, band))
             h2d = d2[subdir].get("%s_%sDown" % (hName, band))
             if h2u and h2d:
+                if options.asRatio:
+                    h2u.Divide(h2denom)
+                    h2d.Divide(h2denom)
                 h2b = bandHisto(h2u, h2d)
                 keep.append(h2b)
+
+        if options.asRatio:
+            h2.Divide(h2denom)
 
         canvas.cd(1 + j)
         r.gPad.SetTickx()
@@ -200,7 +236,7 @@ def oneDir(canvas, pdf, hNames, d1, d2, subdir, xTitle, band, skip2=False):
             hFirst.SetMaximum(2.0 * maximum(hList))
         else:
             hFirst.SetMinimum(0.0)
-            hFirst.SetMaximum(1.1 * maximum(hList))
+            hFirst.SetMaximum(2.0 if options.asRatio else 1.1 * maximum(hList))
 
         hFirst.SetStats(False)
         hFirst.GetYaxis().SetTitleOffset(1.25)
@@ -214,14 +250,14 @@ def oneDir(canvas, pdf, hNames, d1, d2, subdir, xTitle, band, skip2=False):
 
             h1d.SetLineColor(bandColor1)
             h1d.SetLineStyle(4)
-            h1d.Draw("histsame")
+            draw(h1d, "histsame", d1[subdir], bandColor1Flip)
 
             h1u.SetLineColor(bandColor1)
-            h1u.Draw("histsame")
+            draw(h1u, "histsame", d1[subdir], bandColor1Flip)
 
         h1.SetLineColor(lineColor1)
         h1.SetMarkerColor(lineColor1)
-        h1.Draw("ehistsame" if band else "ehist")
+        draw(h1, "ehistsame" if band else "ehist", d1[subdir], lineColor1Flip)
         #keep.append(moveStatsBox(h1))
 
         if band and h2b and not skip2:
@@ -233,15 +269,15 @@ def oneDir(canvas, pdf, hNames, d1, d2, subdir, xTitle, band, skip2=False):
 
             h2d.SetLineColor(bandColor2)
             h2d.SetLineStyle(4)
-            h2d.Draw("histsame")
+            draw(h2d, "histsame", d2[subdir], bandColor2Flip)
 
             h2u.SetLineColor(bandColor2)
-            h2u.Draw("histsame")
+            draw(h2u, "histsame", d2[subdir], bandColor2Flip)
 
         if not skip2:
             h2.SetLineColor(lineColor2)
             h2.SetMarkerColor(lineColor2)
-            h2.Draw("ehistsame")
+            draw(h2, "ehistsame", d2[subdir], lineColor2Flip)
             #keep.append(moveStatsBox(h2))
 
         leg = r.TLegend(0.65, 0.6, 0.87, 0.87)
@@ -284,7 +320,7 @@ def tryNums(m, h):
     return num
 
 
-def report(l=[], suffixes=["Up", "Down"], recursive=False):
+def report(l=[], suffixes=["Up", "Down", "_WAS_FLIPPED"], recursive=False):
     for (hs, message) in l:
         if not hs:
             continue
@@ -428,6 +464,23 @@ def opts():
                       default="160",
                       )
 
+    parser.add_option("--bands",
+                      dest="bands",
+                      # default=",".join(["CMS_scale_%s_8TeV" % s for s in ["t_tautau", "j", "btag", "btagEff", "btagFake"]]),
+                      default=",".join(["", "CMS_scale_W_13TeV", "CMS_scale_j_13TeV", "CMS_scale_btag_13TeV"])
+                      )
+
+    parser.add_option("--flipped-suffix",
+                      dest="flippedSuffix",
+                      default="_WAS_FLIPPED",
+                      )
+
+    parser.add_option("--as-ratio",
+                      dest="asRatio",
+                      default=False,
+                      action="store_true",
+                      )
+
     options, args = parser.parse_args()
     return options
 
@@ -439,25 +492,25 @@ if __name__ == "__main__":
 
     ignorePrefixes = ["ggAToZh", "bbH", "ggRadion", "ggGraviton"]
 
-    # bands = ["CMS_scale_%s_8TeV" % s for s in ["t_tautau", "j", "btag", "btagEff", "btagFake"]]
-    # bands = [""]
-    bands = ["CMS_scale_W_13TeV", "CMS_scale_j_13TeV"]
-
     r.gErrorIgnoreLevel = 2000
     r.gStyle.SetOptStat("rme")
     r.gROOT.SetBatch(True)
 
     lineColor1 = r.kBlack
+    lineColor1Flip = r.kOrange - 7
     bandColor1 = r.kGray
+    bandColor1Flip = r.kOrange - 5
 
     lineColor2 = r.kBlue
+    lineColor2Flip = r.kViolet + 4
     bandColor2 = r.kCyan
+    bandColor2Flip = r.kViolet + 6
 
     options = opts()
 
-    whiteList = ["TT", "QCD", "VV", "ZTT", "W", "sum_b"]
-    # whiteList += ["ZL", "ZJ", "data_obs"]
+    whiteList = ["TT", "QCD", "VV", "ZTT", "W", "sum_b", "W+QCD"][:-1]
+    whiteList += ["data_obs"]
     whiteList += ["ggH%s" % m for m in options.masses.split()]
 
-    for band in bands:
+    for band in options.bands.split(","):
         go(options.xtitle, options.file1, options.scale1, options.file2, options.scale2, band)

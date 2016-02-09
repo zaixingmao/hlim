@@ -8,7 +8,7 @@ import os
 import sys
 
 import cfg
-from compareDataCards import report
+import compareDataCards
 
 import ROOT as r
 r.PyConfig.IgnoreCommandLineOptions = True
@@ -78,7 +78,25 @@ def rescaled_bins(bins, variable):
     return bins, variable
 
 
-def histos(bins=None, variable="", cuts={}, category="", skipVariations=False):
+def flipped_negative_bins(d):
+    out = {}
+    for name, h in sorted(d.iteritems()):
+        flipped = h.Clone(name + cfg.flipped_suffix)
+        flipped.Reset()
+
+        for iBin in range(1, 1 + h.GetNbinsX()):
+            c = h.GetBinContent(iBin)
+            if c < 0.0:
+                h.SetBinContent(iBin, -c)
+                flipped.SetBinContent(iBin, 1)
+                print "flipped %s %3d (%4.1e)" % (name, iBin, c)
+        out[name] = h
+        if flipped.Integral():
+            out[flipped.GetName()] = flipped
+    return out
+
+
+def histos(bins=None, variable="", cuts={}, category="", skipVariations=False, flipNegativeBins=False):
     assert bins
 
     # rescale so that bin width is 1.0
@@ -88,11 +106,14 @@ def histos(bins=None, variable="", cuts={}, category="", skipVariations=False):
     procs = cfg.procs(variable, category)
 
     out = {}
-    for variation, fileName in cfg.files(variable).iteritems():
+    for variation, fileName in cfg.files(category).iteritems():
         if skipVariations and variation:
             continue
 
         f = r.TFile(fileName)
+        if f.IsZombie():
+            error(msg="(see above)", die=True)
+
         tree = f.Get("eventTree")
         checkSamples(tree, fileName, variable, category)
 
@@ -111,14 +132,19 @@ def histos(bins=None, variable="", cuts={}, category="", skipVariations=False):
                 factor = -1.0 if srcProc[0] == "-" else 1.0
                 out[destProc].Add(h, factor)
 
-
-        applyFactor(out["QCD" + variation], f, hName=cfg.qcd_sf_name(category, cuts=cuts), unit=False)
+        applyFactor(out["QCD" + variation], f, hName=cfg.transfer_factor_name(category, "QCD", variation, cuts=cuts), unit=False)
+        applyFactor(out["W" + variation], f, hName=cfg.transfer_factor_name(category, "WJets", variation, cuts=cuts), unit=False)
 
         if any(["embed" in src for src in procs.get("ZTT", [])]):
-           applyFactor(out["ZTT" + variation], f, hName="MC2Embed2Cat_%s" % category, unit=(category != '0M'))
+            print "WARNING: modifying ZTT"
+            applyFactor(out["ZTT" + variation], f, hName="MC2Embed2Cat_%s" % category, unit=(category != '0M'))
 
         merge_second_layer(out, f, variable, category, variation)
+
         f.Close()
+
+    if flipNegativeBins:
+        out = flipped_negative_bins(out)  # modifies histograms and adds tracking histograms
     return out
 
 
@@ -239,9 +265,9 @@ def checkSamples(tree, fileName=".root file", variable="", category=""):
         if not cfg.reportExtra(key):
             del xs[key]
 
-    report([(xs.keys(), "Samples in %s but not procs():" % fileName),
-            (extra, "Samples in procs() but not %s:" % fileName),
-            ])
+    compareDataCards.report([(xs.keys(), "Samples in %s but not procs():" % fileName),
+                             (extra, "Samples in procs() but not %s:" % fileName),
+                             ])
 
 
 def applyFactor(h=None, tfile=None, hName="", unit=False):
@@ -256,14 +282,15 @@ def applyFactor(h=None, tfile=None, hName="", unit=False):
     if not hFactor:
         error("Could not find histogram '%s' in file '%s'." % (hName, tfile.GetName()))
     factor = hFactor.GetBinContent(1)
+    unc = hFactor.GetBinError(1)
     if options.factors:
-        print "%s: %8.6f" % (hName, factor)
+        print "%s: %8.6f +- %8.6f  (%8.6f)" % (hName, factor, unc, unc / factor)
     h.Scale(factor)
 
 
 def describe(h, l, keys):
     print l, h.GetXaxis().GetTitle(), "(sum of %s)" % str(sorted(keys))
-    headers = "bin    x_lo       width    cont  +-   err    (   rel)"
+    headers = "bin    x_lo        width    cont  +-   err    (   rel)"
     print l, headers
     print l, "-" * len(headers)
     for iBinX in range(1, 1 + h.GetNbinsX()):
@@ -271,7 +298,7 @@ def describe(h, l, keys):
         c = h.GetBinContent(iBinX)
         e = h.GetBinError(iBinX)
         w = h.GetBinWidth(iBinX)
-        s = " %2d   %9.2e   %4.2f   %7.1e +- %7.1e" % (iBinX, x, w, c, e)
+        s = " %2d   %9.2e   %6.2f   %7.1e +- %7.1e" % (iBinX, x, w, c, e)
         if c:
             s += "  (%5.1f%s)" % (100.*e/c, "%")
         print l, s
@@ -298,7 +325,7 @@ def printTag(tag, l):
     print l, a
 
 
-def go(var={}, sFactor=0, sKey="", categoryWhitelist=None, skipVariations=False):
+def go(var={}, sFactor=0, sKey="", categoryWhitelist=None, skipVariations=False, flipNegativeBins=False):
     assert var
     printHeader(**var)
 
@@ -307,11 +334,11 @@ def go(var={}, sFactor=0, sKey="", categoryWhitelist=None, skipVariations=False)
     for category, tag in cfg.categories.iteritems():
         if categoryWhitelist and category not in categoryWhitelist:
             continue
-        hs = histos(category=category, bins=var["bins"], variable=var["var"], cuts=var["cuts"], skipVariations=skipVariations)
+        hs = histos(category=category, bins=var["bins"], variable=var["var"], cuts=var["cuts"], skipVariations=skipVariations, flipNegativeBins=flipNegativeBins)
         if options.integrals or options.xs or options.contents:
             printTag(tag, l)
         f.mkdir(tag).cd()
-        oneTag(tag, hs, sKey, sFactor, l)
+        oneTag(category, tag, hs, sKey, sFactor, l)
     f.Close()
 
 
@@ -326,7 +353,7 @@ def printIntegrals(lst=[], l=""):
     print l, hyphens
 
 
-def oneTag(tag, hs, sKey, sFactor, l):
+def oneTag(category, tag, hs, sKey, sFactor, l):
     integrals = []
     # scale and write
     for (proc, h) in hs.iteritems():
@@ -338,6 +365,8 @@ def oneTag(tag, hs, sKey, sFactor, l):
         if cfg.isSignal(proc) and cfg.substring_signal_example not in proc:
             pass
         elif cfg.isVariation(proc):
+            pass
+        elif cfg.isFlippedTracker(proc):
             pass
         else:
             integrals.append((tag, proc, h.Integral(0, 2 + h.GetNbinsX())))
@@ -351,7 +380,7 @@ def oneTag(tag, hs, sKey, sFactor, l):
         fakeDataset(hs, sKey, sFactor, l).Write()
 
     if options.sumb:
-        suffixes = sorted(cfg.files("DUMMY").keys())
+        suffixes = sorted(cfg.files(category).keys())
         for suffix in suffixes:
             h, keys = sumb(hs, suffix=suffix)
             if not h:  # due to go(skipVariations=True)
@@ -383,6 +412,8 @@ def sumb(hs, name="sum_b", suffix=""):
         if cfg.isSignal(key):
             continue
         if cfg.isData(key):
+            continue
+        if cfg.isFlippedTracker(key):
             continue
         if (not suffix) and cfg.isVariation(key):
             continue

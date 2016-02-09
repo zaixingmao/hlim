@@ -1,14 +1,14 @@
 #!/usr/bin/env python
 
 import os
+import sys
 import math
 import cfg
 import ROOT as r
 
 
 if __name__ == "__main__":
-    variable = "m_effective"
-    fIn = r.TFile("%s/src/auxiliaries/shapes/Brown/%s.root" % (os.environ["CMSSW_BASE"], variable))
+    fIn = r.TFile(sys.argv[1])
 
     for key in fIn.GetListOfKeys():
         subdir = key.GetName()
@@ -17,11 +17,13 @@ if __name__ == "__main__":
         signals = []
         for key2 in r.gDirectory.GetListOfKeys():
             hName = key2.GetName()
-            if cfg.isSignal(hName):
+            if cfg.isSignal(hName) and not cfg.isVariation(hName):
                 signals.append(hName)
 
         print subdir
-        print "%10s  %3s  %7s" % ("signal", "bin", "s/sqrt(b)")
+        header = "%10s  %3s  %7s   %7s" % ("signal", "bin", "s/sqrt(b)", "xs @ s/sqrt(b)=2")
+        print header
+        print "-" * len(header)
         for signal in sorted(signals):
             hs = fIn.Get("%s/%s" % (subdir, signal))
             xMax = -999.9
@@ -35,4 +37,5 @@ if __name__ == "__main__":
                         xMax = x
                         i = iBin
                         # print "%3d  %g  %g  %g  %g" % (i, s, b, math.sqrt(b), s / math.sqrt(b))
-            print "%10s  %3d  %g" % (signal, i, xMax)
+            print "%10s  %3d  %g     %g" % (signal, i, xMax, 2.0 / xMax)
+    fIn.Close()
