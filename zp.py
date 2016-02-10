@@ -62,7 +62,7 @@ def add_systematics(cb):
     dd = ['QCD']
 
     # common (norm)
-    cb.cp().process(signal + mc).AddSyst(cb, "CMS_lumi_%s" % era, "lnN", ch.SystMap()(1.04))
+    # cb.cp().process(signal + mc).AddSyst(cb, "CMS_lumi_%s" % era, "lnN", ch.SystMap()(1.04))  # included in BSM3G
     cb.cp().process(["TT"]).AddSyst(cb, "CMS_TT_xs_%s" % era, "lnN", ch.SystMap()(1.08))
     cb.cp().process(["ZTT"]).AddSyst(cb, "CMS_ZTT_xs_%s" % era, "lnN", ch.SystMap()(1.12))
     cb.cp().process(["VV"]).AddSyst(cb, "CMS_VV_xs_%s" % era, "lnN", ch.SystMap()(1.15))
@@ -82,6 +82,28 @@ def add_systematics(cb):
     # et (shape)
     cb.cp().process(mc + dd).channel(['et']).AddSyst(cb, "CMS_scale_W_13TeV", "shape", ch.SystMap()(1.0))
     cb.cp().process(signal + mc + dd).channel(['et']).AddSyst(cb, "CMS_scale_t_13TeV", "shape", ch.SystMap()(1.0))
+
+    # implementation of BSM3G (0/Zp  1/W  2/Z  3/TT  4/VV  5/QCD  6/H)
+    # differences:
+    # - Trig10 applies to VV
+    # - bbb handles STMC
+    # - Close11 and Close15 replaced by LT params above
+    # - bID handled by shape above
+    # - TES handled by shape above
+    cb.cp().process(signal + mc  ).channel(['et']).AddSyst(cb, "lumi",    "lnN", ch.SystMap()(1.05))
+    cb.cp().process(signal + mc  ).channel(['et']).AddSyst(cb, "Trig10",  "lnN", ch.SystMap()(1.01))
+    cb.cp().process(["W"]        ).channel(['et']).AddSyst(cb, "ElID11",  "lnN", ch.SystMap()(1.01))
+    cb.cp().process(["ZTT"]      ).channel(['et']).AddSyst(cb, "ElID12",  "lnN", ch.SystMap()(1.01))
+    cb.cp().process(["TT"]       ).channel(['et']).AddSyst(cb, "ElID13",  "lnN", ch.SystMap()(1.01))
+    cb.cp().process(["W", "ZTT"] ).channel(['et']).AddSyst(cb, "TaID00",  "lnN", ch.SystMap()(1.06))
+    cb.cp().process(["TT"]       ).channel(['et']).AddSyst(cb, "TaID03",  "lnN", ch.SystMap()(1.06))
+    # cb.cp().process(["ZTT"]      ).channel(['et']).AddSyst(cb, "bID02",   "lnN", ch.SystMap()(1.03))
+    # cb.cp().process(["TT"]       ).channel(['et']).AddSyst(cb, "bID03",   "lnN", ch.SystMap()(1.1 ))
+    cb.cp().process(["ZTT", "TT"]).channel(['et']).AddSyst(cb, "EES12",   "lnN", ch.SystMap()(1.01))
+    # cb.cp().process(["ZTT"]      ).channel(['et']).AddSyst(cb, "TES02",   "lnN", ch.SystMap()(1.08))
+    # cb.cp().process(["TT"]       ).channel(['et']).AddSyst(cb, "TES03",   "lnN", ch.SystMap()(1.08))
+    # cb.cp().process(["W"]        ).channel(['et']).AddSyst(cb, "Close11", "lnN", ch.SystMap()(1.08))
+    # cb.cp().process(["QCD"]      ).channel(['et']).AddSyst(cb, "Close15", "lnN", ch.SystMap()(1.15))
 
 
 def go(cb):
