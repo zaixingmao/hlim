@@ -74,6 +74,56 @@ def dump_lim(ch, d, tag="", n=10):
     print
 
 
+def plot_lim(ch, d, tag=""):
+    masses = set(sum([x.keys() for x in d.values()], []))
+    masses = sorted(list(masses))
+
+    null = r.TH2D("", ch + ";M(Z')   [GeV];95% CL upper limit on #sigma(pp#rightarrow Z') x BR(Z'#rightarrow#tau#tau)   [pb]", 1, 400.0, 3100.0, 1, 0.01, 10.0)
+    null.SetStats(False)
+    null.Draw()
+
+    leg = r.TLegend(0.5, 0.6, 0.8, 0.8)
+    leg.SetBorderSize(0)
+    leg.SetFillStyle(0)
+
+    graphs = {}
+    for quantile, mass_dict in sorted(d.iteritems()):
+
+        graphs[quantile] = r.TGraph()
+        for i, m in enumerate(masses):
+            graphs[quantile].SetPoint(i, m, mass_dict[m])
+
+        if 0.0 < quantile:
+            graphs[quantile].SetLineColor(r.kBlue)
+        else:
+            leg.AddEntry(graphs[quantile], "Observed", "l")
+
+        if abs(quantile - 0.5) < 0.001:
+            graphs[quantile].SetLineStyle(1)
+            leg.AddEntry(graphs[quantile], "expected (post-fit)", "l")
+        if abs(quantile - 0.84) < 0.001:
+            graphs[quantile].SetLineStyle(2)
+            leg.AddEntry(graphs[quantile], "#pm1#sigma expected (post-fit)", "l")
+        if abs(quantile - 0.16) < 0.001:
+            graphs[quantile].SetLineStyle(2)
+        if abs(quantile - 0.975) < 0.001:
+            graphs[quantile].SetLineStyle(3)
+            leg.AddEntry(graphs[quantile], "#pm2#sigma expected (post-fit)", "l")
+        if abs(quantile - 0.025) < 0.001:
+            graphs[quantile].SetLineStyle(3)
+
+        graphs[quantile].Draw("csame")
+
+    leg.Draw()
+    r.gPad.SetLogy()
+    r.gPad.SetTickx()
+    r.gPad.SetTicky()
+
+    pdf = "%s_%s.pdf" % (ch, tag)
+    r.gPad.Print(pdf)
+    os.system("cp -p %s ~/public_html/" % pdf)
+
+
 def diff_nuisances(ch="", filenames=[]):
     prog = "%s/src/HiggsAnalysis/CombinedLimit/test/diffNuisances.py" % os.environ["CMSSW_BASE"]
 
@@ -90,7 +140,12 @@ if __name__ == "__main__":
     masses = range(500, 3500, 500)
     chs = ["et", "em", "mt", "tt"][:2]
     for ch in chs:
-        dump_lim(ch, limits(chained(filenames(ch=ch, masses=masses, method="Asymptotic"))), tag="limit")
+        # for tests
+        # postfit = limits(chained(['higgsCombine.Zprime.et.Asymptotic.mH500.root', 'higgsCombine.Zprime.et.Asymptotic.mH1000.root', 'higgsCombine.Zprime.et.Asymptotic.mH1500.root', 'higgsCombine.Zprime.et.Asymptotic.mH2000.root', 'higgsCombine.Zprime.et.Asymptotic.mH2500.root', 'higgsCombine.Zprime.et.Asymptotic.mH3000.root']))
+
+        postfit = limits(chained(filenames(ch=ch, masses=masses, method="Asymptotic")))
+        plot_lim(ch, postfit, tag="limit")
+        dump_lim(ch, postfit, tag="limit")
         dump_lim(ch, limits(chained(filenames(ch=ch, masses=masses, method="Asymptotic", extra="-t -1"))), tag="prelimit")
         dump_lim(ch, limits(chained(filenames(ch=ch, masses=masses, method="MaxLikelihoodFit"))), tag="r")
         dump_lim(ch, limits(chained(filenames(ch=ch, masses=masses, method="ProfileLikelihood", extra="--significance"))), tag="signif")
