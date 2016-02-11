@@ -2,6 +2,7 @@
 
 import os
 import ROOT as r
+from h2bsm import xs_fb
 
 
 def filenames(ch="", masses=[], method="", extra=""):
@@ -86,12 +87,16 @@ def plot_lim(ch, d, tag=""):
     leg.SetBorderSize(0)
     leg.SetFillStyle(0)
 
+    ssm = r.TGraph()
     graphs = {}
+
     for quantile, mass_dict in sorted(d.iteritems()):
 
         graphs[quantile] = r.TGraph()
         for i, m in enumerate(masses):
             graphs[quantile].SetPoint(i, m, mass_dict[m])
+            if abs(quantile - 0.5) < 0.001:
+                ssm.SetPoint(i, m, xs_fb(m) / 1000.)
 
         if 0.0 < quantile:
             graphs[quantile].SetLineColor(r.kBlue)
@@ -101,18 +106,26 @@ def plot_lim(ch, d, tag=""):
         if abs(quantile - 0.5) < 0.001:
             graphs[quantile].SetLineStyle(1)
             leg.AddEntry(graphs[quantile], "expected (post-fit)", "l")
+            leg.AddEntry(ssm, "SSM xs", "l")
+
         if abs(quantile - 0.84) < 0.001:
             graphs[quantile].SetLineStyle(2)
             leg.AddEntry(graphs[quantile], "#pm1#sigma expected (post-fit)", "l")
+
         if abs(quantile - 0.16) < 0.001:
             graphs[quantile].SetLineStyle(2)
+
         if abs(quantile - 0.975) < 0.001:
             graphs[quantile].SetLineStyle(3)
             leg.AddEntry(graphs[quantile], "#pm2#sigma expected (post-fit)", "l")
+
         if abs(quantile - 0.025) < 0.001:
             graphs[quantile].SetLineStyle(3)
 
         graphs[quantile].Draw("csame")
+
+    ssm.SetLineColor(r.kRed)
+    ssm.Draw("same")
 
     leg.Draw()
     r.gPad.SetLogy()
