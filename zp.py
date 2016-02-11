@@ -61,15 +61,15 @@ def add_systematics(cb):
     mc = ['ZTT','TT','VV', 'W']
     dd = ['QCD']
 
-    # common (norm)
+    # em/et (norm)
     # cb.cp().process(signal + mc).AddSyst(cb, "CMS_lumi_%s" % era, "lnN", ch.SystMap()(1.04))  # included in BSM3G
-    cb.cp().process(["TT"]).AddSyst(cb, "CMS_TT_xs_%s" % era, "lnN", ch.SystMap()(1.08))
-    cb.cp().process(["ZTT"]).AddSyst(cb, "CMS_ZTT_xs_%s" % era, "lnN", ch.SystMap()(1.12))
-    cb.cp().process(["VV"]).AddSyst(cb, "CMS_VV_xs_%s" % era, "lnN", ch.SystMap()(1.15))
+    cb.cp().process(["TT"]).channel(['em', 'et']).AddSyst(cb, "CMS_TT_xs_%s" % era, "lnN", ch.SystMap()(1.08))
+    cb.cp().process(["ZTT"]).channel(['em', 'et']).AddSyst(cb, "CMS_ZTT_xs_%s" % era, "lnN", ch.SystMap()(1.12))
+    cb.cp().process(["VV"]).channel(['em', 'et']).AddSyst(cb, "CMS_VV_xs_%s" % era, "lnN", ch.SystMap()(1.15))
 
-    # common (shape)
-    cb.cp().process(signal + mc + dd).AddSyst(cb, "CMS_scale_j_%s" % era, "shape", ch.SystMap()(1.0))
-    cb.cp().process(signal + mc + dd).AddSyst(cb, "CMS_scale_btag_%s" % era, "shape", ch.SystMap()(1.0))
+    # em/et (shape)
+    cb.cp().process(signal + mc + dd).channel(['em', 'et']).AddSyst(cb, "CMS_scale_j_%s" % era, "shape", ch.SystMap()(1.0))
+    cb.cp().process(signal + mc + dd).channel(['em', 'et']).AddSyst(cb, "CMS_scale_btag_%s" % era, "shape", ch.SystMap()(1.0))
 
     # em (norm)
     cb.cp().process(["QCD"]).channel(['em']).AddSyst(cb, "CMS_em_QCD_LT_%s" % era, "lnN", ch.SystMap()(1.37))
@@ -95,8 +95,10 @@ def add_systematics(cb):
     # - remove TaID unc for emu
     # - remove TES  unc for emu
 
+    # common
+    cb.cp().process(signal + mc).AddSyst(cb, "lumi",    "lnN", ch.SystMap()(1.05))
+
     # et
-    cb.cp().process(signal + mc  ).channel(['et']).AddSyst(cb, "lumi",    "lnN", ch.SystMap()(1.05))
     cb.cp().process(signal + mc  ).channel(['et']).AddSyst(cb, "Trig10",  "lnN", ch.SystMap()(1.01))
     cb.cp().process(["W"]        ).channel(['et']).AddSyst(cb, "ElID11",  "lnN", ch.SystMap()(1.01))
     cb.cp().process(["ZTT"]      ).channel(['et']).AddSyst(cb, "ElID12",  "lnN", ch.SystMap()(1.01))
@@ -112,7 +114,6 @@ def add_systematics(cb):
     # cb.cp().process(["QCD"]      ).channel(['et']).AddSyst(cb, "Close15", "lnN", ch.SystMap()(1.15))
 
     # em
-    cb.cp().process(signal + mc  ).channel(['em']).AddSyst(cb, "lumi",    "lnN", ch.SystMap()(1.05))
     cb.cp().process(signal + mc  ).channel(['em']).AddSyst(cb, "Trig10",  "lnN", ch.SystMap()(1.01)) # same as et (SingleEle)
     cb.cp().process(["W"]        ).channel(['em']).AddSyst(cb, "ElID31",  "lnN", ch.SystMap()(1.01))
     cb.cp().process(["ZTT"]      ).channel(['em']).AddSyst(cb, "ElID32",  "lnN", ch.SystMap()(1.01))
@@ -122,6 +123,32 @@ def add_systematics(cb):
     # cb.cp().process(["TT"]       ).channel(['em']).AddSyst(cb, "bID03",   "lnN", ch.SystMap()(1.1 ))
     # cb.cp().process(["W"]        ).channel(['em']).AddSyst(cb, "Close11", "lnN", ch.SystMap()(1.08))
     # cb.cp().process(["QCD"]      ).channel(['em']).AddSyst(cb, "Close15", "lnN", ch.SystMap()(1.15))
+
+    # mt
+    cb.cp().process(signal + mc  ).channel(['mt']).AddSyst(cb, "Trig00",  "lnN", ch.SystMap()(1.01))
+    cb.cp().process(["W", "ZTT"] ).channel(['mt']).AddSyst(cb, "TaID00",  "lnN", ch.SystMap()(1.06))
+    cb.cp().process(["TT"]       ).channel(['mt']).AddSyst(cb, "TaID03",  "lnN", ch.SystMap()(1.06))
+    cb.cp().process(["ZTT"]      ).channel(['mt']).AddSyst(cb, "bID02",   "lnN", ch.SystMap()(1.03))
+    cb.cp().process(["TT"]       ).channel(['mt']).AddSyst(cb, "bID03",   "lnN", ch.SystMap()(1.12))
+    cb.cp().process(["ZTT", "TT"]).channel(['mt']).AddSyst(cb, "MMS02",   "lnN", ch.SystMap()(1.01))
+    cb.cp().process(["ZTT"]      ).channel(['mt']).AddSyst(cb, "TES02",   "lnN", ch.SystMap()(1.07))
+    cb.cp().process(["TT"]       ).channel(['mt']).AddSyst(cb, "TES03",   "lnN", ch.SystMap()(1.09))
+    cb.cp().process(["W"]        ).channel(['mt']).AddSyst(cb, "Close01", "lnN", ch.SystMap()(1.08))
+    cb.cp().process(["QCD"]      ).channel(['mt']).AddSyst(cb, "Close05", "lnN", ch.SystMap()(1.15))
+
+    # tt
+    cb.cp().process(signal       ).channel(['tt']).AddSyst(cb, "Trig20",  "lnN", ch.SystMap()(1.21))  # only signal?
+    cb.cp().process(["W"]        ).channel(['tt']).AddSyst(cb, "TaID00",  "lnN", ch.SystMap()(1.3 ))  # common?
+    cb.cp().process(["ZTT"]      ).channel(['tt']).AddSyst(cb, "TaID00",  "lnN", ch.SystMap()(1.12))  # common?
+    cb.cp().process(["TT"]       ).channel(['tt']).AddSyst(cb, "TaID03",  "lnN", ch.SystMap()(1.12))
+    cb.cp().process(["W"]        ).channel(['tt']).AddSyst(cb, "bID20",   "lnN", ch.SystMap()(1.1 ))  # mislabeled?
+    cb.cp().process(["ZTT"]      ).channel(['tt']).AddSyst(cb, "bID21",   "lnN", ch.SystMap()(1.03))  # mislabeled?
+    cb.cp().process(["TT"]       ).channel(['tt']).AddSyst(cb, "bID23",   "lnN", ch.SystMap()(1.1 ))
+    cb.cp().process(["W"]        ).channel(['tt']).AddSyst(cb, "TES01",   "lnN", ch.SystMap()(1.11))
+    cb.cp().process(["ZTT"]      ).channel(['tt']).AddSyst(cb, "TES02",   "lnN", ch.SystMap()(1.11))
+    cb.cp().process(["TT"]       ).channel(['tt']).AddSyst(cb, "TES03",   "lnN", ch.SystMap()(1.11))
+    cb.cp().process(["W"]        ).channel(['tt']).AddSyst(cb, "Close01", "lnN", ch.SystMap()(1.37))
+    cb.cp().process(["QCD"]      ).channel(['tt']).AddSyst(cb, "Close05", "lnN", ch.SystMap()(1.08))
 
 
 def go(cb):
