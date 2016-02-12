@@ -13,7 +13,8 @@ def filenames(ch="", masses=[], method="", extra=""):
         # print ch, m
         args = "-M %s -m %d -n .Zprime.%s %s" % (method, m, ch, extra)
         cmd = "combine %s LIMITS/%s/%d/htt_%s_0_13TeV.txt >& /dev/null" % (args, ch, m, ch)
-        # print cmd
+        if verbose:
+            print cmd
         os.system(cmd)
         out.append("higgsCombine.Zprime.%s.%s.mH%d.root" % (ch, method, m))
     return out
@@ -75,12 +76,15 @@ def dump_lim(ch, d, tag="", n=11):
     print
 
 
-def plot_lim(ch, d, tag=""):
+def plot_lim(ch, d, tag="", abs_pb=True):
     masses = set(sum([x.keys() for x in d.values()], []))
     masses = sorted(list(masses))
 
-    null = r.TH2D("", ch + ";M(Z')   [GeV];95% CL upper limit on #sigma(pp#rightarrow Z') x BR(Z'#rightarrow#tau#tau)   [pb]", 1, 400.0, 3100.0, 1, 0.01, 10.0)
-    # null = r.TH2D("", ch + ";M(Z')   [GeV];95% CL upper limit on r", 1, 400.0, 3100.0, 1, 0.01, 10.0)
+    if abs_pb:
+        null = r.TH2D("", ch + ";M(Z')   [GeV];95% CL upper limit on #sigma(pp#rightarrow Z') x BR(Z'#rightarrow#tau#tau)   [pb]", 1, 400.0, 3100.0, 1, 0.01, 10.0)
+    else:
+        null = r.TH2D("", ch + ";M(Z')   [GeV];95% CL upper limit on r", 1, 400.0, 3100.0, 1, 0.01, 100.0)
+
     null.SetStats(False)
     null.Draw()
 
@@ -97,8 +101,10 @@ def plot_lim(ch, d, tag=""):
         for i, m in enumerate(masses):
             graphs[quantile].SetPoint(i, m, mass_dict[m])
             if abs(quantile - 0.5) < 0.001:
-                ssm.SetPoint(i, m, xs_fb(m) / 1000.)
-                # ssm.SetPoint(i, m, 1.0)
+                if abs_pb:
+                    ssm.SetPoint(i, m, xs_fb(m) / 1000.)
+                else:
+                    ssm.SetPoint(i, m, 1.0)
 
         if 0.0 < quantile:
             graphs[quantile].SetLineColor(r.kBlue)
@@ -147,11 +153,17 @@ def diff_nuisances(ch="", filenames=[]):
         os.remove(outFile)
 
     for filename in filenames:
-        os.system('echo "\n%s" >> %s' % (filename, outFile))
-        os.system("python %s %s >> %s" % (prog, filename, outFile))
+        for cmd in ['echo "\n%s" >> %s' % (filename, outFile),
+                    "python %s %s >> %s" % (prog, filename, outFile),
+                    ]:
+            if verbose:
+                print cmd
+            os.system(cmd)
 
 
 if __name__ == "__main__":
+    verbose = False
+
     masses = range(500, 3500, 500)
     chs = ["et", "em", "mt", "tt"]
     for ch in chs:
