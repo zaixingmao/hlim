@@ -36,8 +36,8 @@ def scale_one(inFileName=""):
 
 if __name__ == "__main__":
 
-    for filename in ["htt_et.inputs-Zp-13TeV.root", "htt_em.inputs-Zp-13TeV.root"]:
-        full = "%s/src/auxiliaries/shapes/Brown/%s" % (os.environ["CMSSW_BASE"], filename)
+    for ch in ["et", "em", "mt", "tt"]:
+        full = "%s/src/auxiliaries/shapes/Brown/htt_%s.inputs-Zp-13TeV.root" % (os.environ["CMSSW_BASE"], ch)
         full2 = full + "2"
         os.system("cp -p %s %s" % (full, full2))
         print full
