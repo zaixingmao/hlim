@@ -6,8 +6,8 @@ import ROOT as r
 from h2bsm import xs_fb
 
 
-def merge(stems=None, inDir=None, outDir=None, hName=None, suffix=None):
-    outFile = r.TFile("%s/src/auxiliaries/shapes/Brown/merged_%s.root" % (os.environ["CMSSW_BASE"], hName), "RECREATE")
+def merge(stems=None, inDir=None, outDir=None, hName=None, suffix=None, tag="", dest="BSM3G", scale_signal_to_pb=False):
+    outFile = r.TFile("%s/src/auxiliaries/shapes/%s/htt_%s.inputs-Zp-13TeV.root" % (os.environ["CMSSW_BASE"], dest, tag), "RECREATE")
     outFile.mkdir(outDir)
 
     name_map = [("QCD_all", "QCD"),
@@ -40,7 +40,7 @@ def merge(stems=None, inDir=None, outDir=None, hName=None, suffix=None):
         h.SetDirectory(0)
         inFile.Close()
 
-        if proc.startswith("ggH"):
+        if scale_signal_to_pb and proc.startswith("ggH"):
             mass = int(proc.replace("ggH", ""))
             if xs_fb(mass):
                 h.Scale(1000. / xs_fb(mass))  # some xs_fb --> 1 pb
@@ -53,27 +53,12 @@ def merge(stems=None, inDir=None, outDir=None, hName=None, suffix=None):
     outFile.Close()
 
 
-def m1(ch):
-    stems = ["ZPrime_%d" % i for i in [500, 1000, 1500, 2000, 2500, 3000, 3500, 4000, 4500]]
-    stems += ["QCD", "ZTT", "W", "VV", "TT"]
-    d = "/home/elaird/CMSSW_7_1_5/src/hlim/%s_inclusive/%s_" % (ch, ch)
-    merge(stems=stems, hName="m_effective", inDir=d, outDir="%s_inclusive" % ch, suffix=".root")
-
-
-def m2():
-    stems = ["ZPrime_%d_all" % i for i in [500, 1000, 1500, 2000, 2500, 3000, 3500, 4000, 4500]]
-    stems += ["QCD_all", "ZTT", "W", "VV"]
-    d = "/user_data/zmao/ZPrimeHistos/et/"
-    hName = "m_withMET"
-    merge(stems=stems, hName=hName, inDir=d, outDir="eleTau_inclusive", suffix="_%s.root" % hName)
-
-
 def mu():
     stems = ["ZprimeToTauTau_M_%d" % i for i in [500, 1000, 1500, 2000, 2500, 3000]]
     stems += ["Data", "Diboson", "QCD", "TTBar", "WJets", "ZJets"]
     d = "Fitter/"
     hName = "DiJetMass"
-    merge(stems=stems, hName=hName, inDir=d, outDir="eleTau_inclusive", suffix="_muTauSR_ForFitter.root")
+    merge(stems=stems, hName=hName, inDir=d, outDir="muTau_inclusive", suffix="_muTauSR_ForFitter.root", tag="mt")
 
 
 def had():
@@ -81,7 +66,7 @@ def had():
     stems += ["Data", "Diboson", "QCD", "TTBar", "WJets", "ZJets"]
     d = "Fitter/"
     hName = "DiJetMass"
-    merge(stems=stems, hName=hName, inDir=d, outDir="eleTau_inclusive", suffix="_diTauSR_ForFitter.root")
+    merge(stems=stems, hName=hName, inDir=d, outDir="tauTau_inclusive", suffix="_diTauSR_ForFitter.root", tag="tt")
 
 
 def to_h(prefix=""):
@@ -89,15 +74,14 @@ def to_h(prefix=""):
     stems += ["%s_VV" % prefix, "%s_QCD" % prefix, "%s_TT" % prefix, "%s_W" % prefix, "%s_Z" % prefix, "%s_data_obs" % prefix]
     d = "Fitter/%s/" % prefix
     hName = "m_effective"
-    merge(stems=stems, hName=hName, inDir=d, outDir="%s_inclusive" % prefix, suffix=".root")
+    merge(stems=stems, hName=hName, inDir=d, outDir="%s_inclusive" % prefix, suffix=".root", tag={"eleTau": "et", "emu": "em"}[prefix], dest=".", scale_signal_to_pb=True)
 
 
 if __name__ == "__main__":
     # m1("eleTau")
     # m1("emu")
     # m2()
-    # mu()
-    # had()
+    mu()
+    had()
     # to_h("eleTau")
-    to_h("emu")
-
+    # to_h("emu")
