@@ -36,9 +36,9 @@ def scale_one(inFileName=""):
 
 if __name__ == "__main__":
 
-    for ch in ["et", "em", "mt", "tt"]:
+    for ch in ["et", "em", "mt", "tt"][:2]:
         full = "%s/src/auxiliaries/shapes/Brown/htt_%s.inputs-Zp-13TeV.root" % (os.environ["CMSSW_BASE"], ch)
-        full2 = full + "2"
+        full2 = full.replace("/Brown/", "/Zp_nominal/")
         os.system("cp -p %s %s" % (full, full2))
         print full
         print full2
