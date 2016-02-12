@@ -147,6 +147,11 @@ def errorless(h):
     return out
 
 
+def xify(h):
+    if options.xmax:
+        h.GetXaxis().SetRangeUser(h.GetXaxis().GetXmin(), options.xmax)
+
+
 def oneDir(canvas, pdf, hNames, d1, d2, subdir, xTitle, band, skip2=False):
     keep = []
 
@@ -167,7 +172,6 @@ def oneDir(canvas, pdf, hNames, d1, d2, subdir, xTitle, band, skip2=False):
             print "ERROR: '%s' not in list of available names: %s" % (hName, str(hNames))
 
         h1 = d1[subdir].get(hName)
-        h1denom = errorless(h1)
 
         if not h1:
             print "ERROR: %s/%s not found" % (subdir, hName)
@@ -175,6 +179,8 @@ def oneDir(canvas, pdf, hNames, d1, d2, subdir, xTitle, band, skip2=False):
                 canvas.cd(0)
                 canvas.Print(pdf)
             continue
+
+        h1denom = errorless(h1)
 
         h1b = None
         if band:
@@ -191,7 +197,6 @@ def oneDir(canvas, pdf, hNames, d1, d2, subdir, xTitle, band, skip2=False):
             h1.Divide(h1denom)
 
         h2 = d2[subdir].get(hName)
-        h2denom = errorless(h2)
 
         if not h2:
             print "ERROR: %s/%s not found" % (subdir, hName)
@@ -199,6 +204,8 @@ def oneDir(canvas, pdf, hNames, d1, d2, subdir, xTitle, band, skip2=False):
                 canvas.cd(0)
                 canvas.Print(pdf)
             continue
+
+        h2denom = errorless(h2)
 
         h2b = None
         if band:
@@ -247,6 +254,7 @@ def oneDir(canvas, pdf, hNames, d1, d2, subdir, xTitle, band, skip2=False):
             h1b.SetFillColor(bandColor1)
             h1b.SetFillStyle(3354)
             h1b.Draw("e2")
+            xify(h1b)
 
             h1d.SetLineColor(bandColor1)
             h1d.SetLineStyle(4)
@@ -258,6 +266,7 @@ def oneDir(canvas, pdf, hNames, d1, d2, subdir, xTitle, band, skip2=False):
         h1.SetLineColor(lineColor1)
         h1.SetMarkerColor(lineColor1)
         draw(h1, "ehistsame" if band else "ehist", d1[subdir], lineColor1Flip)
+        xify(h1)
         #keep.append(moveStatsBox(h1))
 
         if band and h2b and not skip2:
@@ -266,6 +275,7 @@ def oneDir(canvas, pdf, hNames, d1, d2, subdir, xTitle, band, skip2=False):
             h2b.SetFillColor(bandColor2)
             h2b.SetFillStyle(3345)
             h2b.Draw("e2same")
+            xify(h2b)
 
             h2d.SetLineColor(bandColor2)
             h2d.SetLineStyle(4)
@@ -278,6 +288,7 @@ def oneDir(canvas, pdf, hNames, d1, d2, subdir, xTitle, band, skip2=False):
             h2.SetLineColor(lineColor2)
             h2.SetMarkerColor(lineColor2)
             draw(h2, "ehistsame", d2[subdir], lineColor2Flip)
+            xify(h2)
             #keep.append(moveStatsBox(h2))
 
         leg = r.TLegend(0.65, 0.6, 0.87, 0.87)
@@ -445,6 +456,12 @@ def opts():
     parser.add_option("--xtitle",
                       dest="xtitle",
                       default="m_vis (GeV)",
+                      )
+
+    parser.add_option("--xmax",
+                      dest="xmax",
+                      default=None,
+                      type="float",
                       )
 
     parser.add_option("--raw-yields",
