@@ -167,10 +167,11 @@ if __name__ == "__main__":
     aux_shapes   = auxiliaries +'shapes/'
     era = "13TeV"
 
-    input_dirs = {'et' : 'Brown',
-                  'em' : 'Brown',
-                  'mt' : 'Brown',
-                  'tt' : 'Brown',
+    input_dir = ["Zp_1pb", "Zp_nominal"][0]
+    input_dirs = {'et' : input_dir,
+                  'em' : input_dir,
+                  'mt' : input_dir,
+                  'tt' : input_dir,
                   }
     chns = sorted(input_dirs.keys())
 
@@ -190,10 +191,10 @@ if __name__ == "__main__":
             (0, 'emu_inclusive'),
             ],
         'mt_%s' % era : [
-            (0, 'eleTau_inclusive'),
+            (0, 'muTau_inclusive'),
             ],
         'tt_%s' % era : [
-            (0, 'eleTau_inclusive'),
+            (0, 'tauTau_inclusive'),
             ],
         }
 
