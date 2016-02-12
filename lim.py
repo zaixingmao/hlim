@@ -58,7 +58,7 @@ def limits(chain):
     return d
 
 
-def dump_lim(ch, d, tag="", n=10):
+def dump_lim(ch, d, tag="", n=11):
     masses = set(sum([x.keys() for x in d.values()], []))
     masses = sorted(list(masses))
 
@@ -80,6 +80,7 @@ def plot_lim(ch, d, tag=""):
     masses = sorted(list(masses))
 
     null = r.TH2D("", ch + ";M(Z')   [GeV];95% CL upper limit on #sigma(pp#rightarrow Z') x BR(Z'#rightarrow#tau#tau)   [pb]", 1, 400.0, 3100.0, 1, 0.01, 10.0)
+    # null = r.TH2D("", ch + ";M(Z')   [GeV];95% CL upper limit on r", 1, 400.0, 3100.0, 1, 0.01, 10.0)
     null.SetStats(False)
     null.Draw()
 
@@ -97,6 +98,7 @@ def plot_lim(ch, d, tag=""):
             graphs[quantile].SetPoint(i, m, mass_dict[m])
             if abs(quantile - 0.5) < 0.001:
                 ssm.SetPoint(i, m, xs_fb(m) / 1000.)
+                # ssm.SetPoint(i, m, 1.0)
 
         if 0.0 < quantile:
             graphs[quantile].SetLineColor(r.kBlue)
@@ -151,7 +153,7 @@ def diff_nuisances(ch="", filenames=[]):
 
 if __name__ == "__main__":
     masses = range(500, 3500, 500)
-    chs = ["et", "em", "mt", "tt"][:2]
+    chs = ["et", "em", "mt", "tt"]
     for ch in chs:
         # for tests
         # postfit = limits(chained(['higgsCombine.Zprime.et.Asymptotic.mH500.root', 'higgsCombine.Zprime.et.Asymptotic.mH1000.root', 'higgsCombine.Zprime.et.Asymptotic.mH1500.root', 'higgsCombine.Zprime.et.Asymptotic.mH2000.root', 'higgsCombine.Zprime.et.Asymptotic.mH2500.root', 'higgsCombine.Zprime.et.Asymptotic.mH3000.root']))
