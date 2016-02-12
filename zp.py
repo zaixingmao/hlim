@@ -147,8 +147,8 @@ def add_systematics(cb):
     cb.cp().process(["W"]        ).channel(['tt']).AddSyst(cb, "TES01",   "lnN", ch.SystMap()(1.11))
     cb.cp().process(["ZTT"]      ).channel(['tt']).AddSyst(cb, "TES02",   "lnN", ch.SystMap()(1.11))
     cb.cp().process(["TT"]       ).channel(['tt']).AddSyst(cb, "TES03",   "lnN", ch.SystMap()(1.11))
-    cb.cp().process(["W"]        ).channel(['tt']).AddSyst(cb, "Close01", "lnN", ch.SystMap()(1.37))
-    cb.cp().process(["QCD"]      ).channel(['tt']).AddSyst(cb, "Close05", "lnN", ch.SystMap()(1.08))
+    cb.cp().process(["W"]        ).channel(['tt']).AddSyst(cb, "Close21", "lnN", ch.SystMap()(1.37))
+    cb.cp().process(["QCD"]      ).channel(['tt']).AddSyst(cb, "Close25", "lnN", ch.SystMap()(1.08))
 
 
 def go(cb):
@@ -169,8 +169,8 @@ if __name__ == "__main__":
 
     input_dirs = {'et' : 'Brown',
                   'em' : 'Brown',
-                  # 'mt' : 'BSM3G',
-                  # 'tt' : 'BSM3G',
+                  'mt' : 'Brown',
+                  'tt' : 'Brown',
                   }
     chns = sorted(input_dirs.keys())
 
