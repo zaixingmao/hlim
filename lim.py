@@ -2,6 +2,7 @@
 
 import os
 import ROOT as r
+import optparse
 from h2bsm import xs_fb
 
 
@@ -13,7 +14,7 @@ def filenames(ch="", masses=[], method="", extra=""):
         # print ch, m
         args = "-M %s -m %d -n .Zprime.%s %s" % (method, m, ch, extra)
         cmd = "combine %s LIMITS/%s/%d/htt_%s_0_13TeV.txt >& /dev/null" % (args, ch, m, ch)
-        if verbose:
+        if options.verbose:
             print cmd
         os.system(cmd)
         out.append("higgsCombine.Zprime.%s.%s.mH%d.root" % (ch, method, m))
@@ -76,14 +77,14 @@ def dump_lim(ch, d, tag="", n=11):
     print
 
 
-def plot_lim(ch, d, tag="", abs_pb=True):
+def plot_lim(ch, d, tag=""):
     masses = set(sum([x.keys() for x in d.values()], []))
     masses = sorted(list(masses))
 
-    if abs_pb:
-        null = r.TH2D("", ch + ";M(Z')   [GeV];95% CL upper limit on #sigma(pp#rightarrow Z') x BR(Z'#rightarrow#tau#tau)   [pb]", 1, 400.0, 3100.0, 1, 0.01, 10.0)
-    else:
+    if options.rel:
         null = r.TH2D("", ch + ";M(Z')   [GeV];95% CL upper limit on r", 1, 400.0, 3100.0, 1, 0.01, 100.0)
+    else:
+        null = r.TH2D("", ch + ";M(Z')   [GeV];95% CL upper limit on #sigma(pp#rightarrow Z') x BR(Z'#rightarrow#tau#tau)   [pb]", 1, 400.0, 3100.0, 1, 0.01, 10.0)
 
     null.SetStats(False)
     null.Draw()
@@ -101,10 +102,10 @@ def plot_lim(ch, d, tag="", abs_pb=True):
         for i, m in enumerate(masses):
             graphs[quantile].SetPoint(i, m, mass_dict[m])
             if abs(quantile - 0.5) < 0.001:
-                if abs_pb:
-                    ssm.SetPoint(i, m, xs_fb(m) / 1000.)
-                else:
+                if options.rel:
                     ssm.SetPoint(i, m, 1.0)
+                else:
+                    ssm.SetPoint(i, m, xs_fb(m) / 1000.)
 
         if 0.0 < quantile:
             graphs[quantile].SetLineColor(r.kBlue)
@@ -156,13 +157,27 @@ def diff_nuisances(ch="", filenames=[]):
         for cmd in ['echo "\n%s" >> %s' % (filename, outFile),
                     "python %s %s >> %s" % (prog, filename, outFile),
                     ]:
-            if verbose:
+            if options.verbose:
                 print cmd
             os.system(cmd)
 
+def opts():
+    parser = optparse.OptionParser()
+    parser.add_option("--verbose",
+                      dest="verbose",
+                      default=False,
+                      action="store_true")
+    parser.add_option("--rel",
+                      dest="rel",
+                      default=False,
+                      action="store_true")
+
+    options, args = parser.parse_args()
+    return options
+
 
 if __name__ == "__main__":
-    verbose = False
+    options = opts()
 
     masses = range(500, 3500, 500)
     chs = ["et", "em", "mt", "tt"]
