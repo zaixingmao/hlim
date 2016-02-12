@@ -6,6 +6,12 @@ import optparse
 from h2bsm import xs_fb
 
 
+def system(cmd):
+    if options.verbose:
+        print cmd
+    os.system(cmd)
+
+
 def filenames(ch="", masses=[], method="", extra=""):
     assert method
 
@@ -14,9 +20,7 @@ def filenames(ch="", masses=[], method="", extra=""):
         # print ch, m
         args = "-M %s -m %d -n .Zprime.%s %s" % (method, m, ch, extra)
         cmd = "combine %s LIMITS/%s/%d/htt_%s_0_13TeV.txt >& /dev/null" % (args, ch, m, ch)
-        if options.verbose:
-            print cmd
-        os.system(cmd)
+        system(cmd)
         out.append("higgsCombine.Zprime.%s.%s.mH%d.root" % (ch, method, m))
     return out
 
@@ -32,12 +36,13 @@ def filenames_ml(ch="", masses=[], quiet=True):
         #"--saveNLL --saveShapes --saveNormalizations"
         cmd = "combine -M MaxLikelihoodFit -m %d -n .Zprime.%s LIMITS/%s/%d/htt_%s_0_13TeV.txt" % (m, ch, ch, m, ch)
         if quiet:
-            os.system("%s >& /dev/null" % cmd)
+            system("%s >& /dev/null" % cmd)
         else:
-            os.system('echo "\n%d" >> %s' % (m, outFile))
-            os.system("%s | grep -A 1 'Best fit r' >> %s" % (cmd, outFile))
+            system('echo "\n%d" >> %s' % (m, outFile))
+            system("%s | grep -A 1 'Best fit r' >> %s" % (cmd, outFile))
+
         dest = "higgsCombine.Zprime.%s.ML.mH%d.root" % (ch, m)
-        os.system("mv mlfit.Zprime.%s.root %s" % (ch, dest))
+        system("mv mlfit.Zprime.%s.root %s" % (ch, dest))
         out.append(dest)
     return out
 
@@ -143,11 +148,11 @@ def plot_lim(ch, d, tag=""):
 
     pdf = "%s_%s.pdf" % (ch, tag)
     r.gPad.Print(pdf)
-    os.system("cp -p %s ~/public_html/" % pdf)
+    system("cp -p %s ~/public_html/" % pdf)
 
 
 def diff_nuisances(ch="", filenames=[]):
-    prog = "%s/src/HiggsAnalysis/CombinedLimit/test/diffNuisances.py" % os.environ["CMSSW_BASE"]
+    prog = "%s/src/HiggsAnalysis/CombinedLimit/test/diffNuisances.py -A -a --vtol2=99 --stol2=99 --vtol=99 --stol=99" % os.environ["CMSSW_BASE"]
 
     outFile = "nuisances_diffs_%s.txt" % ch
     if os.path.exists(outFile):
@@ -157,9 +162,7 @@ def diff_nuisances(ch="", filenames=[]):
         for cmd in ['echo "\n%s" >> %s' % (filename, outFile),
                     "python %s %s >> %s" % (prog, filename, outFile),
                     ]:
-            if options.verbose:
-                print cmd
-            os.system(cmd)
+            system(cmd)
 
 def opts():
     parser = optparse.OptionParser()
