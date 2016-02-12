@@ -6,7 +6,8 @@ import ROOT as r
 from h2bsm import xs_fb
 
 
-def merge(stems=None, inDir=None, outDir=None, hName=None, suffix=None, tag="", dest="BSM3G", scale_signal_to_pb=False):
+def merge(stems=None, inDir=None, outDir=None, hName=None, suffix=None, tag="", dest="", scale_signal_to_pb=False):
+    assert dest
     outFile = r.TFile("%s/src/auxiliaries/shapes/%s/htt_%s.inputs-Zp-13TeV.root" % (os.environ["CMSSW_BASE"], dest, tag), "RECREATE")
     outFile.mkdir(outDir)
 
@@ -58,7 +59,8 @@ def mu():
     stems += ["Data", "Diboson", "QCD", "TTBar", "WJets", "ZJets"]
     d = "Fitter/"
     hName = "DiJetMass"
-    merge(stems=stems, hName=hName, inDir=d, outDir="muTau_inclusive", suffix="_muTauSR_ForFitter.root", tag="mt")
+    merge(stems=stems, hName=hName, inDir=d, outDir="muTau_inclusive", suffix="_muTauSR_ForFitter.root", tag="mt", dest="Zp_nominal")
+    merge(stems=stems, hName=hName, inDir=d, outDir="muTau_inclusive", suffix="_muTauSR_ForFitter.root", tag="mt", dest="Zp_1pb", scale_signal_to_pb=True)
 
 
 def had():
@@ -66,7 +68,8 @@ def had():
     stems += ["Data", "Diboson", "QCD", "TTBar", "WJets", "ZJets"]
     d = "Fitter/"
     hName = "DiJetMass"
-    merge(stems=stems, hName=hName, inDir=d, outDir="tauTau_inclusive", suffix="_diTauSR_ForFitter.root", tag="tt")
+    merge(stems=stems, hName=hName, inDir=d, outDir="tauTau_inclusive", suffix="_diTauSR_ForFitter.root", tag="tt", dest="Zp_nominal")
+    merge(stems=stems, hName=hName, inDir=d, outDir="tauTau_inclusive", suffix="_diTauSR_ForFitter.root", tag="tt", dest="Zp_1pb", scale_signal_to_pb=True)
 
 
 def to_h(prefix=""):
