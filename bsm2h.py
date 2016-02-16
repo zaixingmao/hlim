@@ -12,6 +12,7 @@ def merge(stems=None, inDir=None, outDir=None, hName=None, suffix=None, tag="", 
     outFile.mkdir(outDir)
 
     name_map = [("QCD_all", "QCD"),
+                ("QCDdatadriven", "QCD"),
                 ("ZPrime_", "ggH"),
                 ("ZprimeToTauTau_M_", "ggH"),
                 ("Data", "data_obs"),
@@ -56,7 +57,7 @@ def merge(stems=None, inDir=None, outDir=None, hName=None, suffix=None, tag="", 
 
 def mu():
     stems = ["ZprimeToTauTau_M_%d" % i for i in [500, 1000, 1500, 2000, 2500, 3000]]
-    stems += ["Data", "Diboson", "QCD", "TTBar", "WJets", "ZJets"]
+    stems += ["Data", "Diboson", "QCDdatadriven", "TTBar", "WJets", "ZJets"]
     d = "Fitter/"
     hName = "DiJetMass"
     merge(stems=stems, hName=hName, inDir=d, outDir="muTau_inclusive", suffix="_muTauSR_ForFitter.root", tag="mt", dest="Zp_nominal")
