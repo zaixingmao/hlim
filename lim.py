@@ -12,16 +12,21 @@ def system(cmd):
     os.system(cmd)
 
 
-def filenames(ch="", masses=[], method="", extra=""):
+def filenames(ch="", masses=[], method="", extra="", seed=None):
     assert method
 
     out = []
     for m in masses:
         # print ch, m
         args = "-M %s -m %d -n .Zprime.%s %s" % (method, m, ch, extra)
+        fName = "higgsCombine.Zprime.%s.%s.mH%d.root" % (ch, method, m)
+        if seed is not None:
+            fName = fName.replace(".root", ".%d.root" % seed)
+            args += " -s %d" % seed
+
         cmd = "combine %s LIMITS/%s/%d/htt_%s_0_13TeV.txt >& /dev/null" % (args, ch, m, ch)
         system(cmd)
-        out.append("higgsCombine.Zprime.%s.%s.mH%d.root" % (ch, method, m))
+        out.append(fName)
     return out
 
 
@@ -86,7 +91,7 @@ def plot_lim(ch, d, tag=""):
     masses = set(sum([x.keys() for x in d.values()], []))
     masses = sorted(list(masses))
 
-    if options.rel:
+    if options.xsRel:
         null = r.TH2D("", ch + ";M(Z')   [GeV];95% CL upper limit on r", 1, 400.0, 3100.0, 1, 0.01, 100.0)
     else:
         null = r.TH2D("", ch + ";M(Z')   [GeV];95% CL upper limit on #sigma(pp#rightarrow Z') x BR(Z'#rightarrow#tau#tau)   [pb]", 1, 400.0, 3100.0, 1, 0.01, 10.0)
@@ -107,7 +112,7 @@ def plot_lim(ch, d, tag=""):
         for i, m in enumerate(masses):
             graphs[quantile].SetPoint(i, m, mass_dict[m])
             if abs(quantile - 0.5) < 0.001:
-                if options.rel:
+                if options.xsRel:
                     ssm.SetPoint(i, m, 1.0)
                 else:
                     ssm.SetPoint(i, m, xs_fb(m) / 1000.)
@@ -152,7 +157,8 @@ def plot_lim(ch, d, tag=""):
 
 
 def diff_nuisances(ch="", filenames=[]):
-    prog = "%s/src/HiggsAnalysis/CombinedLimit/test/diffNuisances.py -A -a --vtol2=99 --stol2=99 --vtol=99 --stol=99" % os.environ["CMSSW_BASE"]
+    "--vtol2=99 --stol2=99 --vtol=99 --stol=99"
+    prog = "%s/src/HiggsAnalysis/CombinedLimit/test/diffNuisances.py -a" % os.environ["CMSSW_BASE"]
 
     outFile = "nuisances_diffs_%s.txt" % ch
     if os.path.exists(outFile):
@@ -170,8 +176,24 @@ def opts():
                       dest="verbose",
                       default=False,
                       action="store_true")
-    parser.add_option("--rel",
-                      dest="rel",
+    parser.add_option("--xs-rel",
+                      dest="xsRel",
+                      default=False,
+                      action="store_true")
+    parser.add_option("--limits",
+                      dest="limits",
+                      default=False,
+                      action="store_true")
+    parser.add_option("--gof",
+                      dest="gof",
+                      default=False,
+                      action="store_true")
+    parser.add_option("--scan",
+                      dest="scan",
+                      default=False,
+                      action="store_true")
+    parser.add_option("--nuis",
+                      dest="nuis",
                       default=False,
                       action="store_true")
 
@@ -188,11 +210,20 @@ if __name__ == "__main__":
         # for tests
         # postfit = limits(chained(['higgsCombine.Zprime.et.Asymptotic.mH500.root', 'higgsCombine.Zprime.et.Asymptotic.mH1000.root', 'higgsCombine.Zprime.et.Asymptotic.mH1500.root', 'higgsCombine.Zprime.et.Asymptotic.mH2000.root', 'higgsCombine.Zprime.et.Asymptotic.mH2500.root', 'higgsCombine.Zprime.et.Asymptotic.mH3000.root']))
 
-        postfit = limits(chained(filenames(ch=ch, masses=masses, method="Asymptotic")))
-        plot_lim(ch, postfit, tag="limit")
-        dump_lim(ch, postfit, tag="limit")
-        dump_lim(ch, limits(chained(filenames(ch=ch, masses=masses, method="Asymptotic", extra="-t -1"))), tag="prelimit")
-        dump_lim(ch, limits(chained(filenames(ch=ch, masses=masses, method="MaxLikelihoodFit"))), tag="r")
-        dump_lim(ch, limits(chained(filenames(ch=ch, masses=masses, method="ProfileLikelihood", extra="--significance"))), tag="signif")
-        dump_lim(ch, limits(chained(filenames(ch=ch, masses=masses, method="GoodnessOfFit", extra="--algo=saturated --fixedSignalStrength=0"))), tag="gof")
-        diff_nuisances(ch, filenames_ml(ch, masses))
+        if options.limits:
+            postfit = limits(chained(filenames(ch=ch, masses=masses, method="Asymptotic")))
+            plot_lim(ch, postfit, tag="limit")
+            dump_lim(ch, postfit, tag="limit")
+            dump_lim(ch, limits(chained(filenames(ch=ch, masses=masses, method="Asymptotic", extra="-t -1"))), tag="prelimit")
+            dump_lim(ch, limits(chained(filenames(ch=ch, masses=masses, method="MaxLikelihoodFit"))), tag="r")
+            dump_lim(ch, limits(chained(filenames(ch=ch, masses=masses, method="ProfileLikelihood", extra="--significance"))), tag="signif")
+
+        if options.gof:
+            dump_lim(ch, limits(chained(filenames(ch=ch, masses=masses[:1], method="GoodnessOfFit", extra="--algo=saturated --fixedSignalStrength=0"))), tag="gof")
+            filenames(ch=ch, masses=masses[:1], method="GoodnessOfFit", extra="--algo=saturated --fixedSignalStrength=0 -t 100", seed=1)
+
+        if options.scan:
+            print filenames(ch=ch, masses=masses, method="MultiDimFit", extra="--algo=grid --points=100 --setPhysicsModelParameterRanges r=0,2")
+
+        if options.nuis:
+            diff_nuisances(ch, filenames_ml(ch, masses))
