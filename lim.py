@@ -196,8 +196,17 @@ def opts():
                       dest="nuis",
                       default=False,
                       action="store_true")
+    parser.add_option("--all",
+                      dest="all",
+                      default=False,
+                      action="store_true")
 
     options, args = parser.parse_args()
+
+    if options.all:
+        for opt in ["limits", "gof", "scan", "nuis"]:
+            setattr(options, opt, True)
+
     return options
 
 
@@ -223,7 +232,7 @@ if __name__ == "__main__":
             filenames(ch=ch, masses=masses[:1], method="GoodnessOfFit", extra="--algo=saturated --fixedSignalStrength=0 -t 100", seed=1)
 
         if options.scan:
-            print filenames(ch=ch, masses=masses, method="MultiDimFit", extra="--algo=grid --points=100 --setPhysicsModelParameterRanges r=0,2")
+            print filenames(ch=ch, masses=masses, method="MultiDimFit", extra="--algo=grid --points=100 --setPhysicsModelParameterRanges r=0,2 --minimizerAlgo=Minuit")
 
         if options.nuis:
             diff_nuisances(ch, filenames_ml(ch, masses))
