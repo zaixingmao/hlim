@@ -24,15 +24,17 @@ categories = {# "tt": "tauTau_%s" % _suffix,
 
 #bdtDir = "/nfs_scratch/zmao/samples_Iso/datacard_new/bdt_new/"
 bdtDir = "root/bdt/11/"
-lumi = 2093.3
+# lumi = 2093.3  # cards before Feb. 29
+lumi = 2153.0  # Feb. 29 cards
 
 def files(category=""):
     if category == "et":
-        stem = "13TeV_zp_feb2/combined_%s_withPUWeight%s.root"
+        # stem = "13TeV_zp_feb2/combined_%s_withPUWeight%s.root"  # 1,3 prong
         # stem = "13TeV_zp_feb26/combined_%s_withPUWeight%s.root"  # 1,2,3 prong
+        stem = "13TeV_zp_feb29/combined_%s_withPUWeight%s.root"  # 2.2/fb
     if category == "em":
-        # stem = "13TeV_zp_jan21/combined_%s_withPUWeight%s.root"
-        stem = "13TeV_zp_feb5/combined_%s_withPUWeight%s.root"
+        # stem = "13TeV_zp_feb5/combined_%s_withPUWeight%s.root"
+        stem = "13TeV_zp_feb29/combined_%s_withPUWeight%s.root"  # 2.2/fb
 
     assert category
     out = {"":                          stem % (category, ""),
