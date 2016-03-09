@@ -33,6 +33,7 @@ def files(category=""):
         # stem = "13TeV_zp_feb26/combined_%s_withPUWeight%s.root"  # 1,2,3 prong
         # stem = "13TeV_zp_feb29/combined_%s_withPUWeight%s.root"  # 2.2/fb
         # stem = "13TeV_zp_mar3_dy_mbins/DY_LO_stiched_%s%s.root"  # DY-only
+        # stem = "13TeV_zp_mar3_dy_mbins/DY_LO_inclusive_%s%s.root"  # DY-only
         stem = "13TeV_zp_mar3_dy_mbins/combined_%s_withPUWeight%s.root"  # m-binned nlo dy
     if category == "em":
         # stem = "13TeV_zp_feb5/combined_%s_withPUWeight%s.root"
@@ -86,10 +87,10 @@ def procs(variable="", category=""):
            "VV": ['VVTo2L2Nu', 'WWTo1L1Nu2Q', 'WZJets', 'WZTo1L1Nu2Q', 'WZTo1L3Nu', 'WZTo2L2Q', 'ZZTo2L2Q', 'ZZTo4L'],
            # "ZTT": ['DY_M-50-H-0to100', 'DY_M-50-H-100to200', 'DY_M-50-H-200to400', 'DY_M-50-H-400to600', 'DY_M-50-H-600toInf'] +\
            #     [], #['DY_M-5to50-H-0to100', 'DY_M-5to50-H-200to400', 'DY_M-5to50-H-400to600', 'DY_M-5to50-H-600toInf'],
+
            # "ZTT": ['DY_M-50'],
 
            # "ZTT": ['DY_M-50to100', 'DY_M-100to200', 'DY_M-200to400', 'DY_M-400to500', 'DY_M-500to700', 'DY_M-700to800', 'DY_M-800to1000', 'DY_M-1000to1500'],
-           # "ZTT": ['DY_M-50'],
            "ZTT": ['DY_M-50to200', 'DY_M-200to400', 'DY_M-400to500', 'DY_M-500to700', 'DY_M-700to800', 'DY_M-800to1000', 'DY_M-1000to1500'],
 
            # "W": ['WJets_HT-0to100', 'WJets_HT-100to200', 'WJets_HT-200to400', 'WJets_HT-400to600', 'WJets_HT-600toInf'],
@@ -110,6 +111,15 @@ def procs(variable="", category=""):
            }
     for m in masses:
         out["ggH%d" % m] = ["Zprime_%d" % m]
+
+    # exclusive DYs
+    # out['DY_M-50'] = ['DY_M-50']
+    # hs = ['0', '100', '200', '400', '600', 'Inf']
+    # for i, h in enumerate(hs):
+    #     if i == len(hs) - 1:
+    #         continue
+    #     key = "DY_M-50-H-%sto%s" % (h, hs[1 + i])
+    #     out[key] = [key]
 
     # ms = [50, 200, 400, 500, 700, 800, 1000, 1500]
     # for i, m in enumerate(ms):
