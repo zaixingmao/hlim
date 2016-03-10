@@ -32,8 +32,8 @@ def files(category=""):
         # stem = "13TeV_zp_feb2/combined_%s_withPUWeight%s.root"  # 1,3 prong
         # stem = "13TeV_zp_feb26/combined_%s_withPUWeight%s.root"  # 1,2,3 prong
         # stem = "13TeV_zp_feb29/combined_%s_withPUWeight%s.root"  # 2.2/fb
-        # stem = "13TeV_zp_mar3_dy_mbins/DY_LO_stiched_%s%s.root"  # DY-only
-        # stem = "13TeV_zp_mar3_dy_mbins/DY_LO_inclusive_%s%s.root"  # DY-only
+        # stem = "13TeV_zp_mar3_dy_mbins/DY_NLO_inclusive_%s%s.root"  # DY-only
+        # stem = "13TeV_zp_mar3_dy_mbins/DY_NLO_stitched_%s%s_2.root"  # DY-only
         stem = "13TeV_zp_mar3_dy_mbins/combined_%s_withPUWeight%s.root"  # m-binned nlo dy
     if category == "em":
         # stem = "13TeV_zp_feb5/combined_%s_withPUWeight%s.root"
