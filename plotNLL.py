@@ -35,13 +35,14 @@ if __name__ == "__main__":
 
     mass = 500
     et = one_graph("et", mass, 214)
+    # mt = one_graph("et123", mass, r.kRed)
     mt = one_graph("mt", mass, r.kRed)
     em = one_graph("em", mass, r.kGreen)
     tt = one_graph("tt", mass, r.kCyan)
 
     if combined:
         cmb = one_graph("cmb", mass, r.kBlack)
-        etmt = one_graph("etmt", mass, r.kMagenta)
+        # etmt = one_graph("etmt", mass, r.kMagenta)
 
     et.Draw("apc")
     mt.Draw("pcsame")
@@ -49,19 +50,20 @@ if __name__ == "__main__":
     tt.Draw("pcsame")
     if combined:
         cmb.Draw("pcsame")
-        etmt.Draw("pcsame")
+        # etmt.Draw("pcsame")
 
-    leg = r.TLegend(0.6, 0.6, 0.9, 0.9)
+    leg = r.TLegend(0.5, 0.6, 0.9, 0.9)
     leg.SetFillStyle(0)
     leg.SetBorderSize(0)
 
     leg.AddEntry(et, "et", "l")
+    # leg.AddEntry(mt, "et (1,2,3) prong", "l")
     leg.AddEntry(mt, "mt", "l")
     leg.AddEntry(em, "em", "l")
     leg.AddEntry(tt, "tt", "l")
     if combined:
         leg.AddEntry(cmb, "cmb (et,mt,em,tt)", "l")
-        leg.AddEntry(etmt, "cmb (et,mt)", "l")
+        # leg.AddEntry(etmt, "cmb (et,mt)", "l")
 
     leg.Draw()
 
