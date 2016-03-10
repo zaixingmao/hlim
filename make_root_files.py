@@ -163,7 +163,7 @@ def histosOneFile(f, tree, bins, procs, variable, cuts, category):
         h = r.TH1D(proc, proc+";%s;events / bin" % variable, *bins)
         h.Sumw2()
 
-        mc = "%g*triggerEff*xs*PUWeight*genEventWeight/initSumWeights" % cfg.lumi
+        mc = "%g*%g*triggerEff*xs*PUWeight*genEventWeight/initSumWeights" % (cfg.lumi, cfg.mc_xs_factor(proc))
         # mc = "%g*triggerEff*xs*PUWeight/initEvents" % cfg.lumi
         if cfg.isData(proc):
             w = "(1.0)"

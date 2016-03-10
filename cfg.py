@@ -77,6 +77,14 @@ def transfer_factor_name(category, proc, variation, cuts=None):
     return "%s_%s" % (prefix, category)
 
 
+def mc_xs_factor(proc):
+    if proc.startswith("ST_t-channel"):
+        print "WARNING: adjusting xs for %s" % proc
+        return 0.108*3
+    else:
+        return 1.0
+
+
 def procs(variable="", category=""):
     assert variable
     assert category
