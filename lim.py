@@ -24,7 +24,7 @@ def filenames(ch="", masses=[], method="", extra="", seed=None):
             fName = fName.replace(".root", ".%d.root" % seed)
             args += " -s %d" % seed
 
-        cmd = "combine %s LIMITS/%s/%d/htt_%s_0_13TeV.txt >& /dev/null" % (args, ch, m, ch)
+        cmd = "combine %s LIMITS/%s/%d/zp_%s_0_13TeV.txt >& /dev/null" % (args, ch, m, ch)
         system(cmd)
         out.append(fName)
     return out
@@ -39,7 +39,7 @@ def filenames_ml(ch="", masses=[], quiet=True):
 
     for m in masses:
         #"--saveNLL --saveShapes --saveNormalizations"
-        cmd = "combine -M MaxLikelihoodFit -m %d -n .Zprime.%s LIMITS/%s/%d/htt_%s_0_13TeV.txt" % (m, ch, ch, m, ch)
+        cmd = "combine -M MaxLikelihoodFit -m %d -n .Zprime.%s LIMITS/%s/%d/zp_%s_0_13TeV.txt" % (m, ch, ch, m, ch)
         if quiet:
             system("%s >& /dev/null" % cmd)
         else:
