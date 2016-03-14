@@ -71,7 +71,7 @@ def add_systematics(cb):
     cb.cp().process(["VV"]).AddSyst(cb, "CMS_VV_xs_%s" % era, "lnN", ch.SystMap()(1.15))
 
     # em/et (norm)
-    cb.cp().process(["ZTT"]).channel(['em', 'et']).AddSyst(cb, "CMS_ZTT_xs_%s" % era, "lnN", ch.SystMap()(1.12))
+    cb.cp().process(["ZTT"]).channel(['em', 'et']).AddSyst(cb, "CMS_ZTT_xs_%s" % era, "lnN", ch.SystMap()(1.10))
 
     # em/et (shape)
     cb.cp().process(signal + mc + dd).channel(['em', 'et']).AddSyst(cb, "CMS_scale_j_%s" % era, "shape", ch.SystMap()(1.0))
@@ -86,9 +86,9 @@ def add_systematics(cb):
     cb.cp().process(["W"]).channel(['et']).AddSyst(cb, "CMS_et_W_LT_%s" % era, "lnN", ch.SystMap()(1.096))
 
     # et (shape)
-    cb.cp().process(mc + dd).channel(['et']).AddSyst(cb, "CMS_scale_W_13TeV", "shape", ch.SystMap()(1.0))
-    cb.cp().process(signal + mc + dd).channel(['et']).AddSyst(cb, "CMS_scale_t_13TeV", "shape", ch.SystMap()(1.0))
-    cb.cp().process(signal + mc + dd).channel(['et']).AddSyst(cb, "CMS_id_t_13TeV", "shape", ch.SystMap()(1.0))
+    cb.cp().process(mc + dd).channel(['et']).AddSyst(cb, "CMS_scale_W_%s" % era, "shape", ch.SystMap()(1.0))
+    cb.cp().process(signal + mc + dd).channel(['et']).AddSyst(cb, "CMS_scale_t_%s" % era, "shape", ch.SystMap()(1.0))
+    cb.cp().process(signal + mc + dd).channel(['et']).AddSyst(cb, "CMS_id_t_%s" % era, "shape", ch.SystMap()(1.0))
 
     # BSM3G codes
     #
