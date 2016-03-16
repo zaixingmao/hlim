@@ -184,7 +184,6 @@ def go_zp(suffix="normal.root"):
         root_dest.copy(src=cfg.outFileName(var=variable["var"], cuts=variable["cuts"]), channel=ch, era="13TeV", tag="Zp")
 
         masses = " ".join([str(x) for x in range(500, 3500, 500)])
-        print masses
         args = "--file1=Brown/htt_%s.inputs-Zp-13TeV.root --file2='' --masses='%s' --xtitle='%s (GeV)'" % (ch, masses, variable["var"])
         args += " --bands=%s" % ",".join([v.replace("_CMS", "CMS") for v in variations])
 
