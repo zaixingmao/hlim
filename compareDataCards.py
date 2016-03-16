@@ -531,6 +531,7 @@ if __name__ == "__main__":
     # whiteList = ['DY_M-50to200', 'DY_M-200to400', 'DY_M-400to500', 'DY_M-500to700', 'DY_M-700to800', 'DY_M-800to1000', 'DY_M-1000to1500']
     # whiteList = ['DY_M-50']
     # whiteList = ['ZTT']
+    # whiteList = ["MCLoose"]
 
     whiteList += ["data_obs"]
     whiteList += ["ggH%s" % m for m in options.masses.split()]
