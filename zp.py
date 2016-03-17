@@ -67,28 +67,29 @@ def add_systematics(cb):
     lumiVal = 1.046
     cb.cp().process(signal + mc).channel(['tt', 'et', 'em']).AddSyst(cb, lumiName, "lnN", ch.SystMap()(lumiVal))
     cb.cp().process(signal + mc_nw).channel(['mt']).AddSyst(cb, lumiName, "lnN", ch.SystMap()(lumiVal))
-    cb.cp().process(["TT"]).AddSyst(cb, "CMS_TT_xs_%s" % era, "lnN", ch.SystMap()(1.08))
-    cb.cp().process(["VV"]).AddSyst(cb, "CMS_VV_xs_%s" % era, "lnN", ch.SystMap()(1.15))
+    cb.cp().process(["TT"]).AddSyst(cb, "CMS_zp_TT_xs_%s" % era, "lnN", ch.SystMap()(1.08))
+    cb.cp().process(["VV"]).AddSyst(cb, "CMS_zp_VV_xs_%s" % era, "lnN", ch.SystMap()(1.15))
 
     # em/et (norm)
-    cb.cp().process(["ZTT"]).channel(['em', 'et']).AddSyst(cb, "CMS_ZTT_xs_%s" % era, "lnN", ch.SystMap()(1.10))
+    cb.cp().process(["ZTT"]).channel(['em', 'et']).AddSyst(cb, "CMS_zp_ZTT_xs_%s" % era, "lnN", ch.SystMap()(1.10))
 
     # em/et (shape)
-    cb.cp().process(signal + mc + dd).channel(['em', 'et']).AddSyst(cb, "CMS_scale_j_%s" % era, "shape", ch.SystMap()(1.0))
-    cb.cp().process(signal + mc + dd).channel(['em', 'et']).AddSyst(cb, "CMS_scale_btag_%s" % era, "shape", ch.SystMap()(1.0))
+    cb.cp().process(signal + mc + dd).channel(['em', 'et']).AddSyst(cb, "CMS_zp_scale_j_%s" % era, "shape", ch.SystMap()(1.0))
+    cb.cp().process(signal + mc + dd).channel(['em', 'et']).AddSyst(cb, "CMS_zp_scale_btag_%s" % era, "shape", ch.SystMap()(1.0))
+    cb.cp().process(signal          ).channel(['em', 'et']).AddSyst(cb, "CMS_zp_pdf_%s" % era, "shape", ch.SystMap()(1.0))
 
     # em (norm)
-    cb.cp().process(["QCD"]).channel(['em']).AddSyst(cb, "CMS_em_QCD_LT_%s" % era, "lnN", ch.SystMap()(1.37))
-    cb.cp().process(["W"]).channel(['em']).AddSyst(cb, "CMS_em_W_LT_%s" % era, "lnN", ch.SystMap()(1.41))
+    cb.cp().process(["QCD"]).channel(['em']).AddSyst(cb, "CMS_zp_em_QCD_LT_%s" % era, "lnN", ch.SystMap()(1.37))
+    cb.cp().process(["W"]).channel(['em']).AddSyst(cb, "CMS_zp_em_W_LT_%s" % era, "lnN", ch.SystMap()(1.41))
 
     # et (norm)
-    cb.cp().process(["QCD"]).channel(['et']).AddSyst(cb, "CMS_et_QCD_LT_%s" % era, "lnN", ch.SystMap()(1.164))
-    cb.cp().process(["W"]).channel(['et']).AddSyst(cb, "CMS_et_W_LT_%s" % era, "lnN", ch.SystMap()(1.096))
+    cb.cp().process(["QCD"]).channel(['et']).AddSyst(cb, "CMS_zp_et_QCD_LT_%s" % era, "lnN", ch.SystMap()(1.164))
+    cb.cp().process(["W"]).channel(['et']).AddSyst(cb, "CMS_zp_et_W_LT_%s" % era, "lnN", ch.SystMap()(1.096))
 
     # et (shape)
-    cb.cp().process(mc + dd).channel(['et']).AddSyst(cb, "CMS_scale_W_%s" % era, "shape", ch.SystMap()(1.0))
-    cb.cp().process(signal + mc + dd).channel(['et']).AddSyst(cb, "CMS_scale_t_%s" % era, "shape", ch.SystMap()(1.0))
-    cb.cp().process(signal + mc + dd).channel(['et']).AddSyst(cb, "CMS_id_t_%s" % era, "shape", ch.SystMap()(1.0))
+    cb.cp().process(mc + dd).channel(['et']).AddSyst(cb, "CMS_zp_scale_W_%s" % era, "shape", ch.SystMap()(1.0))
+    cb.cp().process(signal + mc + dd).channel(['et']).AddSyst(cb, "CMS_zp_scale_t_%s" % era, "shape", ch.SystMap()(1.0))
+    cb.cp().process(signal + mc + dd).channel(['et']).AddSyst(cb, "CMS_zp_id_t_%s" % era, "shape", ch.SystMap()(1.0))
 
     # BSM3G codes
     #
