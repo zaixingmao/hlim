@@ -35,27 +35,30 @@ def files(category=""):
         # stem = "13TeV_zp_mar3_dy_mbins/DY_NLO_inclusive_%s%s.root"  # DY-only
         # stem = "13TeV_zp_mar3_dy_mbins/DY_NLO_stitched_%s%s_2.root"  # DY-only
         # stem = "13TeV_zp_mar3_dy_mbins/combined_%s_withPUWeight%s.root"  # m-binned nlo dy
-        stem = "13TeV_zp_mar11/combined_%s_withPUWeight%s.root"  # updated tes
+        # stem = "13TeV_zp_mar11/combined_%s_withPUWeight%s.root"  # updated tes
+        stem = "13TeV_zp_mar17/combined_%s_withPUWeight%s.root"  # including pdf unc.
     if category == "em":
         # stem = "13TeV_zp_feb5/combined_%s_withPUWeight%s.root"
         # stem = "13TeV_zp_feb29/combined_%s_withPUWeight%s.root"  # 2.2/fb
-        stem = "13TeV_zp_mar3_dy_mbins/combined_%s_withPUWeight%s.root"  # m-binned nlo dy
-
+        # stem = "13TeV_zp_mar3_dy_mbins/combined_%s_withPUWeight%s.root"  # m-binned nlo dy
+        stem = "13TeV_zp_mar17/combined_%s_withPUWeight%s.root"  # including pdf unc.
     assert category
-    out = {"":                          stem % (category, ""),
-           "_CMS_scale_j_13TeVUp":      stem % (category, "_jetECUp"),
-           "_CMS_scale_j_13TeVDown":    stem % (category, "_jetECDown"),
-           "_CMS_scale_btag_13TeVUp":   stem % (category, "_bScaleUp"),  # b and light
-           "_CMS_scale_btag_13TeVDown": stem % (category, "_bScaleDown"),
+    out = {"":                             stem % (category, ""),
+           "_CMS_zp_scale_j_13TeVUp":      stem % (category, "_jetECUp"),
+           "_CMS_zp_scale_j_13TeVDown":    stem % (category, "_jetECDown"),
+           "_CMS_zp_scale_btag_13TeVUp":   stem % (category, "_bScaleUp"),  # b and light
+           "_CMS_zp_scale_btag_13TeVDown": stem % (category, "_bScaleDown"),
+           "_CMS_zp_pdf_13TeVUp":         stem % (category, "_pdfUp"),
+           "_CMS_zp_pdf_13TeVDown":       stem % (category, "_pdfDown"),
            }
     if category == "et":
         out.update({
-                "_CMS_scale_W_13TeVUp":   stem % (category, "_1.25"),
-                "_CMS_scale_W_13TeVDown": stem % (category, "_1.05"),
-                "_CMS_scale_t_13TeVUp": stem % (category, "_tauECUp"),
-                "_CMS_scale_t_13TeVDown": stem % (category, "_tauECDown"),
-                "_CMS_id_t_13TeVUp": stem % (category, "_tauUncUp"),
-                "_CMS_id_t_13TeVDown": stem % (category, "_tauUncDown"),
+                "_CMS_zp_scale_W_13TeVUp":   stem % (category, "_1.25"),
+                "_CMS_zp_scale_W_13TeVDown": stem % (category, "_1.05"),
+                "_CMS_zp_scale_t_13TeVUp": stem % (category, "_tauECUp"),
+                "_CMS_zp_scale_t_13TeVDown": stem % (category, "_tauECDown"),
+                "_CMS_zp_id_t_13TeVUp": stem % (category, "_tauUncUp"),
+                "_CMS_zp_id_t_13TeVDown": stem % (category, "_tauUncDown"),
                 })
     return out
 
