@@ -36,12 +36,12 @@ def files(category=""):
         # stem = "13TeV_zp_mar3_dy_mbins/DY_NLO_stitched_%s%s_2.root"  # DY-only
         # stem = "13TeV_zp_mar3_dy_mbins/combined_%s_withPUWeight%s.root"  # m-binned nlo dy
         # stem = "13TeV_zp_mar11/combined_%s_withPUWeight%s.root"  # updated tes
-        stem = "13TeV_zp_mar18/combined_%s_withPUWeight%s.root"  # including pdf unc.
+        stem = "13TeV_zp_mar19/combined_%s_withPUWeight%s.root"  # including pdf unc.
     if category == "em":
         # stem = "13TeV_zp_feb5/combined_%s_withPUWeight%s.root"
         # stem = "13TeV_zp_feb29/combined_%s_withPUWeight%s.root"  # 2.2/fb
         # stem = "13TeV_zp_mar3_dy_mbins/combined_%s_withPUWeight%s.root"  # m-binned nlo dy
-        stem = "13TeV_zp_mar18/combined_%s_withPUWeight%s.root"  # including pdf unc.
+        stem = "13TeV_zp_mar19/combined_%s_withPUWeight%s.root"  # including pdf unc.
     assert category
     out = {"":                             stem % (category, ""),
            "_CMS_zp_scale_j_13TeVUp":      stem % (category, "_jetECUp"),
