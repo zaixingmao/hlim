@@ -73,7 +73,7 @@ def xs_fb(m):
 
 if __name__ == "__main__":
 
-    for filename in ["htt_et.inputs-Zp-13TeV.root", "htt_em.inputs-Zp-13TeV.root"][:1]:
+    for filename in ["htt_et.inputs-Zp-13TeV.root", "htt_em.inputs-Zp-13TeV.root"]:
         full = "%s/src/auxiliaries/shapes/Brown/%s" % (os.environ["CMSSW_BASE"], filename)
         print full
         burst_one(inFileName=full, hNameOut="m_effective")
