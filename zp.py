@@ -179,7 +179,7 @@ def add_systematics(cb):
 
     cb.cp().process(["W"]           ).channel(['tt']).AddSyst(cb, "Close21", "lnN", ch.SystMap()(1.05))
     cb.cp().process(["ZTT"]         ).channel(['tt']).AddSyst(cb, "Close22", "lnN", ch.SystMap()(1.19))
-    cb.cp().process(["QCD"]         ).channel(['tt']).AddSyst(cb, "Close25", "lnN", ch.SystMap()(1.08))
+    cb.cp().process(["QCD"]         ).channel(['tt']).AddSyst(cb, "Close25", "lnN", ch.SystMap()(1.226))
 
 
 def go(cb):
