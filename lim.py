@@ -3,7 +3,7 @@
 import os
 import ROOT as r
 import optparse
-from h2bsm import xs_fb
+from xs import xs_pb
 
 
 def system(cmd):
@@ -115,7 +115,7 @@ def plot_lim(ch, d, tag=""):
                 if options.xsRel:
                     ssm.SetPoint(i, m, 1.0)
                 else:
-                    ssm.SetPoint(i, m, xs_fb(m) / 1000.)
+                    ssm.SetPoint(i, m, xs_pb(m))
 
         if 0.0 < quantile:
             graphs[quantile].SetLineColor(r.kBlue)

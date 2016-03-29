@@ -3,7 +3,7 @@
 import os
 import sys
 import ROOT as r
-from h2bsm import xs_fb
+from xs import xs_pb
 
 
 def scale_one(inFileName=""):
@@ -24,9 +24,9 @@ def scale_one(inFileName=""):
             else:
                 mass = int(hName[3:])
 
-            factor = xs_fb(mass)
+            factor = xs_pb(mass)
             if factor:
-                h.Scale(factor / 1000.)  # 1 pb --> some xs_fb
+                h.Scale(factor)  # 1 pb --> some xs_pb
             else:
                 print "xs not found for %s/%d: NOT SCALING!" % (hName, mass)
 

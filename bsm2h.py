@@ -3,7 +3,7 @@
 import os
 import sys
 import ROOT as r
-from h2bsm import xs_fb
+from xs import xs_pb
 
 
 def merge(stems=None, inDir=None, outDir=None, hName=None, suffix=None, tag="", dest="", scale_signal_to_pb=False):
@@ -44,8 +44,8 @@ def merge(stems=None, inDir=None, outDir=None, hName=None, suffix=None, tag="", 
 
         if scale_signal_to_pb and proc.startswith("ggH"):
             mass = int(proc.replace("ggH", ""))
-            if xs_fb(mass):
-                h.Scale(1000. / xs_fb(mass))  # some xs_fb --> 1 pb
+            if xs_pb(mass):
+                h.Scale(1.0 / xs_pb(mass))  # some xs_pb --> 1 pb
             else:
                 print proc, mass, "xs not found"
 
