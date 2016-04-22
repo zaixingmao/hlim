@@ -12,7 +12,7 @@ def xs_fb(m):
 
 
 def xs_pb(m):
-    s = xs_fb(m):
+    s = xs_fb(m)
     if s:
         return s / 1000.
     else:
