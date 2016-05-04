@@ -26,6 +26,7 @@ categories = {# "tt": "tauTau_%s" % _suffix,
 bdtDir = "root/bdt/11/"
 # lumi = 2093.3  # cards before Feb. 29
 lumi = 2153.0  # Feb. 29 cards
+# lumi = 2246.26 # 76X
 
 def files(category=""):
     if category == "et":
@@ -36,12 +37,16 @@ def files(category=""):
         # stem = "13TeV_zp_mar3_dy_mbins/DY_NLO_stitched_%s%s_2.root"  # DY-only
         # stem = "13TeV_zp_mar3_dy_mbins/combined_%s_withPUWeight%s.root"  # m-binned nlo dy
         # stem = "13TeV_zp_mar11/combined_%s_withPUWeight%s.root"  # updated tes
-        stem = "13TeV_zp_mar19/combined_%s_withPUWeight%s.root"  # including pdf unc.
+        # stem = "13TeV_zp_mar19/combined_%s_withPUWeight%s.root"  # including pdf unc.
+        stem = "13TeV_zp_74X_apr22/combined_%s_withPUWeight%s.root"  # more precise W factor
+        # stem = "/user_data/zmao/datacard_7_6_X_2/combined_%s_withPUWeight%s.root"
     if category == "em":
         # stem = "13TeV_zp_feb5/combined_%s_withPUWeight%s.root"
         # stem = "13TeV_zp_feb29/combined_%s_withPUWeight%s.root"  # 2.2/fb
         # stem = "13TeV_zp_mar3_dy_mbins/combined_%s_withPUWeight%s.root"  # m-binned nlo dy
-        stem = "13TeV_zp_mar19/combined_%s_withPUWeight%s.root"  # including pdf unc.
+        # stem = "13TeV_zp_mar19/combined_%s_withPUWeight%s.root"  # including pdf unc.
+        stem = "13TeV_zp_74X_apr22/combined_%s_withPUWeight%s.root"  # more precise W factor
+        # stem = "/user_data/zmao/datacard_7_6_X_2/combined_%s_withPUWeight%s.root"
     assert category
     out = {"":                             stem % (category, ""),
            "_CMS_zp_scale_j_13TeVUp":      stem % (category, "_jetECUp"),
