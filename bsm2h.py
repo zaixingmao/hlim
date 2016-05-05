@@ -13,6 +13,8 @@ def merge(stems=None, inDir=None, outDir=None, hName=None, suffix=None, tag="", 
 
     name_map = [("QCD_all", "QCD"),
                 ("QCDdatadriven", "QCD"),
+                # ("QCD_76XMVAID", "QCD"),
+                # ("QCD_76XMVAID2", "QCD"),
                 ("ZPrime_", "ggH"),
                 ("ZprimeToTauTau_M_", "ggH"),
                 ("Data", "data_obs"),
@@ -67,7 +69,8 @@ def mu():
 
 def had():
     stems = ["ZprimeToTauTau_M_%d" % i for i in [500, 1000, 1500, 2000, 2500, 3000]]
-    stems += ["Data", "Diboson", "QCD", "TTBar", "WJets", "ZJets"]
+    stems += ["Data", "Diboson", "QCD", # "QCD_76XMVAID2",
+              "TTBar", "WJets", "ZJets"]
     # d = "Fitter/"
     d = "Fitter/diTauHad_1or3prong/"
     hName = "DiJetMass"
