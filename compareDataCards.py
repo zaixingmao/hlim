@@ -520,7 +520,7 @@ if __name__ == "__main__":
     bandColor1Flip = r.kOrange - 5
 
     lineColor2 = r.kBlue
-    lineColor2Flip = r.kViolet + 4
+    lineColor2Flip = r.kViolet + 5
     bandColor2 = r.kCyan
     bandColor2Flip = r.kViolet + 6
 
