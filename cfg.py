@@ -38,14 +38,14 @@ def files(category=""):
         # stem = "13TeV_zp_mar3_dy_mbins/combined_%s_withPUWeight%s.root"  # m-binned nlo dy
         # stem = "13TeV_zp_mar11/combined_%s_withPUWeight%s.root"  # updated tes
         # stem = "13TeV_zp_mar19/combined_%s_withPUWeight%s.root"  # including pdf unc.
-        stem = "13TeV_zp_74X_apr22/combined_%s_withPUWeight%s.root"  # more precise W factor
+        stem = "13TeV_zp_74X_may5/combined_%s_withPUWeight%s.root"  # more precise W factor
         # stem = "/user_data/zmao/datacard_7_6_X_2/combined_%s_withPUWeight%s.root"
     if category == "em":
         # stem = "13TeV_zp_feb5/combined_%s_withPUWeight%s.root"
         # stem = "13TeV_zp_feb29/combined_%s_withPUWeight%s.root"  # 2.2/fb
         # stem = "13TeV_zp_mar3_dy_mbins/combined_%s_withPUWeight%s.root"  # m-binned nlo dy
         # stem = "13TeV_zp_mar19/combined_%s_withPUWeight%s.root"  # including pdf unc.
-        stem = "13TeV_zp_74X_apr22/combined_%s_withPUWeight%s.root"  # more precise W factor
+        stem = "13TeV_zp_74X_may4/combined_%s_withPUWeight%s.root"  # more precise W factor
         # stem = "/user_data/zmao/datacard_7_6_X_2/combined_%s_withPUWeight%s.root"
     assert category
     out = {"":                             stem % (category, ""),
@@ -64,6 +64,11 @@ def files(category=""):
                 "_CMS_zp_scale_t_13TeVDown": stem % (category, "_tauECDown"),
                 "_CMS_zp_id_t_13TeVUp": stem % (category, "_tauUncUp"),
                 "_CMS_zp_id_t_13TeVDown": stem % (category, "_tauUncDown"),
+                })
+    if category == "em":
+        out.update({
+                "_CMS_zp_topPt_13TeVUp":   stem % (category, "_topPtUp"),
+                "_CMS_zp_topPt_13TeVDown": stem % (category, ""),  # use nominal for down
                 })
     return out
 
@@ -84,14 +89,6 @@ def transfer_factor_name(category, proc, variation, cuts=None):
         assert tdm == (4.5, 9.5), cuts
         return "%s_et_1prong_3prong" % prefix
     return "%s_%s" % (prefix, category)
-
-
-def mc_xs_factor(proc):
-    if proc.startswith("ST_t-channel"):
-        print "WARNING: adjusting xs for %s" % proc
-        return 0.108*3
-    else:
-        return 1.0
 
 
 def procs(variable="", category=""):
