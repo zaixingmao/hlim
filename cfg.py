@@ -45,7 +45,8 @@ def files(category=""):
         # stem = "13TeV_zp_feb29/combined_%s_withPUWeight%s.root"  # 2.2/fb
         # stem = "13TeV_zp_mar3_dy_mbins/combined_%s_withPUWeight%s.root"  # m-binned nlo dy
         # stem = "13TeV_zp_mar19/combined_%s_withPUWeight%s.root"  # including pdf unc.
-        stem = "13TeV_zp_74X_may4/combined_%s_withPUWeight%s.root"  # more precise W factor
+        # stem = "13TeV_zp_74X_apr22/combined_%s_withPUWeight%s.root"  # more precise W factor
+        stem = "13TeV_zp_74X_may4/combined_%s_withPUWeight%s.root"  # topPt
         # stem = "/user_data/zmao/datacard_7_6_X_2/combined_%s_withPUWeight%s.root"
     assert category
     out = {"":                             stem % (category, ""),
