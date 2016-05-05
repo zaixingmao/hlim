@@ -266,7 +266,7 @@ def oneDir(canvas, pdf, hNames, d1, d2, subdir, xTitle, band, skip2=False):
 
         h1.SetLineColor(lineColor1)
         h1.SetMarkerColor(lineColor1)
-        draw(h1, "ehistsame" if band else "ehist", d1[subdir], lineColor1Flip)
+        draw(h1, "e0histsame" if band else "e0hist", d1[subdir], lineColor1Flip)
         xify(h1)
         #keep.append(moveStatsBox(h1))
 
@@ -288,7 +288,7 @@ def oneDir(canvas, pdf, hNames, d1, d2, subdir, xTitle, band, skip2=False):
         if not skip2:
             h2.SetLineColor(lineColor2)
             h2.SetMarkerColor(lineColor2)
-            draw(h2, "ehistsame", d2[subdir], lineColor2Flip)
+            draw(h2, "e0histsame", d2[subdir], lineColor2Flip)
             xify(h2)
             #keep.append(moveStatsBox(h2))
 
