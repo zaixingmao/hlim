@@ -82,6 +82,9 @@ def add_systematics(cb):
     cb.cp().process(["QCD"]).channel(['em']).AddSyst(cb, "CMS_zp_em_QCD_LT_%s" % era, "lnN", ch.SystMap()(1.37))
     cb.cp().process(["W"]).channel(['em']).AddSyst(cb, "CMS_zp_em_W_LT_%s" % era, "lnN", ch.SystMap()(1.41))
 
+    # em (shape)
+    cb.cp().process(["TT"]).channel(['em']).AddSyst(cb, "CMS_zp_topPt_%s" % era, "shape", ch.SystMap()(1.0))
+
     # et (norm)
     cb.cp().process(["QCD"]).channel(['et']).AddSyst(cb, "CMS_zp_et_QCD_LT_%s" % era, "lnN", ch.SystMap()(1.164))
     cb.cp().process(["W"]).channel(['et']).AddSyst(cb, "CMS_zp_et_W_LT_%s" % era, "lnN", ch.SystMap()(1.096))
