@@ -38,7 +38,7 @@ def files(category=""):
         # stem = "13TeV_zp_mar3_dy_mbins/combined_%s_withPUWeight%s.root"  # m-binned nlo dy
         # stem = "13TeV_zp_mar11/combined_%s_withPUWeight%s.root"  # updated tes
         # stem = "13TeV_zp_mar19/combined_%s_withPUWeight%s.root"  # including pdf unc.
-        stem = "13TeV_zp_74X_may5/combined_%s_withPUWeight%s.root"  # more precise W factor
+        stem = "13TeV_zp_74X_apr22/combined_%s_withPUWeight%s.root"  # more precise W factor
         # stem = "/user_data/zmao/datacard_7_6_X_2/combined_%s_withPUWeight%s.root"
     if category == "em":
         # stem = "13TeV_zp_feb5/combined_%s_withPUWeight%s.root"
