@@ -78,7 +78,7 @@ def rescaled_bins(bins, variable):
     return bins, variable
 
 
-def flipped_negative_bins(d):
+def flipped_negative_bins(d, zero=True):
     out = {}
     for name, h in sorted(d.iteritems()):
         flipped = h.Clone(name + cfg.flipped_suffix)
@@ -86,10 +86,14 @@ def flipped_negative_bins(d):
 
         for iBin in range(1, 1 + h.GetNbinsX()):
             c = h.GetBinContent(iBin)
+            e = h.GetBinError(iBin)
             if c < 0.0:
-                h.SetBinContent(iBin, -c)
+                c2 = 0.0 if zero else -c
+                e2 = max([-c, e])
+                h.SetBinContent(iBin, c2)
+                h.SetBinError(iBin, e2)
                 flipped.SetBinContent(iBin, 1)
-                print "flipped %s %3d (%4.1e)" % (name, iBin, c)
+                print "%s %s %3d (%4.1e +- %4.1e)  -->  (%4.1e +- %4.1e)" % ("zeroed" if zero else "flipped", name, iBin, c, e, c2, e2)
         out[name] = h
         if flipped.Integral():
             out[flipped.GetName()] = flipped
