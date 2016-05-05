@@ -12,9 +12,10 @@ def fetchOneDir(f, subdir, scale):
         name = key.GetName()
         h = f.Get("%s/%s" % (subdir, name)).Clone()
         h.SetDirectory(0)
-        h.Scale(scale)
-        if not options.raw_yields:
-            normalize(h)
+        if not h.GetName().endswith("_WAS_FLIPPED"):
+            h.Scale(scale)
+            if not options.raw_yields:
+                normalize(h)
         out[name] = h
     return out
 
