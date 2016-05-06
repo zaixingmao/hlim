@@ -64,7 +64,7 @@ def add_systematics(cb):
 
     # common
     lumiName = "CMS_lumi_%s" % era
-    lumiVal = 1.046
+    lumiVal = 1.027
     cb.cp().process(signal + mc).channel(['tt', 'em']).AddSyst(cb, lumiName, "lnN", ch.SystMap()(lumiVal))
     cb.cp().process(signal + mc_nw).channel(['mt', 'et']).AddSyst(cb, lumiName, "lnN", ch.SystMap()(lumiVal))
     cb.cp().process(["TT"]).AddSyst(cb, "CMS_zp_TT_xs_%s" % era, "lnN", ch.SystMap()(1.08))
@@ -115,9 +115,9 @@ def add_systematics(cb):
     # et
     cb.cp().process(signal + mc_nw  ).channel(['et']).AddSyst(cb, "Trig10",  "lnN", ch.SystMap()(1.01))
 
-    cb.cp().process(signal + ["ZTT"]).channel(['et']).AddSyst(cb, "ElID10",  "lnN", ch.SystMap()(1.05))
+    cb.cp().process(signal + ["ZTT"]).channel(['et']).AddSyst(cb, "ElID10",  "lnN", ch.SystMap()(1.06))
     # cb.cp().process(["W"]           ).channel(['et']).AddSyst(cb, "ElID11",  "lnN", ch.SystMap()(1.01))
-    cb.cp().process(["TT", "VV"]    ).channel(['et']).AddSyst(cb, "ElID13",  "lnN", ch.SystMap()(1.05))
+    cb.cp().process(["TT", "VV"]    ).channel(['et']).AddSyst(cb, "ElID13",  "lnN", ch.SystMap()(1.06))
     cb.cp().process(signal + mc_nw  ).channel(['et']).AddSyst(cb, "EES10",   "lnN", ch.SystMap()(1.01))
 
     cb.cp().process(signal + ["ZTT"]).channel(['et']).AddSyst(cb, "TaID00",  "lnN", ch.SystMap()(1.06)) # mt
@@ -127,12 +127,12 @@ def add_systematics(cb):
     # em
     cb.cp().process(signal + mc     ).channel(['em']).AddSyst(cb, "Trig10",  "lnN", ch.SystMap()(1.01)) # et (SingleEle)
 
-    cb.cp().process(signal + ["ZTT"]).channel(['em']).AddSyst(cb, "ElID10",  "lnN", ch.SystMap()(1.05)) # et
-    cb.cp().process(["W"]           ).channel(['em']).AddSyst(cb, "ElID11",  "lnN", ch.SystMap()(1.05)) # et
-    cb.cp().process(["TT", "VV"]    ).channel(['em']).AddSyst(cb, "ElID13",  "lnN", ch.SystMap()(1.05)) # et
+    cb.cp().process(signal + ["ZTT"]).channel(['em']).AddSyst(cb, "ElID10",  "lnN", ch.SystMap()(1.06)) # et
+    cb.cp().process(["W"]           ).channel(['em']).AddSyst(cb, "ElID11",  "lnN", ch.SystMap()(1.06)) # et
+    cb.cp().process(["TT", "VV"]    ).channel(['em']).AddSyst(cb, "ElID13",  "lnN", ch.SystMap()(1.06)) # et
     cb.cp().process(signal + mc     ).channel(['em']).AddSyst(cb, "EES10",   "lnN", ch.SystMap()(1.01)) # et
 
-    cb.cp().process(signal + mc     ).channel(['em']).AddSyst(cb, "MuID00",  "lnN", ch.SystMap()(1.025)) # mt
+    cb.cp().process(signal + mc     ).channel(['em']).AddSyst(cb, "MuID00",  "lnN", ch.SystMap()(1.07)) # mt
     cb.cp().process(signal + mc     ).channel(['em']).AddSyst(cb, "MMS00",   "lnN", ch.SystMap()(1.01)) # mt
 
 
@@ -146,7 +146,7 @@ def add_systematics(cb):
     cb.cp().process(["TT"]          ).channel(['mt']).AddSyst(cb, "bID03",   "lnN", ch.SystMap()(1.12))
     cb.cp().process(["VV"]          ).channel(['mt']).AddSyst(cb, "bID04",   "lnN", ch.SystMap()(1.03))
 
-    cb.cp().process(signal + mc_nw  ).channel(['mt']).AddSyst(cb, "MuID00",  "lnN", ch.SystMap()(1.025))
+    cb.cp().process(signal + mc_nw  ).channel(['mt']).AddSyst(cb, "MuID00",  "lnN", ch.SystMap()(1.07))
     cb.cp().process(signal + mc_nw  ).channel(['mt']).AddSyst(cb, "MMS00",   "lnN", ch.SystMap()(1.01))
 
     cb.cp().process(signal          ).channel(['mt']).AddSyst(cb, "TES00",   "lnN", ch.SystMap()(1.03))
