@@ -78,7 +78,7 @@ def add_systematics(cb):
     cb.cp().process(signal + mc_nw  ).channel(['et']).AddSyst(cb, "CMS_zp_scale_j_%s" % era, "shape", ch.SystMap()(1.0))    # no ddW variations
     cb.cp().process(signal + mc + dd).channel(['em']).AddSyst(cb, "CMS_zp_scale_btag_%s" % era, "shape", ch.SystMap()(1.0))
     cb.cp().process(signal + mc_nw  ).channel(['et']).AddSyst(cb, "CMS_zp_scale_btag_%s" % era, "shape", ch.SystMap()(1.0)) # no ddW variations
-    cb.cp().process(signal          ).channel(['em', 'et']).AddSyst(cb, "CMS_zp_pdf_%s" % era, "shape", ch.SystMap()(1.0))
+    cb.cp().process(signal          ).channel(['em', 'et']).AddSyst(cb, "CMS_zp_pdf_%s" % era, "shape", ch.SystMap()(0.3))  # the template represent 3.x sigma variations
 
     # em (norm)
     cb.cp().process(["QCD"]).channel(['em']).AddSyst(cb, "CMS_zp_em_QCD_LT_%s" % era, "lnN", ch.SystMap()(1.37))
