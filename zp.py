@@ -88,7 +88,8 @@ def add_systematics(cb):
     cb.cp().process(["TT"]).channel(['em']).AddSyst(cb, "CMS_zp_topPt_%s" % era, "shape", ch.SystMap()(1.0))
 
     # et (norm)
-    cb.cp().process(["QCD"]).channel(['et']).AddSyst(cb, "CMS_zp_et_QCD_LT_%s" % era, "lnN", ch.SystMap()(1.164))
+    # cb.cp().process(["QCD"]).channel(['et']).AddSyst(cb, "CMS_zp_et_QCD_LT_%s" % era, "lnN", ch.SystMap()(1.164))  # May 5/6
+    cb.cp().process(["QCD"]).channel(['et']).AddSyst(cb, "CMS_zp_et_QCD_LT_%s" % era, "lnN", ch.SystMap()(1.18))   # May 18 onward
     cb.cp().process(["W"]).channel(['et']).AddSyst(cb, "CMS_zp_et_W_LT_%s" % era, "lnN", ch.SystMap()(1.096))
 
     # et (shape)

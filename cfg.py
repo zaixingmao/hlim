@@ -40,7 +40,7 @@ def files(category=""):
         # stem = "13TeV_zp_mar19/combined_%s_withPUWeight%s.root"  # including pdf unc.
         # stem = "13TeV_zp_74X_apr22/combined_%s_withPUWeight%s.root"  # more precise W factor
         # stem = "/user_data/zmao/datacard_Apr28/combined_%s_withPUWeight%s.root"  # data-driven W
-        stem = "13TeV_zp_74X_may5/combined_%s_withPUWeight%s.root"  # apr22 et + data-driven W
+        stem = "13TeV_zp_74X_may18/combined_%s_withPUWeight%s.root"  # apr22 et + data-driven W + 1.3 OS/SS
         # stem = "/user_data/zmao/datacard_7_6_X_2/combined_%s_withPUWeight%s.root"
     if category == "em":
         # stem = "13TeV_zp_feb5/combined_%s_withPUWeight%s.root"
