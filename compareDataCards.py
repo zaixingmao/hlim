@@ -12,9 +12,11 @@ def fetchOneDir(f, subdir, scale):
         name = key.GetName()
         h = f.Get("%s/%s" % (subdir, name)).Clone()
         h.SetDirectory(0)
-        h.Scale(scale)
-        if not options.raw_yields:
-            normalize(h)
+        h.SetStats(False)
+        if not h.GetName().endswith("_WAS_FLIPPED"):
+            h.Scale(scale)
+            if not options.raw_yields:
+                normalize(h)
         out[name] = h
     return out
 
@@ -147,6 +149,11 @@ def errorless(h):
     return out
 
 
+def xify(h):
+    if options.xmax:
+        h.GetXaxis().SetRangeUser(h.GetXaxis().GetXmin(), options.xmax)
+
+
 def oneDir(canvas, pdf, hNames, d1, d2, subdir, xTitle, band, skip2=False):
     keep = []
 
@@ -167,7 +174,6 @@ def oneDir(canvas, pdf, hNames, d1, d2, subdir, xTitle, band, skip2=False):
             print "ERROR: '%s' not in list of available names: %s" % (hName, str(hNames))
 
         h1 = d1[subdir].get(hName)
-        h1denom = errorless(h1)
 
         if not h1:
             print "ERROR: %s/%s not found" % (subdir, hName)
@@ -175,6 +181,8 @@ def oneDir(canvas, pdf, hNames, d1, d2, subdir, xTitle, band, skip2=False):
                 canvas.cd(0)
                 canvas.Print(pdf)
             continue
+
+        h1denom = errorless(h1)
 
         h1b = None
         if band:
@@ -191,7 +199,6 @@ def oneDir(canvas, pdf, hNames, d1, d2, subdir, xTitle, band, skip2=False):
             h1.Divide(h1denom)
 
         h2 = d2[subdir].get(hName)
-        h2denom = errorless(h2)
 
         if not h2:
             print "ERROR: %s/%s not found" % (subdir, hName)
@@ -199,6 +206,8 @@ def oneDir(canvas, pdf, hNames, d1, d2, subdir, xTitle, band, skip2=False):
                 canvas.cd(0)
                 canvas.Print(pdf)
             continue
+
+        h2denom = errorless(h2)
 
         h2b = None
         if band:
@@ -247,6 +256,7 @@ def oneDir(canvas, pdf, hNames, d1, d2, subdir, xTitle, band, skip2=False):
             h1b.SetFillColor(bandColor1)
             h1b.SetFillStyle(3354)
             h1b.Draw("e2")
+            xify(h1b)
 
             h1d.SetLineColor(bandColor1)
             h1d.SetLineStyle(4)
@@ -257,7 +267,8 @@ def oneDir(canvas, pdf, hNames, d1, d2, subdir, xTitle, band, skip2=False):
 
         h1.SetLineColor(lineColor1)
         h1.SetMarkerColor(lineColor1)
-        draw(h1, "ehistsame" if band else "ehist", d1[subdir], lineColor1Flip)
+        draw(h1, "e0histsame" if band else "e0hist", d1[subdir], lineColor1Flip)
+        xify(h1)
         #keep.append(moveStatsBox(h1))
 
         if band and h2b and not skip2:
@@ -266,6 +277,7 @@ def oneDir(canvas, pdf, hNames, d1, d2, subdir, xTitle, band, skip2=False):
             h2b.SetFillColor(bandColor2)
             h2b.SetFillStyle(3345)
             h2b.Draw("e2same")
+            xify(h2b)
 
             h2d.SetLineColor(bandColor2)
             h2d.SetLineStyle(4)
@@ -277,7 +289,8 @@ def oneDir(canvas, pdf, hNames, d1, d2, subdir, xTitle, band, skip2=False):
         if not skip2:
             h2.SetLineColor(lineColor2)
             h2.SetMarkerColor(lineColor2)
-            draw(h2, "ehistsame", d2[subdir], lineColor2Flip)
+            draw(h2, "e0histsame", d2[subdir], lineColor2Flip)
+            xify(h2)
             #keep.append(moveStatsBox(h2))
 
         leg = r.TLegend(0.65, 0.6, 0.87, 0.87)
@@ -447,6 +460,12 @@ def opts():
                       default="m_vis (GeV)",
                       )
 
+    parser.add_option("--xmax",
+                      dest="xmax",
+                      default=None,
+                      type="float",
+                      )
+
     parser.add_option("--raw-yields",
                       dest="raw_yields",
                       default=False,
@@ -502,13 +521,20 @@ if __name__ == "__main__":
     bandColor1Flip = r.kOrange - 5
 
     lineColor2 = r.kBlue
-    lineColor2Flip = r.kViolet + 4
+    lineColor2Flip = r.kViolet + 5
     bandColor2 = r.kCyan
     bandColor2Flip = r.kViolet + 6
 
     options = opts()
 
     whiteList = ["TT", "QCD", "VV", "ZTT", "W", "sum_b", "W+QCD"][:-1]
+
+    # whiteList = ['DY_M-50-H-0to100', 'DY_M-50-H-100to200', 'DY_M-50-H-200to400', 'DY_M-50-H-400to600', 'DY_M-50-H-600toInf']
+    # whiteList = ['DY_M-50to200', 'DY_M-200to400', 'DY_M-400to500', 'DY_M-500to700', 'DY_M-700to800', 'DY_M-800to1000', 'DY_M-1000to1500']
+    # whiteList = ['DY_M-50']
+    # whiteList = ['ZTT']
+    # whiteList = ["MCLoose"]
+
     whiteList += ["data_obs"]
     whiteList += ["ggH%s" % m for m in options.masses.split()]
 

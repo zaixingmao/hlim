@@ -4,13 +4,13 @@ import CombineHarvester.CombineTools.ch as ch
 import os
 
 
-def add_processes_and_observations(cb):
+def add_processes_and_observations(cb, prefix="zp"):
     print '>> Creating processes and observations...'
     for chn in chns:
         cats_chn = cats["%s_%s" % (chn, era)]
-        cb.AddObservations(  ['*'],  ['htt'], [era], [chn],                 cats_chn      )
-        cb.AddProcesses(     ['*'],  ['htt'], [era], [chn], bkg_procs[chn], cats_chn, False  )
-        cb.AddProcesses(     masses, ['htt'], [era], [chn], sig_procs,      cats_chn, True   )
+        cb.AddObservations(  ['*'],  [prefix], [era], [chn],                 cats_chn      )
+        cb.AddProcesses(     ['*'],  [prefix], [era], [chn], bkg_procs[chn], cats_chn, False  )
+        cb.AddProcesses(     masses, [prefix], [era], [chn], sig_procs,      cats_chn, True   )
 
 
 def add_shapes(cb):
@@ -58,30 +58,137 @@ def add_systematics(cb):
     print '>> Adding systematic uncertainties...'
 
     signal = cb.cp().signals().process_set()
-    mc = ['ZTT','TT','VV', 'W']
+    mc_nw = ['ZTT', 'TT', 'VV']
+    mc = mc_nw + ['W']
     dd = ['QCD']
 
-    # common (norm)
-    cb.cp().process(signal + mc).AddSyst(cb, "CMS_lumi_%s" % era, "lnN", ch.SystMap()(1.04))
-    cb.cp().process(["TT"]).AddSyst(cb, "CMS_TT_xs_%s" % era, "lnN", ch.SystMap()(1.08))
-    cb.cp().process(["ZTT"]).AddSyst(cb, "CMS_ZTT_xs_%s" % era, "lnN", ch.SystMap()(1.12))
-    cb.cp().process(["VV"]).AddSyst(cb, "CMS_VV_xs_%s" % era, "lnN", ch.SystMap()(1.15))
+    # common
+    lumiName = "CMS_lumi_%s" % era
+    lumiVal = 1.027
+    cb.cp().process(signal + mc).channel(['tt', 'em']).AddSyst(cb, lumiName, "lnN", ch.SystMap()(lumiVal))
+    cb.cp().process(signal + mc_nw).channel(['mt', 'et']).AddSyst(cb, lumiName, "lnN", ch.SystMap()(lumiVal))
+    cb.cp().process(["TT"]).AddSyst(cb, "CMS_zp_TT_xs_%s" % era, "lnN", ch.SystMap()(1.08))
+    cb.cp().process(["VV"]).AddSyst(cb, "CMS_zp_VV_xs_%s" % era, "lnN", ch.SystMap()(1.15))
 
-    # common (shape)
-    cb.cp().process(signal + mc + dd).AddSyst(cb, "CMS_scale_j_%s" % era, "shape", ch.SystMap()(1.0))
-    cb.cp().process(signal + mc + dd).AddSyst(cb, "CMS_scale_btag_%s" % era, "shape", ch.SystMap()(1.0))
+    # em/et (norm)
+    cb.cp().process(["ZTT"]).channel(['em', 'et']).AddSyst(cb, "CMS_zp_ZTT_xs_%s" % era, "lnN", ch.SystMap()(1.10))
+
+    # em/et (shape)
+    cb.cp().process(signal + mc + dd).channel(['em']).AddSyst(cb, "CMS_zp_scale_j_%s" % era, "shape", ch.SystMap()(1.0))
+    cb.cp().process(signal + mc_nw  ).channel(['et']).AddSyst(cb, "CMS_zp_scale_j_%s" % era, "shape", ch.SystMap()(1.0))    # no ddW variations
+    cb.cp().process(signal + mc + dd).channel(['em']).AddSyst(cb, "CMS_zp_scale_btag_%s" % era, "shape", ch.SystMap()(1.0))
+    cb.cp().process(signal + mc_nw  ).channel(['et']).AddSyst(cb, "CMS_zp_scale_btag_%s" % era, "shape", ch.SystMap()(1.0)) # no ddW variations
+    cb.cp().process(signal          ).channel(['em', 'et']).AddSyst(cb, "CMS_zp_pdf_%s" % era, "shape", ch.SystMap()(0.3))  # the template represent 3.x sigma variations
 
     # em (norm)
-    cb.cp().process(["QCD"]).channel(['em']).AddSyst(cb, "CMS_em_QCD_LT_%s" % era, "lnN", ch.SystMap()(1.37))
-    cb.cp().process(["W"]).channel(['em']).AddSyst(cb, "CMS_em_W_LT_%s" % era, "lnN", ch.SystMap()(1.41))
+    cb.cp().process(["QCD"]).channel(['em']).AddSyst(cb, "CMS_zp_em_QCD_LT_%s" % era, "lnN", ch.SystMap()(1.37))
+    cb.cp().process(["W"]).channel(['em']).AddSyst(cb, "CMS_zp_em_W_LT_%s" % era, "lnN", ch.SystMap()(1.41))
+
+    # em (shape)
+    cb.cp().process(["TT"]).channel(['em']).AddSyst(cb, "CMS_zp_topPt_%s" % era, "shape", ch.SystMap()(1.0))
 
     # et (norm)
-    cb.cp().process(["QCD"]).channel(['et']).AddSyst(cb, "CMS_et_QCD_LT_%s" % era, "lnN", ch.SystMap()(1.164))
-    cb.cp().process(["W"]).channel(['et']).AddSyst(cb, "CMS_et_W_LT_%s" % era, "lnN", ch.SystMap()(1.096))
+    # cb.cp().process(["QCD"]).channel(['et']).AddSyst(cb, "CMS_zp_et_QCD_LT_%s" % era, "lnN", ch.SystMap()(1.164))  # May 5/6
+    cb.cp().process(["QCD"]).channel(['et']).AddSyst(cb, "CMS_zp_et_QCD_LT_%s" % era, "lnN", ch.SystMap()(1.18))   # May 18 onward
+    cb.cp().process(["W"]).channel(['et']).AddSyst(cb, "CMS_zp_et_W_LT_%s" % era, "lnN", ch.SystMap()(1.096))
 
     # et (shape)
-    cb.cp().process(mc + dd).channel(['et']).AddSyst(cb, "CMS_scale_W_13TeV", "shape", ch.SystMap()(1.0))
-    cb.cp().process(signal + mc + dd).channel(['et']).AddSyst(cb, "CMS_scale_t_13TeV", "shape", ch.SystMap()(1.0))
+    # cb.cp().process(mc + dd).channel(['et']).AddSyst(cb, "CMS_zp_scale_W_%s" % era, "shape", ch.SystMap()(1.0))          # only for MC-W
+    # cb.cp().process(signal + mc + dd).channel(['et']).AddSyst(cb, "CMS_zp_scale_t_%s" % era, "shape", ch.SystMap()(1.0))
+    # cb.cp().process(signal + mc + dd).channel(['et']).AddSyst(cb, "CMS_zp_id_t_%s" % era, "shape", ch.SystMap()(1.0))
+    cb.cp().process(signal + mc_nw  ).channel(['et']).AddSyst(cb, "CMS_zp_scale_t_%s" % era, "shape", ch.SystMap()(1.0))   # no ddW variations
+    cb.cp().process(signal + mc_nw  ).channel(['et']).AddSyst(cb, "CMS_zp_id_t_%s" % era, "shape", ch.SystMap()(1.0))      # no ddW variations
+
+    # BSM3G codes
+    #
+    # (0/mt  1/et 2/tt 3/em)
+    # (0/Zp  1/W  2/Z  3/TT  4/VV  5/QCD  6/H)
+    #
+    # e.g. Trig10 is intended to apply to et/Zp
+    #
+    #
+    # NOTES
+    # - bbb shapes supersede STMC
+    # - bID handled by shape above (losing correlation with mutau)
+    # - TES handled by shape above
+    # - mt: TES,JES included for backgrounds within bbb
+
+    # et
+    cb.cp().process(signal + mc_nw  ).channel(['et']).AddSyst(cb, "Trig10",  "lnN", ch.SystMap()(1.01))
+
+    cb.cp().process(signal + ["ZTT"]).channel(['et']).AddSyst(cb, "ElID10",  "lnN", ch.SystMap()(1.06))
+    # cb.cp().process(["W"]           ).channel(['et']).AddSyst(cb, "ElID11",  "lnN", ch.SystMap()(1.01))
+    cb.cp().process(["TT", "VV"]    ).channel(['et']).AddSyst(cb, "ElID13",  "lnN", ch.SystMap()(1.06))
+    cb.cp().process(signal + mc_nw  ).channel(['et']).AddSyst(cb, "EES10",   "lnN", ch.SystMap()(1.01))
+
+    cb.cp().process(signal + ["ZTT"]).channel(['et']).AddSyst(cb, "TaID00",  "lnN", ch.SystMap()(1.06)) # mt
+    # cb.cp().process(["W"]           ).channel(['et']).AddSyst(cb, "TaID11",  "lnN", ch.SystMap()(1.06))
+    cb.cp().process(["TT", "VV"]    ).channel(['et']).AddSyst(cb, "TaID03",  "lnN", ch.SystMap()(1.06)) # mt
+
+    # em
+    cb.cp().process(signal + mc     ).channel(['em']).AddSyst(cb, "Trig10",  "lnN", ch.SystMap()(1.01)) # et (SingleEle)
+
+    cb.cp().process(signal + ["ZTT"]).channel(['em']).AddSyst(cb, "ElID10",  "lnN", ch.SystMap()(1.06)) # et
+    cb.cp().process(["W"]           ).channel(['em']).AddSyst(cb, "ElID11",  "lnN", ch.SystMap()(1.06)) # et
+    cb.cp().process(["TT", "VV"]    ).channel(['em']).AddSyst(cb, "ElID13",  "lnN", ch.SystMap()(1.06)) # et
+    cb.cp().process(signal + mc     ).channel(['em']).AddSyst(cb, "EES10",   "lnN", ch.SystMap()(1.01)) # et
+
+    cb.cp().process(signal + mc     ).channel(['em']).AddSyst(cb, "MuID00",  "lnN", ch.SystMap()(1.07)) # mt
+    cb.cp().process(signal + mc     ).channel(['em']).AddSyst(cb, "MMS00",   "lnN", ch.SystMap()(1.01)) # mt
+
+
+    # mt
+    cb.cp().process(signal + mc_nw  ).channel(['mt']).AddSyst(cb, "Trig00",  "lnN", ch.SystMap()(1.01))
+
+    cb.cp().process(signal + ["ZTT"]).channel(['mt']).AddSyst(cb, "TaID00",  "lnN", ch.SystMap()(1.06))
+    cb.cp().process(["TT", "VV"]    ).channel(['mt']).AddSyst(cb, "TaID03",  "lnN", ch.SystMap()(1.06))
+
+    cb.cp().process(signal + ["ZTT"]).channel(['mt']).AddSyst(cb, "bID00",   "lnN", ch.SystMap()(1.03))
+    cb.cp().process(["TT"]          ).channel(['mt']).AddSyst(cb, "bID03",   "lnN", ch.SystMap()(1.12))
+    cb.cp().process(["VV"]          ).channel(['mt']).AddSyst(cb, "bID04",   "lnN", ch.SystMap()(1.03))
+
+    cb.cp().process(signal + mc_nw  ).channel(['mt']).AddSyst(cb, "MuID00",  "lnN", ch.SystMap()(1.07))
+    cb.cp().process(signal + mc_nw  ).channel(['mt']).AddSyst(cb, "MMS00",   "lnN", ch.SystMap()(1.01))
+
+    cb.cp().process(signal          ).channel(['mt']).AddSyst(cb, "TES00",   "lnN", ch.SystMap()(1.03))
+    # cb.cp().process(["ZTT"]         ).channel(['mt']).AddSyst(cb, "TES02",   "lnN", ch.SystMap()(1.07)) # bbb
+    # cb.cp().process(["TT", "VV"]    ).channel(['mt']).AddSyst(cb, "TES03",   "lnN", ch.SystMap()(1.09)) # bbb
+
+    cb.cp().process(signal          ).channel(['mt']).AddSyst(cb, "JES00",   "lnN", ch.SystMap()(1.02))
+
+    cb.cp().process(["W"]           ).channel(['mt']).AddSyst(cb, "Close01", "lnN", ch.SystMap()(1.08))
+    cb.cp().process(["ZTT"]         ).channel(['mt']).AddSyst(cb, "Close02", "lnN", ch.SystMap()(1.07))
+    cb.cp().process(["QCD"]         ).channel(['mt']).AddSyst(cb, "Close05", "lnN", ch.SystMap()(1.68))
+
+
+    # tt
+    cb.cp().process(signal + mc     ).channel(['tt']).AddSyst(cb, "Trig20",  "lnN", ch.SystMap()(1.10))
+
+    cb.cp().process(signal + ["ZTT"]).channel(['tt']).AddSyst(cb, "TaID00",  "lnN", ch.SystMap()(1.12)) # mt
+    cb.cp().process(["W"]           ).channel(['tt']).AddSyst(cb, "TaID11",  "lnN", ch.SystMap()(1.30)) # et
+    cb.cp().process(["TT", "VV"]    ).channel(['tt']).AddSyst(cb, "TaID03",  "lnN", ch.SystMap()(1.12)) # mt
+
+    cb.cp().process(signal + ["ZTT"]).channel(['tt']).AddSyst(cb, "bID20",   "lnN", ch.SystMap()(1.03))
+    cb.cp().process(["W"]           ).channel(['tt']).AddSyst(cb, "bID21",   "lnN", ch.SystMap()(1.10))
+    cb.cp().process(["TT"]          ).channel(['tt']).AddSyst(cb, "bID23",   "lnN", ch.SystMap()(1.10))
+    cb.cp().process(["VV"]          ).channel(['tt']).AddSyst(cb, "bID24",   "lnN", ch.SystMap()(1.03))
+
+    cb.cp().process(signal          ).channel(['tt']).AddSyst(cb, "TES20",   "lnN", ch.SystMap()(1.03))
+    cb.cp().process(["W"]           ).channel(['tt']).AddSyst(cb, "TES21",   "lnN", ch.SystMap()(1.11))
+    cb.cp().process(["ZTT"]         ).channel(['tt']).AddSyst(cb, "TES22",   "lnN", ch.SystMap()(1.11))
+    cb.cp().process(["TT"]          ).channel(['tt']).AddSyst(cb, "TES23",   "lnN", ch.SystMap()(1.11))
+    cb.cp().process(["VV"]          ).channel(['tt']).AddSyst(cb, "TES24",   "lnN", ch.SystMap()(1.08))
+
+    cb.cp().process(signal          ).channel(['tt']).AddSyst(cb, "JES20",   "lnN", ch.SystMap()(1.02))
+    cb.cp().process(["W"]           ).channel(['tt']).AddSyst(cb, "JES21",   "lnN", ch.SystMap()(1.12))
+    cb.cp().process(["ZTT"]         ).channel(['tt']).AddSyst(cb, "JES22",   "lnN", ch.SystMap()(1.08))
+    cb.cp().process(["TT"]          ).channel(['tt']).AddSyst(cb, "JES23",   "lnN", ch.SystMap()(1.12))
+    cb.cp().process(["VV"]          ).channel(['tt']).AddSyst(cb, "JES24",   "lnN", ch.SystMap()(1.08))
+
+    cb.cp().process(["W"]           ).channel(['tt']).AddSyst(cb, "Close21", "lnN", ch.SystMap()(1.05))
+    cb.cp().process(["ZTT"]         ).channel(['tt']).AddSyst(cb, "Close22", "lnN", ch.SystMap()(1.19))
+    cb.cp().process(["QCD"]         ).channel(['tt']).AddSyst(cb, "Close25", "lnN", ch.SystMap()(1.226))
+    # cb.cp().process(["QCD"]         ).channel(['tt']).AddSyst(cb, "Close25", "lnN", ch.SystMap()(1.303))  # 76-mockup
 
 
 def go(cb):
@@ -100,10 +207,11 @@ if __name__ == "__main__":
     aux_shapes   = auxiliaries +'shapes/'
     era = "13TeV"
 
-    input_dirs = {'et' : 'Brown',
-                  'em' : 'Brown',
-                  # 'mt' : 'BSM3G',
-                  # 'tt' : 'BSM3G',
+    input_dir = ["Zp_1pb", "Zp_nominal"][0]
+    input_dirs = {'et' : input_dir,
+                  'em' : input_dir,
+                  'mt' : input_dir,
+                  'tt' : input_dir,
                   }
     chns = sorted(input_dirs.keys())
 
@@ -123,10 +231,10 @@ if __name__ == "__main__":
             (0, 'emu_inclusive'),
             ],
         'mt_%s' % era : [
-            (0, 'eleTau_inclusive'),
+            (0, 'muTau_inclusive'),
             ],
         'tt_%s' % era : [
-            (0, 'eleTau_inclusive'),
+            (0, 'tauTau_inclusive'),
             ],
         }
 

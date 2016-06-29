@@ -3,6 +3,7 @@
 import os
 import sys
 import ROOT as r
+from xs import xs_pb
 
 
 def mkdir(path):
@@ -41,9 +42,9 @@ def burst_one(inFileName="", hNameOut="", blackList=["Up", "Down", "WAS_FLIPPED"
 
             if proc.startswith("ZPrime_"):
                 mass = int(proc.split("_")[1])
-                factor = xs_fb(mass)
+                factor = xs_pb(mass)
                 if factor:
-                    h.Scale(factor / 1000.)  # 1 pb --> some xs_fb
+                    h.Scale(factor)  # 1 pb --> some xs_pb
                 else:
                     print proc, mass, "xs not found"
 
@@ -58,22 +59,9 @@ def burst_one(inFileName="", hNameOut="", blackList=["Up", "Down", "WAS_FLIPPED"
     fIn.Close()
 
 
-def xs_fb(m):
-    return {500: 9330.0,
-            1000:  468.0,
-            1500:   72.3,
-            2000:   17.3,
-            2500:   5.54,
-            3000:   1.29,
-            3500:   0.49,
-            4000:   0.255,
-            4500:   0.17,
-            }.get(m)
-
-
 if __name__ == "__main__":
 
-    for filename in ["htt_et.inputs-Zp-13TeV.root", "htt_em.inputs-Zp-13TeV.root"][:1]:
+    for filename in ["htt_et.inputs-Zp-13TeV.root", "htt_em.inputs-Zp-13TeV.root"]:
         full = "%s/src/auxiliaries/shapes/Brown/%s" % (os.environ["CMSSW_BASE"], filename)
         print full
         burst_one(inFileName=full, hNameOut="m_effective")

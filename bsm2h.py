@@ -3,14 +3,18 @@
 import os
 import sys
 import ROOT as r
-from h2bsm import xs_fb
+from xs import xs_pb
 
 
-def merge(stems=None, inDir=None, outDir=None, hName=None, suffix=None):
-    outFile = r.TFile("%s/src/auxiliaries/shapes/Brown/merged_%s.root" % (os.environ["CMSSW_BASE"], hName), "RECREATE")
+def merge(stems=None, inDir=None, outDir=None, hName=None, suffix=None, tag="", dest="", scale_signal_to_pb=False):
+    assert dest
+    outFile = r.TFile("%s/src/auxiliaries/shapes/%s/htt_%s.inputs-Zp-13TeV.root" % (os.environ["CMSSW_BASE"], dest, tag), "RECREATE")
     outFile.mkdir(outDir)
 
     name_map = [("QCD_all", "QCD"),
+                ("QCDdatadriven", "QCD"),
+                # ("QCD_76XMVAID", "QCD"),
+                # ("QCD_76XMVAID2", "QCD"),
                 ("ZPrime_", "ggH"),
                 ("ZprimeToTauTau_M_", "ggH"),
                 ("Data", "data_obs"),
@@ -19,8 +23,10 @@ def merge(stems=None, inDir=None, outDir=None, hName=None, suffix=None):
                 ("WJets", "W"),
                 ("ZJets", "ZTT"),
 
-                ("Z.root", "ZTT.root"),
+                ("eleTau_Z", "eleTau_ZTT"),
+                ("emu_Z", "emu_ZTT"),
                 ("eleTau_", ""),
+                ("emu_", ""),
                 ]
 
     for stem in stems:
@@ -38,10 +44,10 @@ def merge(stems=None, inDir=None, outDir=None, hName=None, suffix=None):
         h.SetDirectory(0)
         inFile.Close()
 
-        if proc.startswith("ggH"):
+        if scale_signal_to_pb and proc.startswith("ggH"):
             mass = int(proc.replace("ggH", ""))
-            if xs_fb(mass):
-                h.Scale(1000. / xs_fb(mass))  # some xs_fb --> 1 pb
+            if xs_pb(mass):
+                h.Scale(1.0 / xs_pb(mass))  # some xs_pb --> 1 pb
             else:
                 print proc, mass, "xs not found"
 
@@ -51,49 +57,40 @@ def merge(stems=None, inDir=None, outDir=None, hName=None, suffix=None):
     outFile.Close()
 
 
-def m1(ch):
-    stems = ["ZPrime_%d" % i for i in [500, 1000, 1500, 2000, 2500, 3000, 3500, 4000, 4500]]
-    stems += ["QCD", "ZTT", "W", "VV", "TT"]
-    d = "/home/elaird/CMSSW_7_1_5/src/hlim/%s_inclusive/%s_" % (ch, ch)
-    merge(stems=stems, hName="m_effective", inDir=d, outDir="%s_inclusive" % ch, suffix=".root")
-
-
-def m2():
-    stems = ["ZPrime_%d_all" % i for i in [500, 1000, 1500, 2000, 2500, 3000, 3500, 4000, 4500]]
-    stems += ["QCD_all", "ZTT", "W", "VV"]
-    d = "/user_data/zmao/ZPrimeHistos/et/"
-    hName = "m_withMET"
-    merge(stems=stems, hName=hName, inDir=d, outDir="eleTau_inclusive", suffix="_%s.root" % hName)
-
-
-def ele():
-    stems = ["eleTau_ZPrime_%d" % i for i in [500, 1000, 1500, 2000, 2500, 3000]]
-    stems += ["eleTau_VV", "eleTau_QCD", "eleTau_TT", "eleTau_W", "eleTau_Z", "eleTau_data_obs"]
-    d = "Fitter/eleTau_8TeVbins_900/"
-    hName = "m_effective"
-    merge(stems=stems, hName=hName, inDir=d, outDir="eleTau_inclusive", suffix=".root")
-
-
 def mu():
     stems = ["ZprimeToTauTau_M_%d" % i for i in [500, 1000, 1500, 2000, 2500, 3000]]
-    stems += ["Data", "Diboson", "QCD", "TTBar", "WJets", "ZJets"]
-    d = "Fitter/"
+    stems += ["Data", "Diboson", "QCDdatadriven", "TTBar", "WJets", "ZJets"]
+    # d = "Fitter/"
+    d = "Fitter/muTau_1or3prong/"
     hName = "DiJetMass"
-    merge(stems=stems, hName=hName, inDir=d, outDir="eleTau_inclusive", suffix="_muTauSR_ForFitter.root")
+    merge(stems=stems, hName=hName, inDir=d, outDir="muTau_inclusive", suffix="_muTauSR_ForFitter.root", tag="mt", dest="Zp_nominal")
+    merge(stems=stems, hName=hName, inDir=d, outDir="muTau_inclusive", suffix="_muTauSR_ForFitter.root", tag="mt", dest="Zp_1pb", scale_signal_to_pb=True)
 
 
 def had():
     stems = ["ZprimeToTauTau_M_%d" % i for i in [500, 1000, 1500, 2000, 2500, 3000]]
-    stems += ["Data", "Diboson", "QCD", "TTBar", "WJets", "ZJets"]
-    d = "Fitter/"
+    stems += ["Data", "Diboson", "QCD", # "QCD_76XMVAID2",
+              "TTBar", "WJets", "ZJets"]
+    # d = "Fitter/"
+    d = "Fitter/diTauHad_1or3prong/"
     hName = "DiJetMass"
-    merge(stems=stems, hName=hName, inDir=d, outDir="eleTau_inclusive", suffix="_diTauSR_ForFitter.root")
+    merge(stems=stems, hName=hName, inDir=d, outDir="tauTau_inclusive", suffix="_diTauSR_ForFitter.root", tag="tt", dest="Zp_nominal")
+    merge(stems=stems, hName=hName, inDir=d, outDir="tauTau_inclusive", suffix="_diTauSR_ForFitter.root", tag="tt", dest="Zp_1pb", scale_signal_to_pb=True)
+
+
+def to_h(prefix=""):
+    stems = ["%s_ZPrime_%d" % (prefix, i) for i in [500, 1000, 1500, 2000, 2500, 3000]]
+    stems += ["%s_VV" % prefix, "%s_QCD" % prefix, "%s_TT" % prefix, "%s_W" % prefix, "%s_Z" % prefix, "%s_data_obs" % prefix]
+    d = "Fitter/%s/" % prefix
+    hName = "m_effective"
+    merge(stems=stems, hName=hName, inDir=d, outDir="%s_inclusive" % prefix, suffix=".root", tag={"eleTau": "et", "emu": "em"}[prefix], dest=".", scale_signal_to_pb=True)
 
 
 if __name__ == "__main__":
     # m1("eleTau")
     # m1("emu")
     # m2()
-    # mu()
-    # ele()
+    mu()
     had()
+    # to_h("eleTau")
+    # to_h("emu")

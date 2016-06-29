@@ -24,28 +24,54 @@ categories = {# "tt": "tauTau_%s" % _suffix,
 
 #bdtDir = "/nfs_scratch/zmao/samples_Iso/datacard_new/bdt_new/"
 bdtDir = "root/bdt/11/"
-lumi = 2093.3
+# lumi = 2093.3  # cards before Feb. 29
+lumi = 2153.0  # Feb. 29 cards
+# lumi = 2246.26 # 76X
 
 def files(category=""):
     if category == "et":
-        stem = "13TeV_zp_feb2/combined_%s_withPUWeight%s.root"
+        # stem = "13TeV_zp_feb2/combined_%s_withPUWeight%s.root"  # 1,3 prong
+        # stem = "13TeV_zp_feb26/combined_%s_withPUWeight%s.root"  # 1,2,3 prong
+        # stem = "13TeV_zp_feb29/combined_%s_withPUWeight%s.root"  # 2.2/fb
+        # stem = "13TeV_zp_mar3_dy_mbins/DY_NLO_inclusive_%s%s.root"  # DY-only
+        # stem = "13TeV_zp_mar3_dy_mbins/DY_NLO_stitched_%s%s_2.root"  # DY-only
+        # stem = "13TeV_zp_mar3_dy_mbins/combined_%s_withPUWeight%s.root"  # m-binned nlo dy
+        # stem = "13TeV_zp_mar11/combined_%s_withPUWeight%s.root"  # updated tes
+        # stem = "13TeV_zp_mar19/combined_%s_withPUWeight%s.root"  # including pdf unc.
+        # stem = "13TeV_zp_74X_apr22/combined_%s_withPUWeight%s.root"  # more precise W factor
+        # stem = "/user_data/zmao/datacard_Apr28/combined_%s_withPUWeight%s.root"  # data-driven W
+        stem = "13TeV_zp_74X_may18/combined_%s_withPUWeight%s.root"  # apr22 et + data-driven W + 1.3 OS/SS
+        # stem = "/user_data/zmao/datacard_7_6_X_2/combined_%s_withPUWeight%s.root"
     if category == "em":
-        # stem = "13TeV_zp_jan21/combined_%s_withPUWeight%s.root"
-        stem = "13TeV_zp_feb5/combined_%s_withPUWeight%s.root"
-
+        # stem = "13TeV_zp_feb5/combined_%s_withPUWeight%s.root"
+        # stem = "13TeV_zp_feb29/combined_%s_withPUWeight%s.root"  # 2.2/fb
+        # stem = "13TeV_zp_mar3_dy_mbins/combined_%s_withPUWeight%s.root"  # m-binned nlo dy
+        # stem = "13TeV_zp_mar19/combined_%s_withPUWeight%s.root"  # including pdf unc.
+        # stem = "13TeV_zp_74X_apr22/combined_%s_withPUWeight%s.root"  # more precise W factor
+        stem = "13TeV_zp_74X_may4/combined_%s_withPUWeight%s.root"  # topPt
+        # stem = "/user_data/zmao/datacard_7_6_X_2/combined_%s_withPUWeight%s.root"
     assert category
-    out = {"":                          stem % (category, ""),
-           "_CMS_scale_j_13TeVUp":      stem % (category, "_jetECUp"),
-           "_CMS_scale_j_13TeVDown":    stem % (category, "_jetECDown"),
-           "_CMS_scale_btag_13TeVUp":   stem % (category, "_bScaleUp"),  # b and light
-           "_CMS_scale_btag_13TeVDown": stem % (category, "_bScaleDown"),
+    out = {"":                             stem % (category, ""),
+           "_CMS_zp_scale_j_13TeVUp":      stem % (category, "_jetECUp"),
+           "_CMS_zp_scale_j_13TeVDown":    stem % (category, "_jetECDown"),
+           "_CMS_zp_scale_btag_13TeVUp":   stem % (category, "_bScaleUp"),  # b and light
+           "_CMS_zp_scale_btag_13TeVDown": stem % (category, "_bScaleDown"),
+           "_CMS_zp_pdf_13TeVUp":         stem % (category, "_pdfUp"),
+           "_CMS_zp_pdf_13TeVDown":       stem % (category, "_pdfDown"),
            }
     if category == "et":
         out.update({
-                "_CMS_scale_W_13TeVUp":   stem % (category, "_1.25"),
-                "_CMS_scale_W_13TeVDown": stem % (category, "_1.05"),
-                "_CMS_scale_t_13TeVUp": stem % (category, "_tauECUp"),
-                "_CMS_scale_t_13TeVDown": stem % (category, "_tauECDown"),
+                # "_CMS_zp_scale_W_13TeVUp":   stem % (category, "_1.25"),
+                # "_CMS_zp_scale_W_13TeVDown": stem % (category, "_1.05"),
+                "_CMS_zp_scale_t_13TeVUp": stem % (category, "_tauECUp"),
+                "_CMS_zp_scale_t_13TeVDown": stem % (category, "_tauECDown"),
+                "_CMS_zp_id_t_13TeVUp": stem % (category, "_tauUncUp"),
+                "_CMS_zp_id_t_13TeVDown": stem % (category, "_tauUncDown"),
+                })
+    if category == "em":
+        out.update({
+                "_CMS_zp_topPt_13TeVUp":   stem % (category, "_topPtUp"),
+                "_CMS_zp_topPt_13TeVDown": stem % (category, ""),  # use nominal for down
                 })
     return out
 
@@ -76,8 +102,13 @@ def procs(variable="", category=""):
     # first character '*' (see procs2)
     out = {"TT": ["TTJets", 'ST_antiTop_tW', 'ST_top_tW', 'ST_t-channel_antiTop_tW', 'ST_t-channel_top_tW'],
            "VV": ['VVTo2L2Nu', 'WWTo1L1Nu2Q', 'WZJets', 'WZTo1L1Nu2Q', 'WZTo1L3Nu', 'WZTo2L2Q', 'ZZTo2L2Q', 'ZZTo4L'],
-           "ZTT": ['DY_M-50-H-0to100', 'DY_M-50-H-100to200', 'DY_M-50-H-200to400', 'DY_M-50-H-400to600', 'DY_M-50-H-600toInf'] +\
-               [], #['DY_M-5to50-H-0to100', 'DY_M-5to50-H-200to400', 'DY_M-5to50-H-400to600', 'DY_M-5to50-H-600toInf'],
+           # "ZTT": ['DY_M-50-H-0to100', 'DY_M-50-H-100to200', 'DY_M-50-H-200to400', 'DY_M-50-H-400to600', 'DY_M-50-H-600toInf'] +\
+           #     [], #['DY_M-5to50-H-0to100', 'DY_M-5to50-H-200to400', 'DY_M-5to50-H-400to600', 'DY_M-5to50-H-600toInf'],
+
+           # "ZTT": ['DY_M-50'],
+
+           # "ZTT": ['DY_M-50to100', 'DY_M-100to200', 'DY_M-200to400', 'DY_M-400to500', 'DY_M-500to700', 'DY_M-700to800', 'DY_M-800to1000', 'DY_M-1000to1500'],
+           "ZTT": ['DY_M-50to200', 'DY_M-200to400', 'DY_M-400to500', 'DY_M-500to700', 'DY_M-700to800', 'DY_M-800to1000', 'DY_M-1000to1500'],
 
            # "W": ['WJets_HT-0to100', 'WJets_HT-100to200', 'WJets_HT-200to400', 'WJets_HT-400to600', 'WJets_HT-600toInf'],
            # "VV": ["WZ", "WW", "ZZ"],
@@ -97,6 +128,22 @@ def procs(variable="", category=""):
            }
     for m in masses:
         out["ggH%d" % m] = ["Zprime_%d" % m]
+
+    # exclusive DYs
+    # out['DY_M-50'] = ['DY_M-50']
+    # hs = ['0', '100', '200', '400', '600', 'Inf']
+    # for i, h in enumerate(hs):
+    #     if i == len(hs) - 1:
+    #         continue
+    #     key = "DY_M-50-H-%sto%s" % (h, hs[1 + i])
+    #     out[key] = [key]
+
+    # ms = [50, 200, 400, 500, 700, 800, 1000, 1500]
+    # for i, m in enumerate(ms):
+    #     if i == len(ms) - 1:
+    #         continue
+    #     key = "DY_M-%dto%d" % (m, ms[1 + i])
+    #     out[key] = [key]
 
     checkProcs(out)
     return out
