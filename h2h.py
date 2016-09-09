@@ -34,12 +34,16 @@ def scale_one(inFileName=""):
     fIn.Close()
 
 
-if __name__ == "__main__":
-
+def go():
+    subdir = ["Brown", "Zp_1pb"][1]
     for ch in ["et", "em", "mt", "tt"][:2]:
-        full = "%s/src/auxiliaries/shapes/Brown/htt_%s.inputs-Zp-13TeV.root" % (os.environ["CMSSW_BASE"], ch)
-        full2 = full.replace("/Brown/", "/Zp_nominal/")
+        full = "%s/src/auxiliaries/shapes/%s/htt_%s.inputs-Zp-13TeV.root" % (os.environ["CMSSW_BASE"], subdir, ch)
+        full2 = full.replace("/%s/" % subdir, "/Zp_nominal/")
         os.system("cp -p %s %s" % (full, full2))
         print full
         print full2
         scale_one(inFileName=full2)
+
+
+if __name__ == "__main__":
+    go()
