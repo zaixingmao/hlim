@@ -41,7 +41,7 @@ cp -p Fitter/emu/htt_em.inputs-Zp-13TeV.root ../auxiliaries/shapes/Zp_1pb
 ```
 
 ####run
-```
+```bash
 cd CMSSW_7_4_7/src/hlim
 cmsenv
 
