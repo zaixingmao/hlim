@@ -46,5 +46,5 @@ cd CMSSW_7_4_7/src/hlim
 cmsenv
 
 ./zp.py
-./lim.py
+./lim.py --limits --verbose
 ```
