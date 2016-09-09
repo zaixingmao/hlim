@@ -38,8 +38,13 @@ git clone https://github.com/gurrola/Fitter.git
 cp -p Fitter/eleTau/htt_et.inputs-Zp-13TeV.root ../auxiliaries/shapes/Zp_1pb
 cp -p Fitter/emu/htt_em.inputs-Zp-13TeV.root ../auxiliaries/shapes/Zp_1pb
 ./h2h.py
+```
 
 ####run
+```
+cd CMSSW_7_4_7/src/hlim
+cmsenv
+
 ./zp.py
 ./lim.py
 ```
