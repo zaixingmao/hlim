@@ -116,6 +116,17 @@ def bandHisto(u, d):
     return out
 
 
+def minimum(l=[]):
+    out = None
+    for h in l:
+        for i in range(1, 1 + h.GetNbinsX()):
+            value = h.GetBinContent(i)
+            if (out is None) or (value < out):
+                if 0.0 < value:
+                    out = value
+    return out
+
+
 def maximum(l=[]):
     out = None
     for h in l:
@@ -254,6 +265,9 @@ def oneDir(canvas, pdf, hNames, d1, d2, subdir, xTitle, band, skip2=False):
         if options.logy:
             r.gPad.SetLogy()
             hFirst.SetMaximum(2.0 * maximum(hList))
+            min = minimum(hList)
+            if 0.0 < min and options.min:
+                hFirst.SetMinimum(0.5 * min)
         else:
             hFirst.SetMinimum(0.0)
             hFirst.SetMaximum(2.0 if options.asRatio else 1.1 * maximum(hList))
@@ -485,6 +499,12 @@ def opts():
 
     parser.add_option("--logy",
                       dest="logy",
+                      default=False,
+                      action="store_true",
+                      )
+
+    parser.add_option("--min",
+                      dest="min",
                       default=False,
                       action="store_true",
                       )
