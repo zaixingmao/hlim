@@ -67,16 +67,27 @@ def common_keys(d1, d2):
     return common, m1, m2
 
 
-def moveStatsBox(h):
+def moveStatsBox(h, lower=False):
+    flows = h.GetBinContent(0) or h.GetBinContent(1 + h.GetNbinsX())
+    if not flows:
+        return
+
     h.SetStats(True)
     r.gPad.Update()
     tps = h.FindObject("stats")
     if tps:
         tps.SetTextColor(h.GetLineColor())
-        tps.SetX1NDC(0.86)
-        tps.SetX2NDC(1.00)
-        tps.SetY1NDC(0.70)
-        tps.SetY2NDC(1.00)
+        tps.SetLineColor(h.GetLineColor())
+        if lower:
+            tps.SetX1NDC(0.80)
+            tps.SetX2NDC(1.00)
+            tps.SetY1NDC(0.80)
+            tps.SetY2NDC(0.90)
+        else:
+            tps.SetX1NDC(0.80)
+            tps.SetX2NDC(1.00)
+            tps.SetY1NDC(0.90)
+            tps.SetY2NDC(1.00)
     return tps
 
 
@@ -269,7 +280,7 @@ def oneDir(canvas, pdf, hNames, d1, d2, subdir, xTitle, band, skip2=False):
         h1.SetMarkerColor(lineColor1)
         draw(h1, "e0histsame" if band else "e0hist", d1[subdir], lineColor1Flip)
         xify(h1)
-        #keep.append(moveStatsBox(h1))
+        keep.append(moveStatsBox(h1))
 
         if band and h2b and not skip2:
             h2b.SetMarkerColor(bandColor2)
@@ -289,9 +300,9 @@ def oneDir(canvas, pdf, hNames, d1, d2, subdir, xTitle, band, skip2=False):
         if not skip2:
             h2.SetLineColor(lineColor2)
             h2.SetMarkerColor(lineColor2)
-            draw(h2, "e0histsame", d2[subdir], lineColor2Flip)
+            draw(h2, "e0histsames", d2[subdir], lineColor2Flip)
             xify(h2)
-            #keep.append(moveStatsBox(h2))
+            keep.append(moveStatsBox(h2, lower=True))
 
         leg = r.TLegend(0.65, 0.6, 0.87, 0.87)
         leg.SetBorderSize(0)
@@ -512,7 +523,7 @@ if __name__ == "__main__":
     ignorePrefixes = ["ggAToZh", "bbH", "ggRadion", "ggGraviton"]
 
     r.gErrorIgnoreLevel = 2000
-    r.gStyle.SetOptStat("rme")
+    r.gStyle.SetOptStat("ou")
     r.gROOT.SetBatch(True)
 
     lineColor1 = r.kBlack
