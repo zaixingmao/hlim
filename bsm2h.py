@@ -1,9 +1,9 @@
 #!/usr/bin/env python
 
-import os
-import sys
+import array, os, sys
 import ROOT as r
 from xs import xs_pb
+import make_root_files
 
 
 def merge(stems=None, inDir=None, outDir=None, hName=None, suffix=None, tag="", dest="", scale_signal_to_pb=False):
@@ -15,6 +15,7 @@ def merge(stems=None, inDir=None, outDir=None, hName=None, suffix=None, tag="", 
                 ("QCDdatadriven", "QCD"),
                 # ("QCD_76XMVAID", "QCD"),
                 # ("QCD_76XMVAID2", "QCD"),
+                ("Zprime", "ggH"),
                 ("ZPrime_", "ggH"),
                 ("ZprimeToTauTau_M_", "ggH"),
                 ("Data", "data_obs"),
@@ -23,12 +24,23 @@ def merge(stems=None, inDir=None, outDir=None, hName=None, suffix=None, tag="", 
                 ("WJets", "W"),
                 ("ZJets", "ZTT"),
 
+                ("tbar{t}", "TT"),
+                ("W+Jets", "W"),
+                ("DY+Jets", "ZTT"),
+
                 ("eleTau_Z", "eleTau_ZTT"),
                 ("emu_Z", "emu_ZTT"),
                 ("eleTau_", ""),
                 ("emu_", ""),
                 ]
+    # bins = []
+    bins = [85, 100, 110, 120, 130, 140, 150, 160, 170, 180, 190, 200, 225, 250, 275, 300, 400, 600, 900]
+    # bins = [85, 100, 110, 120, 130, 140, 150, 160, 170, 180, 190, 200, 225, 250, 275, 300, 400, 600, 900, 1200]
+    # bins = [85, 100, 110, 120, 130, 140, 150, 160, 170, 180, 190, 200, 225, 250, 275, 300, 400, 600, 900, 1200, 1700]
 
+    sumb = None
+    sumb_keys = []
+    procs = []
     for stem in stems:
         inFileName = inDir + stem + suffix
         inFile = r.TFile(inFileName)
@@ -39,10 +51,15 @@ def merge(stems=None, inDir=None, outDir=None, hName=None, suffix=None, tag="", 
         proc = stem
         for old, new in name_map:
             proc = proc.replace(old, new)
+        procs.append(proc)
 
         h = h1.Clone(proc)
         h.SetDirectory(0)
         inFile.Close()
+
+        if bins:
+            h = h.Rebin(len(bins) - 1, "", array.array('d', bins))
+            make_root_files.shift(h)
 
         if scale_signal_to_pb and proc.startswith("ggH"):
             mass = int(proc.replace("ggH", ""))
@@ -54,6 +71,22 @@ def merge(stems=None, inDir=None, outDir=None, hName=None, suffix=None, tag="", 
         outFile.cd(outDir)
         h.Write()
 
+        if proc.startswith("data") or proc.startswith("ggH"):
+            print "excluding %s from sum_b" % proc
+            continue
+        elif sumb:
+            sumb_keys.append(h.GetName())
+            sumb.Add(h)
+        else:
+            sumb = h.Clone("sum_b")
+            sumb_keys.append(h.GetName())
+
+    if sumb:
+        sumb.Write()
+        make_root_files.describe(sumb, " " * 4, sumb_keys)
+        if "data_obs" not in procs:
+            print "WARNING! Using sum_b for data_obs"
+            sumb.Write("data_obs")
     outFile.Close()
 
 
@@ -68,14 +101,13 @@ def mu():
 
 
 def had():
-    stems = ["ZprimeToTauTau_M_%d" % i for i in [500, 1000, 1500, 2000, 2500, 3000]]
-    stems += ["Data", "Diboson", "QCD", # "QCD_76XMVAID2",
-              "TTBar", "WJets", "ZJets"]
-    # d = "Fitter/"
-    d = "Fitter/diTauHad_1or3prong/"
-    hName = "DiJetMass"
-    merge(stems=stems, hName=hName, inDir=d, outDir="tauTau_inclusive", suffix="_diTauSR_ForFitter.root", tag="tt", dest="Zp_nominal")
-    merge(stems=stems, hName=hName, inDir=d, outDir="tauTau_inclusive", suffix="_diTauSR_ForFitter.root", tag="tt", dest="Zp_1pb", scale_signal_to_pb=True)
+    stems = ["Zprime%d" % i for i in [1750, 2000, 2500, 3000, 3500]]
+    stems += ["VV", "QCD", # "Data",
+              "tbar{t}", "W+Jets", "DY+Jets"]
+    d = "Fitter/SR2/"
+    # d = "Fitter/SR2_097/"
+    hName = "NDiTauCombinations/DiTauReconstructableMass"
+    merge(stems=stems, hName=hName, inDir=d, outDir="tauTau_inclusive", suffix=".root", tag="tt", dest="Zp_1pb")
 
 
 def to_h(prefix=""):
@@ -90,7 +122,7 @@ if __name__ == "__main__":
     # m1("eleTau")
     # m1("emu")
     # m2()
-    mu()
+    # mu()
     had()
     # to_h("eleTau")
     # to_h("emu")
