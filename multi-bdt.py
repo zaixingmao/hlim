@@ -176,14 +176,12 @@ def go_zp(suffix="normal.root"):
     for ch, subdir in cfg.categories.iteritems():
         variations = set([key.replace("Up", "").replace("Down", "") for key in cfg.files(ch).keys()])
 
-        bsm = [85, 100, 110, 120, 130, 140, 150, 160, 170, 180, 190, 200, 225, 250, 275, 300, 400, 600, 900]
-        # dy_mbins = [0, 50, 100, 200, 400, 500, 700, 800, 1000, 1500]
-        make_root_file(dirOut, fileOut, variable, ini_bins=bsm, subdir=subdir, catlist=[ch])
+        make_root_file(dirOut, fileOut, variable, ini_bins=cfg.bins(ch), subdir=subdir, catlist=[ch])
         # make_root_file(dirOut, fileOut, variable, ini_bins=(100, 0.0, 1000.0), subdir=subdir, catlist=[ch])  # change flip to False!!
         # make_root_file(dirOut, fileOut, variable, ini_bins=(1000, 0.0, 1000.0), subdir=subdir, minWidth=25.0, threshold=0.20, catlist=[ch])
         root_dest.copy(src=cfg.outFileName(var=variable["var"], cuts=variable["cuts"]), channel=ch, era="13TeV", tag="Zp")
 
-        masses = " ".join([str(x) for x in range(500, 3500, 500)])
+        masses = " ".join([str(x) for x in cfg.masses])
         args = "--file1=Brown/htt_%s.inputs-Zp-13TeV.root --file2='' --masses='%s' --xtitle='%s (GeV)'" % (ch, masses, variable["var"])
         args += " --bands=%s" % ",".join([v.replace("_CMS", "CMS") for v in variations])
 
