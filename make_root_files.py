@@ -293,12 +293,15 @@ def applyFactor(h=None, tfile=None, hName="", unit=False):
     h.Scale(factor)
 
 
-def describe(h, l, keys):
-    print l, h.GetXaxis().GetTitle(), "(sum of %s)" % str(sorted(keys))
-    headers = "bin    x_lo        width    cont  +-   err    (   rel)"
-    print l, headers
-    print l, "-" * len(headers)
-    for iBinX in range(1, 1 + h.GetNbinsX()):
+def describe(h, l, keys, onlyLast=False):
+    if not onlyLast:
+        print l, h.GetXaxis().GetTitle(), "(sum of %s)" % str(sorted(keys))
+        headers = "bin    x_lo        width    cont  +-   err    (   rel)"
+        print l, headers
+        print l, "-" * len(headers)
+
+    nBinsX = h.GetNbinsX()
+    for iBinX in range(nBinsX if onlyLast else 1, 1 + nBinsX):
         x = h.GetBinLowEdge(iBinX)
         c = h.GetBinContent(iBinX)
         e = h.GetBinError(iBinX)
@@ -307,8 +310,10 @@ def describe(h, l, keys):
         if c:
             s += "  (%5.1f%s)" % (100.*e/c, "%")
         print l, s
-    print l, "sum".ljust(12) + " = %9.3f" % h.Integral(0, 1 + h.GetNbinsX())
-    print
+
+    if not onlyLast:
+        print l, "sum".ljust(12) + " = %9.3f" % h.Integral(0, 1 + nBinsX)
+        print
 
 
 def printHeader(var="", cuts=[], tag="", **_):
@@ -394,8 +399,8 @@ def oneTag(category, tag, hs, sKey, sFactor, l):
             h.Write()
             if options.contents:
                 if suffix:
-                    nOld = len(l) + len(h.GetXaxis().GetTitle())
-                    print "%s %s = %9.3f  %s %s" % (l,
+                    describe(h, l, sorted([x.replace(suffix, "") for x in keys]), onlyLast=True)
+                    print "%s %s = %9.3f  %s %s\n" % (l,
                                                     "sum".ljust(12),
                                                     h.Integral(0, 1 + h.GetNbinsX()),
                                                     "(sum of %s)" % str(sorted([x.replace(suffix, "") for x in keys])),
