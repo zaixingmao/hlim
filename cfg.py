@@ -13,8 +13,8 @@ flipped_suffix = "_WAS_FLIPPED"
 
 _suffix = "inclusive"
 categories = {# "tt": "tauTau_%s" % _suffix,
-              "et": "eleTau_%s" % _suffix,
               "mt": "muTau_%s" % _suffix,
+              "et": "eleTau_%s" % _suffix,
               "em": "emu_%s" % _suffix,
               }
 
@@ -36,26 +36,24 @@ def files(category=""):
     assert category
 
     if category in ["mt", "et", "em"]:
-        # stem = "2016_v4/combined_%s_withPUWeight%s.root"
         stem = "2016_v5/combined_%s_withPUWeight%s.root"
 
     out = {"":                             stem % (category, ""),
-           # "_CMS_zp_scale_j_13TeVUp":      stem % (category, "_jetECUp"),
-           # "_CMS_zp_scale_j_13TeVDown":    stem % (category, "_jetECDown"),
-           # "_CMS_zp_scale_btag_13TeVUp":   stem % (category, "_bScaleUp"),  # b and light
-           # "_CMS_zp_scale_btag_13TeVDown": stem % (category, "_bScaleDown"),
+           "_CMS_zp_scale_j_13TeVUp":      stem % (category, "_jetECUp"),
+           "_CMS_zp_scale_j_13TeVDown":    stem % (category, "_jetECDown"),
+           "_CMS_zp_scale_btag_13TeVUp":   stem % (category, "_bScaleUp"),  # b and light
+           "_CMS_zp_scale_btag_13TeVDown": stem % (category, "_bScaleDown"),
+           "_CMS_zp_metu_13TeVUp":         stem % (category, "_metUESUp"),
+           "_CMS_zp_metu_13TeVDown":       stem % (category, "_metUESDown"),
            # "_CMS_zp_pdf_13TeVUp":         stem % (category, "_pdfUp"),
            # "_CMS_zp_pdf_13TeVDown":       stem % (category, "_pdfDown"),
            }
-    if category == "et":
-        out.update({
-                # # "_CMS_zp_scale_W_13TeVUp":   stem % (category, "_1.25"),
-                # # "_CMS_zp_scale_W_13TeVDown": stem % (category, "_1.05"),
-                # "_CMS_zp_scale_t_13TeVUp": stem % (category, "_tauECUp"),
-                # "_CMS_zp_scale_t_13TeVDown": stem % (category, "_tauECDown"),
-                # "_CMS_zp_id_t_13TeVUp": stem % (category, "_tauUncUp"),
-                # "_CMS_zp_id_t_13TeVDown": stem % (category, "_tauUncDown"),
-                })
+    if category in ["et", "mt"]:
+        out.update({"_CMS_zp_scale_t_13TeVUp": stem % (category, "_tauECUp"),
+                    "_CMS_zp_scale_t_13TeVDown": stem % (category, "_tauECDown"),
+                    "_CMS_zp_id_t_13TeVUp": stem % (category, "_tauUncUp"),
+                    "_CMS_zp_id_t_13TeVDown": stem % (category, "_tauUncDown"),
+                    })
     if category == "em":
         out.update({
                 # "_CMS_zp_topPt_13TeVUp":   stem % (category, "_topPtUp"),
