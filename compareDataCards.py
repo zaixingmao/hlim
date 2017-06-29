@@ -371,6 +371,9 @@ def report(l=[], suffixes=["Up", "Down", "_WAS_FLIPPED"], recursive=False):
             if recursive:
                 report([(hs3, "%s (%s)" % (message, suffix))])
 
+        if not hs:
+            continue
+
         m = collections.defaultdict(list)
         print message
         for h in sorted(hs):
