@@ -2,11 +2,12 @@
 
 import array, os, sys
 import ROOT as r
+import cfg
 from xs import xs_pb
 import make_root_files
 
 
-def merge(stems=None, inDir=None, outDir=None, hName=None, suffix=None, tag="", dest="", scale_signal_to_pb=False):
+def merge(stems=None, inDir=None, outDir=None, hName=None, suffix=None, tag="", dest="", scale_signal_to_pb=False, bins=None):
     assert dest
     outFile = r.TFile("%s/src/auxiliaries/shapes/%s/htt_%s.inputs-Zp-13TeV.root" % (os.environ["CMSSW_BASE"], dest, tag), "RECREATE")
     outFile.mkdir(outDir)
@@ -33,10 +34,6 @@ def merge(stems=None, inDir=None, outDir=None, hName=None, suffix=None, tag="", 
                 ("eleTau_", ""),
                 ("emu_", ""),
                 ]
-    # bins = []
-    bins = [85, 100, 110, 120, 130, 140, 150, 160, 170, 180, 190, 200, 225, 250, 275, 300, 400, 600, 900]
-    # bins = [85, 100, 110, 120, 130, 140, 150, 160, 170, 180, 190, 200, 225, 250, 275, 300, 400, 600, 900, 1200]
-    # bins = [85, 100, 110, 120, 130, 140, 150, 160, 170, 180, 190, 200, 225, 250, 275, 300, 400, 600, 900, 1200, 1700]
 
     sumb = None
     sumb_keys = []
@@ -107,7 +104,7 @@ def had():
     d = "Fitter/SR2/"
     # d = "Fitter/SR2_097/"
     hName = "NDiTauCombinations/DiTauReconstructableMass"
-    merge(stems=stems, hName=hName, inDir=d, outDir="tauTau_inclusive", suffix=".root", tag="tt", dest="Zp_1pb")
+    merge(stems=stems, hName=hName, inDir=d, outDir="tauTau_inclusive", suffix=".root", tag="tt", dest="Zp_1pb", bins=cfg.bins("tt"))
 
 
 def to_h(prefix=""):
