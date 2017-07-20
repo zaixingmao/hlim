@@ -25,6 +25,7 @@ def filenames(ch="", masses=[], method="", extra="", seed=None):
             args += " -s %d" % seed
 
         cmd = "combine %s LIMITS/%s/%d/zp_%s_0_13TeV.txt >& /dev/null" % (args, ch, m, ch)
+        # cmd = "combine %s LIMITS/%s/%d/cmb.txt >& /dev/null" % (args, ch, m)
         system(cmd)
         out.append(fName)
     return out
@@ -92,9 +93,9 @@ def plot_lim(ch, d, tag=""):
     masses = sorted(list(masses))
 
     if options.xsRel:
-        null = r.TH2D("", ch + ";M(Z')   [GeV];95% CL upper limit on r", 1, 400.0, 3100.0, 1, 0.01, 100.0)
+        null = r.TH2D("", ch + ";M(Z')   [GeV];95% CL upper limit on r", 1, 400.0, 3100.0, 1, 0.001, 100.0)
     else:
-        null = r.TH2D("", ch + ";M(Z')   [GeV];95% CL upper limit on #sigma(pp#rightarrow Z') x BR(Z'#rightarrow#tau#tau)   [pb]", 1, 400.0, 3100.0, 1, 0.01, 10.0)
+        null = r.TH2D("", ch + ";M(Z')   [GeV];95% CL upper limit on #sigma(pp#rightarrow Z') x BR(Z'#rightarrow#tau#tau)   [pb]", 1, 400.0, 3100.0, 1, 0.001, 10.0)
 
     null.SetStats(False)
     null.Draw()
@@ -109,16 +110,25 @@ def plot_lim(ch, d, tag=""):
     for quantile, mass_dict in sorted(d.iteritems()):
 
         graphs[quantile] = r.TGraph()
+        iSSM = 0
         for i, m in enumerate(masses):
             graphs[quantile].SetPoint(i, m, mass_dict[m])
             if abs(quantile - 0.5) < 0.001:
                 if options.xsRel:
                     ssm.SetPoint(i, m, 1.0)
                 else:
-                    ssm.SetPoint(i, m, xs_pb(m))
+                    xs = xs_pb(m)
+                    if xs is None:
+                        print "WARNING: no xs for mass %d" % m
+                        continue
+                    else:
+                        ssm.SetPoint(iSSM, m, xs)
+                        iSSM += 1
 
         if 0.0 < quantile:
             graphs[quantile].SetLineColor(r.kBlue)
+            graphs[quantile].SetMarkerColor(r.kBlue)
+            graphs[quantile].SetMarkerStyle(20)
         else:
             leg.AddEntry(graphs[quantile], "Observed", "l")
 
@@ -141,9 +151,11 @@ def plot_lim(ch, d, tag=""):
         if abs(quantile - 0.025) < 0.001:
             graphs[quantile].SetLineStyle(3)
 
-        graphs[quantile].Draw("csame")
+        graphs[quantile].Draw("pcsame")
 
     ssm.SetLineColor(r.kRed)
+    ssm.SetMarkerColor(r.kRed)
+    ssm.SetMarkerStyle(20)
     ssm.Draw("same")
 
     leg.Draw()
@@ -213,8 +225,10 @@ def opts():
 if __name__ == "__main__":
     options = opts()
 
-    masses = range(500, 3500, 500)
-    chs = ["et", "em", "mt", "tt"]
+    # masses = range(500, 3500, 500)
+    masses = [500, 750, 1250, 1750, 2000, 2500, 3000, 3500, 4000]
+    chs = ["cmb", "em", "et", "mt", "tt"][2:-1]
+    # chs = ["tt"]
     for ch in chs:
         # for tests
         # postfit = limits(chained(['higgsCombine.Zprime.et.Asymptotic.mH500.root', 'higgsCombine.Zprime.et.Asymptotic.mH1000.root', 'higgsCombine.Zprime.et.Asymptotic.mH1500.root', 'higgsCombine.Zprime.et.Asymptotic.mH2000.root', 'higgsCombine.Zprime.et.Asymptotic.mH2500.root', 'higgsCombine.Zprime.et.Asymptotic.mH3000.root']))
@@ -223,9 +237,9 @@ if __name__ == "__main__":
             postfit = limits(chained(filenames(ch=ch, masses=masses, method="Asymptotic")))
             plot_lim(ch, postfit, tag="limit")
             dump_lim(ch, postfit, tag="limit")
-            dump_lim(ch, limits(chained(filenames(ch=ch, masses=masses, method="Asymptotic", extra="-t -1"))), tag="prelimit")
-            dump_lim(ch, limits(chained(filenames(ch=ch, masses=masses, method="MaxLikelihoodFit"))), tag="r")
-            dump_lim(ch, limits(chained(filenames(ch=ch, masses=masses, method="ProfileLikelihood", extra="--significance"))), tag="signif")
+            # dump_lim(ch, limits(chained(filenames(ch=ch, masses=masses, method="Asymptotic", extra="-t -1"))), tag="prelimit")
+            # dump_lim(ch, limits(chained(filenames(ch=ch, masses=masses, method="MaxLikelihoodFit"))), tag="r")
+            # dump_lim(ch, limits(chained(filenames(ch=ch, masses=masses, method="ProfileLikelihood", extra="--significance"))), tag="signif")
 
         if options.gof:
             dump_lim(ch, limits(chained(filenames(ch=ch, masses=masses[:1], method="GoodnessOfFit", extra="--algo=saturated --fixedSignalStrength=0"))), tag="gof")
