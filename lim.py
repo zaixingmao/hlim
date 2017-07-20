@@ -3,7 +3,8 @@
 import os
 import ROOT as r
 import optparse
-from xs import xs_pb
+xs_label = "#sigma^{NLO 2015}_{SSM}"
+from xs import xs_pb_nlo_2015 as xs_pb
 
 
 def system(cmd):
@@ -135,7 +136,7 @@ def plot_lim(ch, d, tag=""):
         if abs(quantile - 0.5) < 0.001:
             graphs[quantile].SetLineStyle(1)
             leg.AddEntry(graphs[quantile], "expected (post-fit)", "l")
-            leg.AddEntry(ssm, "SSM xs", "l")
+            leg.AddEntry(ssm, xs_label, "l")
 
         if abs(quantile - 0.84) < 0.001:
             graphs[quantile].SetLineStyle(2)
