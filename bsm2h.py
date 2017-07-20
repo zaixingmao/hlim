@@ -3,11 +3,13 @@
 import array, os, sys
 import ROOT as r
 import cfg
-from xs import xs_pb
+from xs import xs_pb_lo_2015 as xs_pb  # FIXME
 import make_root_files
 
 
 def merge(stems=None, inDir=None, outDir=None, hName=None, suffix=None, tag="", dest="", scale_signal_to_pb=False, bins=None):
+    assert not scale_signal_to_pb, "Check 2015 xs"
+
     assert dest
     outFile = r.TFile("%s/src/auxiliaries/shapes/%s/htt_%s.inputs-Zp-13TeV.root" % (os.environ["CMSSW_BASE"], dest, tag), "RECREATE")
     outFile.mkdir(outDir)
