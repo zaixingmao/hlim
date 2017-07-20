@@ -99,10 +99,16 @@ def mu():
 
 def had():
     stems = ["Zprime%d" % i for i in [1750, 2000, 2500, 3000, 3500]]
+    # stems = []
     stems += ["VV", "QCD", # "Data",
               "tbar{t}", "W+Jets", "DY+Jets"]
-    d = "Fitter/SR2/"
+    # d = "Fitter/SR2/"
     # d = "Fitter/SR2_097/"
+    # d = "Fitter/SR_DY_madgraphMLM-pythia8/"  # likely wrong DY cross section
+    # d = "Fitter/RESULTS_1or3prong_bJet_DY_HT_Binned/"
+    d = "Fitter/SR_DY_amcatnloFXFX-pythia8/"
+    # d = "Fitter/CR_C_June/"
+    # d = "Fitter/CR_C_Klass/"
     hName = "NDiTauCombinations/DiTauReconstructableMass"
     merge(stems=stems, hName=hName, inDir=d, outDir="tauTau_inclusive", suffix=".root", tag="tt", dest="Zp_1pb", bins=cfg.bins("tt"))
 
