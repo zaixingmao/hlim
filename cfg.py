@@ -21,6 +21,7 @@ categories = {# "tt": "tauTau_%s" % _suffix,
 
 def bins(ch):
     # dy_mbins = [0, 50, 100, 200, 400, 500, 700, 800, 1000, 1500]
+    m0  = [165, 200, 225, 250, 275, 300, 400, 600, 900]
     m6  = [85, 100, 110, 120, 130, 140, 150, 160, 170, 180, 190, 200, 225, 250, 275, 300, 400, 600, 900]
     m9  = [85, 100, 110, 120, 130, 140, 150, 160, 170, 180, 190, 200, 225, 250, 275, 300, 400, 600, 900, 1200]
     m10 = [85, 100, 110, 120, 130, 140, 150, 160, 170, 180, 190, 200, 225, 250, 275, 300, 400, 600, 800, 1000, 1300]
@@ -28,7 +29,7 @@ def bins(ch):
     return {"em": m12,
             "et": m9,
             "mt": m12,
-            "tt": m6,
+            "tt": m0,
             }.get(ch, m6)
 
 
@@ -36,7 +37,8 @@ def files(category=""):
     assert category
 
     if category in ["mt", "et", "em"]:
-        stem = "2016_v5/combined_%s_withPUWeight%s.root"
+        # stem = "2016_v5/combined_%s_withPUWeight%s.root"  # 20%/TeV
+        stem = "2016_v6/combined_%s_withPUWeight%s.root"  # 5/35%/TeV
 
     out = {"":                             stem % (category, ""),
            "_CMS_zp_scale_j_13TeVUp":      stem % (category, "_jetECUp"),
