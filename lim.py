@@ -3,8 +3,7 @@
 import os
 import ROOT as r
 import optparse
-xs_label = "#sigma^{NLO 2015}_{SSM}"
-from xs import xs_pb_nlo_2015 as xs_pb
+import xs
 
 
 def system(cmd):
@@ -105,26 +104,37 @@ def plot_lim(ch, d, tag=""):
     leg.SetBorderSize(0)
     leg.SetFillStyle(0)
 
-    ssm = r.TGraph()
+    ssm15 = r.TGraph()
+    ssm16 = r.TGraph()
     graphs = {}
 
     for quantile, mass_dict in sorted(d.iteritems()):
 
         graphs[quantile] = r.TGraph()
-        iSSM = 0
+        iSSM15 = 0
+        iSSM16 = 0
         for i, m in enumerate(masses):
             graphs[quantile].SetPoint(i, m, mass_dict[m])
             if abs(quantile - 0.5) < 0.001:
                 if options.xsRel:
-                    ssm.SetPoint(i, m, 1.0)
+                    ssm15.SetPoint(i, m, 1.0)
                 else:
-                    xs = xs_pb(m)
-                    if xs is None:
-                        print "WARNING: no xs for mass %d" % m
-                        continue
+                    xs15 = xs.pb_nlo(m, 2015)
+                    xs16 = xs.pb_nlo(m, 2016)
+                    if xs15 is not None:
+                        ssm15.SetPoint(iSSM15, m, xs15)
+                        iSSM15 += 1
                     else:
-                        ssm.SetPoint(iSSM, m, xs)
-                        iSSM += 1
+                        print "WARNING: no xs15 for mass %d" % m
+
+                    if xs16 is not None:
+                        ssm16.SetPoint(iSSM16, m, xs16)
+                        iSSM16 += 1
+                    else:
+                        print "WARNING: no xs16 for mass %d" % m
+
+                    if not any([xs15, xs16]):
+                        continue
 
         if 0.0 < quantile:
             graphs[quantile].SetLineColor(r.kBlue)
@@ -136,7 +146,8 @@ def plot_lim(ch, d, tag=""):
         if abs(quantile - 0.5) < 0.001:
             graphs[quantile].SetLineStyle(1)
             leg.AddEntry(graphs[quantile], "expected (post-fit)", "l")
-            leg.AddEntry(ssm, xs_label, "l")
+            leg.AddEntry(ssm15, "xs (SSM, NLO 2015)", "l")
+            leg.AddEntry(ssm16, "xs (SSM, NLO 2016)", "l")
 
         if abs(quantile - 0.84) < 0.001:
             graphs[quantile].SetLineStyle(2)
@@ -154,10 +165,15 @@ def plot_lim(ch, d, tag=""):
 
         graphs[quantile].Draw("pcsame")
 
-    ssm.SetLineColor(r.kRed)
-    ssm.SetMarkerColor(r.kRed)
-    ssm.SetMarkerStyle(20)
-    ssm.Draw("same")
+    ssm15.SetLineColor(r.kRed)
+    ssm15.SetMarkerColor(r.kRed)
+    ssm15.SetMarkerStyle(20)
+    ssm15.Draw("same")
+
+    ssm16.SetLineColor(r.kMagenta)
+    ssm16.SetMarkerColor(r.kMagenta)
+    ssm16.SetMarkerStyle(20)
+    ssm16.Draw("same")
 
     leg.Draw()
     r.gPad.SetLogy()
@@ -228,8 +244,8 @@ if __name__ == "__main__":
 
     # masses = range(500, 3500, 500)
     masses = [500, 750, 1250, 1750, 2000, 2500, 3000, 3500, 4000]
-    chs = ["cmb", "em", "et", "mt", "tt"][2:-1]
-    # chs = ["tt"]
+    # chs = ["cmb", "em", "et", "mt", "tt"][2:-1]
+    chs = ["tt"]
     for ch in chs:
         # for tests
         # postfit = limits(chained(['higgsCombine.Zprime.et.Asymptotic.mH500.root', 'higgsCombine.Zprime.et.Asymptotic.mH1000.root', 'higgsCombine.Zprime.et.Asymptotic.mH1500.root', 'higgsCombine.Zprime.et.Asymptotic.mH2000.root', 'higgsCombine.Zprime.et.Asymptotic.mH2500.root', 'higgsCombine.Zprime.et.Asymptotic.mH3000.root']))
