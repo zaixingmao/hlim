@@ -2,8 +2,7 @@
 
 import array, os, sys
 import ROOT as r
-import cfg
-from xs import xs_pb_lo_2015 as xs_pb  # FIXME
+import cfg, xs
 import make_root_files
 
 
@@ -61,6 +60,7 @@ def merge(stems=None, inDir=None, outDir=None, hName=None, suffix=None, tag="", 
             make_root_files.shift(h)
 
         if scale_signal_to_pb and proc.startswith("ggH"):
+            print "FIXME: resolve 2015 vs. 2016"
             mass = int(proc.replace("ggH", ""))
             if xs_pb(mass):
                 h.Scale(1.0 / xs_pb(mass))  # some xs_pb --> 1 pb
