@@ -108,7 +108,8 @@ def had():
     # d = "Fitter/SR2_097/"
     # d = "Fitter/SR_DY_madgraphMLM-pythia8/"  # likely wrong DY cross section
     # d = "Fitter/RESULTS_1or3prong_bJet_DY_HT_Binned/"
-    d = "Fitter/SR_DY_amcatnloFXFX-pythia8/"
+    d = "Fitter/SR097_DY_amcatnloFXFX-pythia8/"
+    # d = "Fitter/SR095_DY_amcatnloFXFX-pythia8/"
     # d = "Fitter/CR_C_June/"
     # d = "Fitter/CR_C_Klass/"
     hName = "NDiTauCombinations/DiTauReconstructableMass"
