@@ -184,7 +184,11 @@ def go_zp(suffix="normal.root"):
         masses = " ".join([str(x) for x in cfg.masses])
         args = "--file1=Brown/htt_%s.inputs-Zp-13TeV.root --file2='' --masses='%s' --xtitle='%s (GeV)'" % (ch, masses, variable["var"])
         args += " --bands=%s" % ",".join([v.replace("_CMS", "CMS") for v in variations])
+        compare(args, variations, variable["var"], ch)
 
+
+def compare(args, variations, var, ch):
+    if True:
         for extra_args, suffix in [("--logy", ""),
                                    ("--logy --raw-yields", "_raw"),
                                    ("--as-ratio --raw-yields", "_div"),
@@ -195,7 +199,7 @@ def go_zp(suffix="normal.root"):
 
             for prefix in variations:
                 prefix2 = compareDataCards.shortened(prefix)
-                os.system("cp -p comparison_%s%s.pdf ~/public_html/%s%s_%s%s.pdf" % (variable["var"], prefix2, variable["var"], prefix2, ch, suffix))
+                os.system("cp -p comparison_%s%s.pdf ~/public_html/%s%s_%s%s.pdf" % (var, prefix2, var, prefix2, ch, suffix))
 
 
 def opts():
