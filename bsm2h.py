@@ -6,13 +6,18 @@ import cfg, xs
 import make_root_files
 
 
-def merge(stems=None, inDir=None, outDir=None, hName=None, suffix=None, tag="", dest="", scale_signal_to_pb=False, bins=None):
-    assert not scale_signal_to_pb, "Check 2015 xs"
-
+def merge(stems=None, inDirs=None, outDir=None, hName=None, suffix=None, tag="", dest="", bins=None):
     assert dest
     outFile = r.TFile("%s/src/auxiliaries/shapes/%s/htt_%s.inputs-Zp-13TeV.root" % (os.environ["CMSSW_BASE"], dest, tag), "RECREATE")
     outFile.mkdir(outDir)
 
+    for (key, inDir) in inDirs.iteritems():
+        oneKey(key, inDir, stems, suffix, hName, bins, outFile, outDir)
+
+    outFile.Close()
+
+
+def oneKey(key, inDir, stems, suffix, hName, bins, outFile, outDir):
     name_map = [("QCD_all", "QCD"),
                 ("QCDdatadriven", "QCD"),
                 # ("QCD_76XMVAID", "QCD"),
@@ -51,7 +56,7 @@ def merge(stems=None, inDir=None, outDir=None, hName=None, suffix=None, tag="", 
             proc = proc.replace(old, new)
         procs.append(proc)
 
-        h = h1.Clone(proc)
+        h = h1.Clone(proc + key)
         h.SetDirectory(0)
         inFile.Close()
 
@@ -59,6 +64,7 @@ def merge(stems=None, inDir=None, outDir=None, hName=None, suffix=None, tag="", 
             h = h.Rebin(len(bins) - 1, "", array.array('d', bins))
             make_root_files.shift(h)
 
+        scale_signal_to_pb = False
         if scale_signal_to_pb and proc.startswith("ggH"):
             print "FIXME: resolve 2015 vs. 2016"
             mass = int(proc.replace("ggH", ""))
@@ -86,7 +92,6 @@ def merge(stems=None, inDir=None, outDir=None, hName=None, suffix=None, tag="", 
         if "data_obs" not in procs:
             print "WARNING! Using sum_b for data_obs"
             sumb.Write("data_obs")
-    outFile.Close()
 
 
 def mu():
@@ -106,14 +111,21 @@ def had():
               "tbar{t}", "W+Jets", "DY+Jets"]
     # d = "Fitter/SR2/"
     # d = "Fitter/SR2_097/"
-    # d = "Fitter/SR_DY_madgraphMLM-pythia8/"  # likely wrong DY cross section
     # d = "Fitter/RESULTS_1or3prong_bJet_DY_HT_Binned/"
-    d = "Fitter/SR097_DY_amcatnloFXFX-pythia8/"
-    # d = "Fitter/SR095_DY_amcatnloFXFX-pythia8/"
     # d = "Fitter/CR_C_June/"
+
+    # d = "Fitter/SR_DY_madgraphMLM-pythia8/"  # likely wrong DY cross section
+    # d = "Fitter/SR095_DY_amcatnloFXFX-pythia8/"
     # d = "Fitter/CR_C_Klass/"
+
+    b = "Fitter/SR097_DY_amcatnloFXFX"
+    d = {"": "%s-pythia8/" % b,
+         "_CMS_zp_id_t_13TeVUp": "%s-tauIDup/" % b,
+         "_CMS_zp_id_t_13TeVDown": "%s-tauIDdown/" % b,
+         }
+
     hName = "NDiTauCombinations/DiTauReconstructableMass"
-    merge(stems=stems, hName=hName, inDir=d, outDir="tauTau_inclusive", suffix=".root", tag="tt", dest="Zp_1pb", bins=cfg.bins("tt"))
+    merge(stems=stems, hName=hName, inDirs=d, outDir="tauTau_inclusive", suffix=".root", tag="tt", dest="Zp_1pb", bins=cfg.bins("tt"))
 
 
 def to_h(prefix=""):
