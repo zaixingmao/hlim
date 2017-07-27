@@ -21,15 +21,15 @@ categories = {# "tt": "tauTau_%s" % _suffix,
 
 def bins(ch):
     # dy_mbins = [0, 50, 100, 200, 400, 500, 700, 800, 1000, 1500]
-    m0  = [165, 200, 225, 250, 275, 300, 400, 600, 900]
-    m6  = [85, 100, 110, 120, 130, 140, 150, 160, 170, 180, 190, 200, 225, 250, 275, 300, 400, 600, 900]
-    m9  = [85, 100, 110, 120, 130, 140, 150, 160, 170, 180, 190, 200, 225, 250, 275, 300, 400, 600, 900, 1200]
-    m10 = [85, 100, 110, 120, 130, 140, 150, 160, 170, 180, 190, 200, 225, 250, 275, 300, 400, 600, 800, 1000, 1300]
-    m12 = [85, 100, 110, 120, 130, 140, 150, 160, 170, 180, 190, 200, 225, 250, 275, 300, 400, 600, 900, 1200, 1700]
+    m0  = [85, 100, 110, 120, 130, 140, 150, 160, 170, 180, 190, 200, 225, 250, 275, 300, 400, 600, 900]
+    m6  = [165, 200, 225, 250, 275, 300, 400, 600, 900]
+    # m9  = [90, 125, 150, 175, 200, 250, 300, 400, 600, 900, 1200]
+    m9  = m0 + [900, 1200]
+    m12 = m9 + [1700]
     return {"em": m12,
             "et": m9,
             "mt": m12,
-            "tt": m0,
+            "tt": m6,
             }.get(ch, m6)
 
 
@@ -51,11 +51,12 @@ def files(category=""):
            # "_CMS_zp_pdf_13TeVDown":       stem % (category, "_pdfDown"),
            }
     if category in ["et", "mt"]:
-        out.update({"_CMS_zp_scale_t_13TeVUp": stem % (category, "_tauECUp"),
-                    "_CMS_zp_scale_t_13TeVDown": stem % (category, "_tauECDown"),
-                    "_CMS_zp_id_t_13TeVUp": stem % (category, "_tauUncUp"),
-                    "_CMS_zp_id_t_13TeVDown": stem % (category, "_tauUncDown"),
-                    })
+        out.update({
+                "_CMS_zp_scale_t_13TeVUp": stem % (category, "_tauECUp"),
+                "_CMS_zp_scale_t_13TeVDown": stem % (category, "_tauECDown"),
+                "_CMS_zp_id_t_13TeVUp": stem % (category, "_tauUncUp"),
+                "_CMS_zp_id_t_13TeVDown": stem % (category, "_tauUncDown"),
+                })
     if category == "em":
         out.update({
                 # "_CMS_zp_topPt_13TeVUp":   stem % (category, "_topPtUp"),
