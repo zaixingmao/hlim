@@ -3,7 +3,7 @@
 import array, os, sys
 import ROOT as r
 import cfg, xs
-import make_root_files
+import make_root_files, multi_bdt
 
 
 def merge(stems=None, inDirs=None, outDir=None, hName=None, suffix=None, tag="", dest="", bins=None):
@@ -15,6 +15,17 @@ def merge(stems=None, inDirs=None, outDir=None, hName=None, suffix=None, tag="",
         oneKey(key, inDir, stems, suffix, hName, bins, outFile, outDir)
 
     outFile.Close()
+
+    variations = set([key.replace("Up", "").replace("Down", "") for key in inDirs.keys()])
+    var = hName.replace("/", "_")
+    ch = tag
+    masses = []
+    for stem in stems:
+        if stem.startswith("Zprime"):
+            masses.append(stem.replace("Zprime", ""))
+    args = "--file1=Zp_1pb/htt_%s.inputs-Zp-13TeV.root --file2='' --masses='%s' --xtitle='%s (GeV)'" % (ch, " ".join(masses), var)
+    args += " --bands=%s" % ",".join([v.replace("_CMS", "CMS") for v in variations])
+    multi_bdt.compare(args, variations, var, ch)
 
 
 def oneKey(key, inDir, stems, suffix, hName, bins, outFile, outDir):
@@ -88,7 +99,13 @@ def oneKey(key, inDir, stems, suffix, hName, bins, outFile, outDir):
 
     if sumb:
         sumb.Write()
-        make_root_files.describe(sumb, " " * 4, sumb_keys)
+        l = " " * 4
+        suffix = key
+        if suffix:
+            make_root_files.describe(sumb, l, sorted([x.replace(suffix, "") for x in sumb_keys]), onlyLast=True)
+        else:
+            make_root_files.describe(sumb, l, sumb_keys)
+
         if "data_obs" not in procs:
             print "WARNING! Using sum_b for data_obs"
             sumb.Write("data_obs")
