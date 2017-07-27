@@ -34,7 +34,7 @@ git clone https://github.com/gurrola/Fitter.git
 
 # em/et
 ## emacs cfg.py
-## ./multi-bdt.py
+## ./multi_bdt.py
 cp -p Fitter/eleTau/htt_et.inputs-Zp-13TeV.root ../auxiliaries/shapes/Zp_1pb
 cp -p Fitter/emu/htt_em.inputs-Zp-13TeV.root ../auxiliaries/shapes/Zp_1pb
 ./h2h.py
