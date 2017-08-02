@@ -6,12 +6,12 @@ import cfg, xs
 import make_root_files, multi_bdt
 
 
-def merge(stems=None, inDirs=None, outDir=None, hName=None, suffix=None, tag="", dest="", bins=None):
+def merge(stems=None, inDir=None, subDirs=None, outDir=None, suffix=None, tag="", dest="", bins=None):
     assert dest
     outFile = r.TFile("%s/src/auxiliaries/shapes/%s/htt_%s.inputs-Zp-13TeV.root" % (os.environ["CMSSW_BASE"], dest, tag), "RECREATE")
     outFile.mkdir(outDir)
 
-    for (key, inDir) in inDirs.iteritems():
+    for (key, hName) in subDirs.iteritems():
         oneKey(key, inDir, stems, suffix, hName, bins, outFile, outDir)
 
     outFile.Close()
@@ -58,6 +58,9 @@ def oneKey(key, inDir, stems, suffix, hName, bins, outFile, outDir):
     for stem in stems:
         inFileName = inDir + stem + suffix
         inFile = r.TFile(inFileName)
+        if inFile.IsZombie():
+            sys.exit("")
+
         h1 = inFile.Get(hName)
         if not h1:
             sys.exit("%s:%s not found" % (inFileName, hName))
@@ -134,15 +137,15 @@ def had():
     # d = "Fitter/SR_DY_madgraphMLM-pythia8/"  # likely wrong DY cross section
     # d = "Fitter/SR095_DY_amcatnloFXFX-pythia8/"
     # d = "Fitter/CR_C_Klass/"
+    # d = "Fitter/SR097_DY_amcatnloFXFX-pythia8/"
 
-    b = "Fitter/SR097_DY_amcatnloFXFX"
-    d = {"": "%s-pythia8/" % b,
-         "_CMS_zp_id_t_13TeVUp": "%s-tauIDup/" % b,
-         "_CMS_zp_id_t_13TeVDown": "%s-tauIDdown/" % b,
-         }
+    d = "Fitter/SR097_DY_amcatnloFXFX-fixedUnc/"
+    variations = {"": "NDiTauCombinations/DiTauReconstructableMass",
+                  "_CMS_zp_id_t_13TeVUp": "Tau_weight_Up/DiTauReconstructableMass",
+                  "_CMS_zp_id_t_13TeVDown": "Tau_weight_Down/DiTauReconstructableMass",
+                  }
 
-    hName = "NDiTauCombinations/DiTauReconstructableMass"
-    merge(stems=stems, hName=hName, inDirs=d, outDir="tauTau_inclusive", suffix=".root", tag="tt", dest="Zp_1pb", bins=cfg.bins("tt"))
+    merge(stems=stems, inDir=d, subDirs=variations, outDir="tauTau_inclusive", suffix=".root", tag="tt", dest="Zp_1pb", bins=cfg.bins("tt"))
 
 
 def to_h(prefix=""):
