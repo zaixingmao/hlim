@@ -16,8 +16,13 @@ def merge(stems=None, inDir=None, subDirs=None, outDir=None, suffix=None, tag=""
 
     outFile.Close()
 
-    variations = set([key.replace("Up", "").replace("Down", "") for key in inDirs.keys()])
-    var = hName.replace("/", "_")
+    variations = set()
+    variables = set()
+    for key, value in subDirs.iteritems():
+        variations.add(key.replace("Up", "").replace("Down", ""))
+        variables.add(value[1 + value.find("/"):])
+    assert len(variables) == 1, variables
+    var = variables.pop()
     ch = tag
     masses = []
     for stem in stems:
