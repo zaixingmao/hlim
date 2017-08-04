@@ -6,19 +6,19 @@ import cfg, xs
 import make_root_files, multi_bdt
 
 
-def merge(stems=None, inDir=None, subDirs=None, outDir=None, suffix=None, tag="", dest="", bins=None):
+def merge(stems=None, dirs=None, outDir=None, suffix=None, tag="", dest="", bins=None):
     assert dest
     outFile = r.TFile("%s/src/auxiliaries/shapes/%s/htt_%s.inputs-Zp-13TeV.root" % (os.environ["CMSSW_BASE"], dest, tag), "RECREATE")
     outFile.mkdir(outDir)
 
-    for (key, hName) in subDirs.iteritems():
+    for key, (inDir, hName) in dirs.iteritems():
         oneKey(key, inDir, stems, suffix, hName, bins, outFile, outDir)
 
     outFile.Close()
 
     variations = set()
     variables = set()
-    for key, value in subDirs.iteritems():
+    for key, (_, value) in dirs.iteritems():
         variations.add(key.replace("Up", "").replace("Down", ""))
         variables.add(value[1 + value.find("/"):])
     assert len(variables) == 1, variables
@@ -144,13 +144,14 @@ def had():
     # d = "Fitter/CR_C_Klass/"
     # d = "Fitter/SR097_DY_amcatnloFXFX-pythia8/"
 
-    d = "Fitter/SR097_DY_amcatnloFXFX-fixedUnc/"
-    variations = {"": "NDiTauCombinations/DiTauReconstructableMass",
-                  "_CMS_zp_id_t_13TeVUp": "Tau_weight_Up/DiTauReconstructableMass",
-                  "_CMS_zp_id_t_13TeVDown": "Tau_weight_Down/DiTauReconstructableMass",
+    d = "Fitter/SR095_DY_amcatnloFXFX-fixedUnc"
+    h = "DiTauReconstructableMass"
+    variations = {"": ("%s/SR_nominal/" % d, "NDiTauCombinations/%s" % h),
+                  "_CMS_zp_id_t_13TeVUp": ("%s/SR_Up/" % d, "Tau_weight_Up/%s" % h),
+                  "_CMS_zp_id_t_13TeVDown": ("%s/SR_Down/" % d, "Tau_weight_Down/%s" % h),
                   }
 
-    merge(stems=stems, inDir=d, subDirs=variations, outDir="tauTau_inclusive", suffix=".root", tag="tt", dest="Zp_1pb", bins=cfg.bins("tt"))
+    merge(stems=stems, dirs=variations, outDir="tauTau_inclusive", suffix=".root", tag="tt", dest="Zp_1pb", bins=cfg.bins("tt"))
 
 
 def to_h(prefix=""):
