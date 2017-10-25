@@ -138,24 +138,6 @@ def had():
     # stems = []
     stems += ["VV", "QCD", # "Data",
               "tbar{t}", "W+Jets", "DY+Jets"]
-    # d = "Fitter/SR2/"
-    # d = "Fitter/SR2_097/"
-    # d = "Fitter/RESULTS_1or3prong_bJet_DY_HT_Binned/"
-    # d = "Fitter/CR_C_June/"
-
-    # d = "Fitter/SR_DY_madgraphMLM-pythia8/"  # likely wrong DY cross section
-    # d = "Fitter/SR095_DY_amcatnloFXFX-pythia8/"
-    # d = "Fitter/CR_C_Klass/"
-    # d = "Fitter/SR097_DY_amcatnloFXFX-pythia8/"
-    # d = "Fitter/SR095_DY_amcatnloFXFX-fixedUnc"
-
-    # neglects negative contribution to QCD
-    # d = "Fitter/SR095_DY_amcatnloFXFX-fixedUnc"
-    # h = "DiTauReconstructableMass"
-    # variations = {"": ("%s/SR_nominal/" % d, "NDiTauCombinations/%s" % h),
-    #               "_CMS_zp_id_t_13TeVUp": ("%s/SR_Up/" % d, "Tau_weight_Up/%s" % h),
-    #               "_CMS_zp_id_t_13TeVDown": ("%s/SR_Down/" % d, "Tau_weight_Down/%s" % h),
-    #               }
 
     # Aug. 11 (files) / Aug. 15 (binning)
     # d = "Fitter/SR095-fixedQCD/CR_C"  # SS
