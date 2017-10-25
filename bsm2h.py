@@ -81,7 +81,11 @@ def oneKey(key, inDir, stems, suffix, hName, bins, outFile, outDir):
 
         if bins:
             h = h.Rebin(len(bins) - 1, "", array.array('d', bins))
+            # if h.GetName() == "QCD":
+            #     h.Print("all")
             make_root_files.shift(h)
+            # if h.GetName() == "QCD":
+            #     h.Print("all")
 
         scale_signal_to_pb = False
         if scale_signal_to_pb and proc.startswith("ggH"):
@@ -143,13 +147,40 @@ def had():
     # d = "Fitter/SR095_DY_amcatnloFXFX-pythia8/"
     # d = "Fitter/CR_C_Klass/"
     # d = "Fitter/SR097_DY_amcatnloFXFX-pythia8/"
+    # d = "Fitter/SR095_DY_amcatnloFXFX-fixedUnc"
 
-    d = "Fitter/SR095_DY_amcatnloFXFX-fixedUnc"
+    # neglects negative contribution to QCD
+    # d = "Fitter/SR095_DY_amcatnloFXFX-fixedUnc"
+    # h = "DiTauReconstructableMass"
+    # variations = {"": ("%s/SR_nominal/" % d, "NDiTauCombinations/%s" % h),
+    #               "_CMS_zp_id_t_13TeVUp": ("%s/SR_Up/" % d, "Tau_weight_Up/%s" % h),
+    #               "_CMS_zp_id_t_13TeVDown": ("%s/SR_Down/" % d, "Tau_weight_Down/%s" % h),
+    #               }
+
+    # Aug. 11 (files) / Aug. 15 (binning)
+    # d = "Fitter/SR095-fixedQCD/CR_C"  # SS
+    # d = "Fitter/SR095-fixedQCD"  # OS
+    # h = "DiTauReconstructableMass"
+    # variations = {"": ("%s/" % d, "NDiTauCombinations/%s" % h),
+    #               # "_CMS_zp_id_t_13TeVUp": ("%s/" % d, "Tau_weight_Up/%s" % h),
+    #               # "_CMS_zp_id_t_13TeVDown": ("%s/" % d, "Tau_weight_Down/%s" % h),
+    #               }
+
+    # October SR
+    d = "Fitter/24-Oct-newSubCode"
     h = "DiTauReconstructableMass"
     variations = {"": ("%s/SR_nominal/" % d, "NDiTauCombinations/%s" % h),
-                  "_CMS_zp_id_t_13TeVUp": ("%s/SR_Up/" % d, "Tau_weight_Up/%s" % h),
-                  "_CMS_zp_id_t_13TeVDown": ("%s/SR_Down/" % d, "Tau_weight_Down/%s" % h),
+                  "_CMS_zp_id_t_13TeVUp": ("%s/SR_up/" % d, "NDiTauCombinations/%s" % h),
+                  "_CMS_zp_id_t_13TeVDown": ("%s/SR_down/" % d, "NDiTauCombinations/%s" % h),
                   }
+
+    # October CR
+    # d = "Fitter/24-Oct-newSubCode"
+    # h = "DiTauReconstructableMass"
+    # variations = {"": ("%s/CR_C_nominal/" % d, "NDiTauCombinations/%s" % h),
+    #               "_CMS_zp_id_t_13TeVUp": ("%s/CR_C_up/" % d, "NDiTauCombinations/%s" % h),
+    #               "_CMS_zp_id_t_13TeVDown": ("%s/CR_C_down/" % d, "NDiTauCombinations/%s" % h),
+    #               }
 
     merge(stems=stems, dirs=variations, outDir="tauTau_inclusive", suffix=".root", tag="tt", dest="Zp_1pb", bins=cfg.bins("tt"))
 
