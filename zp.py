@@ -2,6 +2,7 @@
 
 import CombineHarvester.CombineTools.ch as ch
 import os
+import cfg
 
 
 def add_processes_and_observations(cb, prefix="zp"):
@@ -185,7 +186,7 @@ if __name__ == "__main__":
     input_dirs = {'et' : input_dir,
                   'em' : input_dir,
                   'mt' : input_dir,
-                  'tt' : input_dir,
+                  # 'tt' : input_dir,
                   }
     chns = sorted(input_dirs.keys())
 
@@ -212,6 +213,5 @@ if __name__ == "__main__":
             ],
         }
 
-    # masses = ch.ValsFromRange('500,750,1250,1750,2000,2500,3000,3500,4000')
-    masses = ch.ValsFromRange('1750,2000,2500,3000,3500')
+    masses = ch.ValsFromRange(",".join(["%d" % m for m in cfg.masses]))
     go(cb)
