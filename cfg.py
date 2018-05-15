@@ -7,6 +7,8 @@ lumiUnit = "/pb"
 lumi = 35.9e3
 
 masses = [500, 750, 1000, 1250, 1500, 1750, 2000, 2500, 3000, 3500, 4000]
+# masses = [500, 750, 1000, 1500, 2000, 2500, 3000, 3500, 4000]
+# masses = [1000, 2000]
 
 substring_signal_example = "ggH%d" % masses[0]
 flipped_suffix = "_WAS_FLIPPED"
