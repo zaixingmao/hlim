@@ -4,6 +4,7 @@ import os
 import ROOT as r
 import optparse
 import xs
+import cfg
 
 
 def system(cmd):
@@ -100,7 +101,7 @@ def plot_lim(ch, d, tag=""):
     null.SetStats(False)
     null.Draw()
 
-    leg = r.TLegend(0.5, 0.6, 0.8, 0.8)
+    leg = r.TLegend(0.5, 0.6, 0.85, 0.85)
     leg.SetBorderSize(0)
     leg.SetFillStyle(0)
 
@@ -146,8 +147,8 @@ def plot_lim(ch, d, tag=""):
         if abs(quantile - 0.5) < 0.001:
             graphs[quantile].SetLineStyle(1)
             leg.AddEntry(graphs[quantile], "expected (post-fit)", "l")
-            leg.AddEntry(ssm15, "xs (SSM, NLO 2015)", "l")
-            leg.AddEntry(ssm16, "xs (SSM, NLO 2016)", "l")
+            # leg.AddEntry(ssm15, "xs (SSM, NLO 2015)", "l")
+            leg.AddEntry(ssm16, "xs (SSM, NLO)", "l")
 
         if abs(quantile - 0.84) < 0.001:
             graphs[quantile].SetLineStyle(2)
@@ -165,10 +166,10 @@ def plot_lim(ch, d, tag=""):
 
         graphs[quantile].Draw("pcsame")
 
-    ssm15.SetLineColor(r.kRed)
-    ssm15.SetMarkerColor(r.kRed)
-    ssm15.SetMarkerStyle(20)
-    ssm15.Draw("same")
+    # ssm15.SetLineColor(r.kRed)
+    # ssm15.SetMarkerColor(r.kRed)
+    # ssm15.SetMarkerStyle(20)
+    # ssm15.Draw("same")
 
     ssm16.SetLineColor(r.kMagenta)
     ssm16.SetMarkerColor(r.kMagenta)
@@ -243,9 +244,11 @@ if __name__ == "__main__":
     options = opts()
 
     # masses = range(500, 3500, 500)
-    masses = [500, 750, 1250, 1750, 2000, 2500, 3000, 3500, 4000]
-    # chs = ["cmb", "em", "et", "mt", "tt"][2:-1]
+    # masses = [500, 750, 1250, 1750, 2000, 2500, 3000, 3500, 4000]
+    masses = cfg.masses
+    # chs = ["cmb", "em", "et", "mt", "tt"][1:-1]
     chs = ["tt"]
+    # chs = ["mt"]
     for ch in chs:
         # for tests
         # postfit = limits(chained(['higgsCombine.Zprime.et.Asymptotic.mH500.root', 'higgsCombine.Zprime.et.Asymptotic.mH1000.root', 'higgsCombine.Zprime.et.Asymptotic.mH1500.root', 'higgsCombine.Zprime.et.Asymptotic.mH2000.root', 'higgsCombine.Zprime.et.Asymptotic.mH2500.root', 'higgsCombine.Zprime.et.Asymptotic.mH3000.root']))
