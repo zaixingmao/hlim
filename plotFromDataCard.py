@@ -52,9 +52,9 @@ def getFinalStateLatex(FS):
 def getZPrimeXS(mass):
     value = pb_nlo(int(mass), 2016)
     scale = { '500': 1,
-             '1000': 10,
-             '1500': 10,
-             '2000': 100,
+             '1000': 1,
+             '1500': 1,
+             '2000': 10,
              '2500': 100,
              '3000': 1000,
              '3500': 1000,
@@ -311,7 +311,7 @@ def setLegend(position, histDict, option = 'width', mass = '500'):
     if options.showIntegral:
         histList.append((histDict['ggH%s' %mass], '%sZPrime_%s (%.2f)' %(multiplication, mass, integral), 'l'))
     else:
-        histList.append((histDict['ggH%s' %mass], "%sZ'(%s)#rightarrow #tau#tau" %(multiplication, mass), 'l'))
+        histList.append((histDict['ggH%s' %mass], "%sZ'(%s)#rightarrow#tau#tau" %(multiplication, mass), 'l'))
 
     return setMyLegend(position, histList)
 
@@ -488,8 +488,8 @@ def plot(inputFile):
     fakeHist.Draw()
     # fakeHist.SetMinimum(0.49)
     # fakeHist.SetMaximum(1.49)
-    fakeHist.SetMinimum(0.0)
-    fakeHist.SetMaximum(2.0)
+    fakeHist.SetMinimum(0.01)
+    fakeHist.SetMaximum(1.99)
 
     line = r.TLine(histos["data_obs"].GetBinLowEdge(1), 1.0, histos["data_obs"].GetBinLowEdge(histos["data_obs"].GetNbinsX()+1), 1)
     line.Draw('same')
