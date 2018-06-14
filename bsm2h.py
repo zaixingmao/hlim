@@ -6,13 +6,13 @@ import cfg, xs
 import make_root_files, multi_bdt
 
 
-def merge(stems=None, dirs=None, outDir=None, suffix=None, tag="", dest="", bins=None):
+def merge(stems=None, dirs=None, outDir=None, suffix=None, tag="", dest="", bins=None, scale_signal_to_pb=False):
     assert dest
     outFile = r.TFile("%s/src/auxiliaries/shapes/%s/htt_%s.inputs-Zp-13TeV.root" % (os.environ["CMSSW_BASE"], dest, tag), "RECREATE")
     outFile.mkdir(outDir)
 
     for key, (inDir, hName) in dirs.iteritems():
-        oneKey(key, inDir, stems, suffix, hName, bins, outFile, outDir)
+        oneKey(key, inDir, stems, suffix, hName, bins, outFile, outDir, scale_signal_to_pb)
 
     outFile.Close()
 
@@ -33,7 +33,7 @@ def merge(stems=None, dirs=None, outDir=None, suffix=None, tag="", dest="", bins
     multi_bdt.compare(args, variations, var, ch)
 
 
-def oneKey(key, inDir, stems, suffix, hName, bins, outFile, outDir):
+def oneKey(key, inDir, stems, suffix, hName, bins, outFile, outDir, scale_signal_to_pb):
     name_map = [("QCD_all", "QCD"),
                 ("QCDdatadriven", "QCD"),
                 # ("QCD_76XMVAID", "QCD"),
@@ -87,12 +87,11 @@ def oneKey(key, inDir, stems, suffix, hName, bins, outFile, outDir):
             # if h.GetName() == "QCD":
             #     h.Print("all")
 
-        scale_signal_to_pb = False
         if scale_signal_to_pb and proc.startswith("ggH"):
-            print "FIXME: resolve 2015 vs. 2016"
             mass = int(proc.replace("ggH", ""))
-            if xs_pb(mass):
-                h.Scale(1.0 / xs_pb(mass))  # some xs_pb --> 1 pb
+            xs_pb = xs.pb_lo(mass, year=2016)
+            if xs_pb:
+                h.Scale(1.0 / xs_pb)  # some xs_pb --> 1 pb
             else:
                 print proc, mass, "xs not found"
 
@@ -134,10 +133,9 @@ def mu():
 
 
 def had():
-    stems = ["Zprime%d" % i for i in [1750, 2000, 2500, 3000, 3500]]
+    stems = ["Zprime%d" % i for i in [1500, 2000, 2500, 3000, 3500]]
     # stems = []
-    stems += ["VV", "QCD", # "Data",
-              "tbar{t}", "W+Jets", "DY+Jets"]
+    stems += ["VV", "QCD", "Data", "tbar{t}", "W+Jets", "DY+Jets"]
 
     # Aug. 11 (files) / Aug. 15 (binning)
     # d = "Fitter/SR095-fixedQCD/CR_C"  # SS
@@ -148,13 +146,13 @@ def had():
     #               # "_CMS_zp_id_t_13TeVDown": ("%s/" % d, "Tau_weight_Down/%s" % h),
     #               }
 
-    # October SR
-    d = "Fitter/24-Oct-newSubCode"
-    h = "DiTauReconstructableMass"
-    variations = {"": ("%s/SR_nominal/" % d, "NDiTauCombinations/%s" % h),
-                  "_CMS_zp_id_t_13TeVUp": ("%s/SR_up/" % d, "NDiTauCombinations/%s" % h),
-                  "_CMS_zp_id_t_13TeVDown": ("%s/SR_down/" % d, "NDiTauCombinations/%s" % h),
-                  }
+    # # October SR
+    # d = "Fitter/24-Oct-newSubCode"
+    # h = "DiTauReconstructableMass"
+    # variations = {"": ("%s/SR_nominal/" % d, "NDiTauCombinations/%s" % h),
+    #               "_CMS_zp_id_t_13TeVUp": ("%s/SR_up/" % d, "NDiTauCombinations/%s" % h),
+    #               "_CMS_zp_id_t_13TeVDown": ("%s/SR_down/" % d, "NDiTauCombinations/%s" % h),
+    #               }
 
     # October CR
     # d = "Fitter/24-Oct-newSubCode"
@@ -164,8 +162,15 @@ def had():
     #               "_CMS_zp_id_t_13TeVDown": ("%s/CR_C_down/" % d, "NDiTauCombinations/%s" % h),
     #               }
 
-    merge(stems=stems, dirs=variations, outDir="tauTau_inclusive", suffix=".root", tag="tt", dest="Zp_1pb", bins=cfg.bins("tt"))
+    # June SR
+    d = "Fitter/2017-06-08"
+    h = "DiTauReconstructableMass"
+    variations = {"": ("%s/NORMAL/" % d, "NDiTauCombinations/%s" % h),
+                  "_CMS_zp_id_t_13TeVUp": ("%s/UP/" % d, "NDiTauCombinations/%s" % h),
+                  "_CMS_zp_id_t_13TeVDown": ("%s/DOWN/" % d, "NDiTauCombinations/%s" % h),
+                  }
 
+    merge(stems=stems, dirs=variations, outDir="tauTau_inclusive", suffix=".root", tag="tt", dest="Zp_1pb", bins=cfg.bins("tt"), scale_signal_to_pb=True)
 
 def to_h(prefix=""):
     stems = ["%s_ZPrime_%d" % (prefix, i) for i in [500, 1000, 1500, 2000, 2500, 3000]]
