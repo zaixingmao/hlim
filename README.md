@@ -28,11 +28,16 @@ scram b -j 6
 cd CMSSW_7_4_7/src/hlim
 cmsenv
 
-# mt/tt
-git clone https://github.com/gurrola/Fitter.git
+# tt
+# rm -rf Fitter/2017-06-08
+mkdir -p Fitter/2017-06-08
+rsync -av host:/x/y/z/NORMAL Fitter/2017-06-08/
+rsync -av host:/x/y/z/UP     Fitter/2017-06-08/
+rsync -av host:/x/y/z/DOWN   Fitter/2017-06-08/
 ./bsm2h.py
+./plotFromDataCard.py --unblind --logY --width --FS=tt --subdir=Zp_1pb && cp -p bkgTemplate_tt.pdf ~/public_html/tmp/
 
-# em/et
+# em/et/mt
 ## emacs cfg.py
 ## ./multi_bdt.py
 cp -p Fitter/eleTau/htt_et.inputs-Zp-13TeV.root ../auxiliaries/shapes/Zp_1pb
