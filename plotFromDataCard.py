@@ -475,21 +475,14 @@ def plot(inputFile):
 
 
     #Draw Legend
-    if options.FS == 'tt':
-        position  = (0.55, 0.85 - 0.06*5, 0.87, 0.85)
-    else:
-        position  = (0.55, 0.85 - 0.06*6, 0.87, 0.85)
-
+    position  = (0.55, 0.88 - 0.06*6, 0.87, 0.88)
     legends = setLegend(position, histos, option, options.mass)
     legends.Draw('same')
 
     latex = r.TLatex()
     latex.SetTextSize(0.05)
-    if options.FS == 'tt':
-        latex.SetNDC()
-        latex.DrawLatex(0.17, 0.85, getFinalStateLatex(options.FS))
-    else:
-        latex.DrawLatex(180, iMax*0.98, getFinalStateLatex(options.FS))
+    latex.SetNDC()
+    latex.DrawLatex(0.21, 0.85, getFinalStateLatex(options.FS))
 
     c_low.cd()
     r.gPad.SetTicky()
