@@ -80,6 +80,7 @@ def opts():
     parser.add_option("--showIntegral", dest="showIntegral", default=False, action="store_true", help="")
     parser.add_option("--FS", dest="FS", default='et', help="")
     parser.add_option("--mass", dest="mass", default='1500', help="")
+    parser.add_option("--subdir", dest="subdir", default='', help="")
 
     options, args = parser.parse_args()
     return options
@@ -109,7 +110,8 @@ def buildHistos(file, fs):
     tmpHists["data_obs"].SetMarkerSize(0.7)
     tmpHists["data_obs"].SetLineColor(r.kBlack)
 
-    for m in range(500, 3500, 500):
+    for m in [options.mass]:#range(500, 3500, 500):
+        print dir+'ggH'+str(m)
         tmpHists['ggH'+str(m)] = file.Get(dir+'ggH'+str(m)).Clone()
         tmpHists['ggH'+str(m)].Sumw2()
         tmpHists['ggH'+str(m)].Scale(getZPrimeXS(str(m))[0]*getZPrimeXS(str(m))[1])
@@ -473,13 +475,21 @@ def plot(inputFile):
 
 
     #Draw Legend
-    position  = (0.55, 0.85 - 0.06*6, 0.87, 0.85)
+    if options.FS == 'tt':
+        position  = (0.55, 0.85 - 0.06*5, 0.87, 0.85)
+    else:
+        position  = (0.55, 0.85 - 0.06*6, 0.87, 0.85)
+
     legends = setLegend(position, histos, option, options.mass)
     legends.Draw('same')
 
     latex = r.TLatex()
     latex.SetTextSize(0.05)
-    latex.DrawLatex(180, iMax*0.98, getFinalStateLatex(options.FS))
+    if options.FS == 'tt':
+        latex.SetNDC()
+        latex.DrawLatex(0.17, 0.85, getFinalStateLatex(options.FS))
+    else:
+        latex.DrawLatex(180, iMax*0.98, getFinalStateLatex(options.FS))
 
     c_low.cd()
     r.gPad.SetTicky()
@@ -504,4 +514,4 @@ def plot(inputFile):
 if __name__ == "__main__":
     options = opts()
     print options.FS
-    plot("/home/elaird/CMSSW_7_1_5/src/auxiliaries/shapes/Brown/htt_%s.inputs-Zp-13TeV.root" % options.FS)
+    plot("/home/elaird/CMSSW_7_1_5/src/auxiliaries/shapes/%s/htt_%s.inputs-Zp-13TeV.root" % (options.subdir, options.FS))
