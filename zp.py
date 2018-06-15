@@ -88,11 +88,13 @@ def add_systematics(cb):
 
     n(cb, ["TT"],  "zp_TT_xs",     1.08)
     n(cb, ["VV"],  "zp_VV_xs",     1.15)
-    n(cb, ["ZTT"], "zp_ZTT_xs",    1.10, ['em', 'et'])
-    n(cb, ["QCD"], "zp_em_QCD_LT", 1.37, ['em'])
+    n(cb, ["ZTT"], "zp_ZTT_xs",    1.10, ['em', 'et', 'mt'])
+    n(cb, ["QCD"], "zp_em_QCD_LT", 1.23, ['em'])
     n(cb, ["W"],   "zp_em_W_LT",   1.41, ['em'])
-    n(cb, ["QCD"], "zp_et_QCD_LT", 1.18, ['et'])
-    n(cb, ["W"]  , "zp_et_W_LT",  1.096, ['et'])
+    n(cb, ["QCD"], "zp_et_QCD_LT", 1.08, ['et'])
+    n(cb, ["W"]  , "zp_et_W_LT",   1.15, ['et'])
+    n(cb, ["QCD"], "zp_mt_QCD_LT", 1.11, ['mt'])
+    n(cb, ["W"]  , "zp_mt_W_LT",   1.08, ['mt'])
 
     s(cb, signal + mc + dd, "zp_scale_j",    ['em'])
     s(cb, signal + mc_nw,   "zp_scale_j",    ['mt', 'et'])        # no ddW variations
@@ -137,9 +139,9 @@ def add_systematics(cb):
     n0(cb, signal + mc_nw, ['mt'], "Trig00",  1.01)
     n0(cb, signal + mc_nw, ['mt'], "MuID00",  1.07)
     n0(cb, signal + mc_nw, ['mt'], "MMS00",   1.01)
-    n0(cb, ["W"]         , ['mt'], "Close01", 1.08)
-    n0(cb, ["ZTT"]       , ['mt'], "Close02", 1.07)
-    n0(cb, ["QCD"]       , ['mt'], "Close05", 1.68)
+    # n0(cb, ["W"]         , ['mt'], "Close01", 1.08)
+    # n0(cb, ["ZTT"]       , ['mt'], "Close02", 1.07)
+    # n0(cb, ["QCD"]       , ['mt'], "Close05", 1.68)
 
     # tt
     n0(cb, signal + mc     , ['tt'], "Trig20",  1.10)
@@ -186,7 +188,7 @@ if __name__ == "__main__":
     input_dirs = {'et' : input_dir,
                   'em' : input_dir,
                   'mt' : input_dir,
-                  # 'tt' : input_dir,
+                  'tt' : input_dir,
                   }
     chns = sorted(input_dirs.keys())
 
