@@ -46,7 +46,7 @@ cd ../..
 
 ####run
 ```bash
-cd CMSSW_7_4_7/src/hlim
+cd CMSSW_8_1_0/src/hlim
 cmsenv
 
 ./zp.py
